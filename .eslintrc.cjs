@@ -9,6 +9,7 @@ module.exports = {
     'plugin:react/recommended',
     'plugin:react/jsx-runtime',
     'plugin:react-hooks/recommended',
+    "plugin:prettier/recommended",
   ],
   // 자바스크립트 버전, 모듈 사용 여부 등을 설정
   parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },

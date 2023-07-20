@@ -13,5 +13,5 @@
     // 객체 괄호에 공백 삽입
     "bracketSpacing": true,
     // OS에 따른 코드라인 끝 처리 방식 사용
-    "endOfLine": "auto"
+    "endOfLine": "auto",
   }
