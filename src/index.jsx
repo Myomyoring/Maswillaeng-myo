@@ -1,14 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
-import { BrowserRouter } from 'react-router-dom'
-// import ProvideAuth from './auth/ProvideAuth.js'
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import routes from './routes.jsx'
+import './style/index.css'
+import GlobalStyle from './style/GlobalStyle'
+
+const router = createBrowserRouter(routes);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-   {/* <ProvideAuth> */}
-    <App />
-    {/* </ProvideAuth>  */}
+    <GlobalStyle />
+      <RouterProvider router={router} />
   </React.StrictMode>
 )
