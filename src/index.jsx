@@ -2,8 +2,8 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import routes from './routes.jsx'
-import './style/index.css'
-import GlobalStyle from './style/GlobalStyle'
+import './styles/index.css'
+import GlobalStyle from './styles/GlobalStyle'
 
 const router = createBrowserRouter(routes);
 

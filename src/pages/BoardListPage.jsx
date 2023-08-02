@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ImageLabel from '../components/boardList/ImageLabel';
-import BoardStyle from '../style/BoardStyle';
+import BoardStyle from '../styles/BoardStyle';
 import ToggleTab from '../components/boardList/ToggleTab';
 import TabBoard from '../components/boardList/TabBoard';
 import ToggleList from '../components/boardList/ToggleList';
