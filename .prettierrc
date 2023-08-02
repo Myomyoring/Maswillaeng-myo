@@ -1,17 +1,11 @@
 {
-    "semi": true,
-    "singleQuote": true,
-    "arrowParens": "always",
-    // 탭 대신 공백으로 들여쓰기
-    "useTabs": false,
-    // 들여쓰기 공백 수
-    "tabWidth": 2,
-    // 가능하면 후행 쉼표 사용
-    "trailingComma": "all",
-    // 줄 바꿈할 길이
-    "printWidth": 80,
-    // 객체 괄호에 공백 삽입
-    "bracketSpacing": true,
-    // OS에 따른 코드라인 끝 처리 방식 사용
-    "endOfLine": "auto",
-  }
+  "semi": true,
+  "singleQuote": true,
+  "arrowParens": "always",
+  "useTabs": false,
+  "tabWidth": 2,
+  "trailingComma": "all",
+  "printWidth": 100,
+  "bracketSpacing": true,
+  "endOfLine": "auto"
+}
