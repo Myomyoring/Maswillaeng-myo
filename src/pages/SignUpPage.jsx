@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
+
 import ImageInput from '../components/signUp/ImageInput';
 import DefaultUserImage from '../statics/images/default_user_image.jpg';
 import PwdCheckIcon from '../statics/svg/pwdCheckIcon';
 import PwdLockIcon from '../statics/svg/pwdLockIcon';
 import { emailRule, nicknameRule, passwordRule, phoneNumberRule } from '../utils/signUpRules';
-import axios from 'axios';
 
 const SignUpContainer = styled.div`
   ${tw`
@@ -93,19 +94,21 @@ const SignUpButton = styled.button`
   ${tw`
       w-full h-12 
       my-2
-    bg-point
+    
       font-bold text-white
     `}
+    ${props => props.disabled ? tw`bg-gray cursor-not-allowed` : tw`bg-point`}
 `;
 
 export default function SignUpPage() {
+  const [profileImg, setProfileImg] = useState(DefaultUserImage)
   const [form, setForm] = useState({
     email: '',
     password: '',
     confirmPassword: '',
     nickname: '',
     phoneNumber: '',
-    userImage: DefaultUserImage,
+    userImage: profileImg,
     introduction: '',
   });
   const { email, password, confirmPassword, nickname, phoneNumber, userImage, introduction } = form;
@@ -175,39 +178,45 @@ export default function SignUpPage() {
     };
 
     const duplicateEmail = async () => {
-      if (!emailCheck()) {
+      if (!emailRule(email)) {
         return;
       } else {
         try {
           const res = await axios.post('/api/auth/duplicate/email', { email });
+          console.log(res)
           if (res.status === 200) {
             setErrMessage({ emailErr: '사용 가능' });
             setEmailConfirm(true);
             setDuplicateCheck(false);
           }
         } catch (err) {
-          // console.log(err);
+          if(err.response.status === 409){
+          setErrMessage({ emailErr: '이미 존재하는 이메일' });
           setEmailConfirm(false);
           setDuplicateCheck(false);
         }
       }
+    }
     };
 
     const duplicateNickname = async () => {
-      if (!nicknameCheck()) {
+      if (!nicknameRule(nickname)) {
         return;
       } else {
         try {
           const res = await axios.post('/api/auth/duplicate/nickname', { nickname });
+          console.log(res)
           if (res.status === 200) {
             setErrMessage({ nickErr: '사용 가능' });
             setNicknameConfirm(true);
             setDuplicateCheck(false);
           }
         } catch (err) {
-          // console.log(err);
-          setNicknameConfirm(false);
-          setDuplicateCheck(false);
+          if(err.response.status === 409){
+            setErrMessage({ nickErr: '이미 존재하는 닉네임' });
+            setNicknameConfirm(false);
+            setDuplicateCheck(false);
+          }
         }
       }
     };
@@ -240,6 +249,7 @@ export default function SignUpPage() {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    console.log(form);
 
     if (emailConfirm && passwordConfirm && nicknameConfirm && phoneConfirm) {
       try {
@@ -249,18 +259,19 @@ export default function SignUpPage() {
           password,
           nickname,
           phoneNumber,
+          introduction
         });
         console.log(res);
         return;
-      } catch (err) {}
-    }
+      } catch (err) { console.log(err) }
+    } else return;
   };
 
   return (
     <SignUpContainer>
       <Logo>MASHILLAENG</Logo>
       <Form onSubmit={onSubmitHandler}>
-        <ImageInput image={userImage} />
+        <ImageInput defaultImg={ DefaultUserImage } image={ setProfileImg } />
         <InputBox>
           <Label>
             자기소개
@@ -301,8 +312,7 @@ export default function SignUpPage() {
             onBlur={() => ruleCheck('Password')}
             placeholder="비밀번호 입력"
           />
-          <PwdCheckIcon />
-          <PwdLockIcon />
+          { passwordConfirm ? <PwdCheckIcon /> : <PwdLockIcon /> }
         </InputBox>
         <InputBox>
           <Label>비밀번호 재확인</Label>
@@ -315,8 +325,7 @@ export default function SignUpPage() {
             placeholder="비밀번호 재입력"
           />
           <Error>{errMessage.pwdErr}</Error>
-          <PwdCheckIcon />
-          <PwdLockIcon />
+          { passwordConfirm ? <PwdCheckIcon /> : <PwdLockIcon /> }
         </InputBox>
         <InputBox>
           <Label>
@@ -344,12 +353,12 @@ export default function SignUpPage() {
             name="phoneNumber"
             value={phoneNumber}
             onChange={handleChange}
-            onBlur={() => ruleCheckCheck('PhoneNumber')}
+            onBlur={() => ruleCheck('PhoneNumber')}
             placeholder="전화번호 입력"
           />
           <Error>{errMessage.phoneErr}</Error>
         </InputBox>
-        <SignUpButton>가입하기</SignUpButton>
+        <SignUpButton disabled={ !emailConfirm || !passwordConfirm || !nicknameConfirm || !phoneConfirm } >가입하기</SignUpButton>
       </Form>
     </SignUpContainer>
   );

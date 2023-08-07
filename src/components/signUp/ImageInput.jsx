@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 import AddFileIcon from '../../statics/svg/addFileIcon';
+import axios from 'axios';
 
 const InputBox = styled.div`
   ${tw`
@@ -35,22 +36,34 @@ const Label = styled.label`
   }
 `;
 
-export default function ImageInput({ image }) {
+export default function ImageInput({ defaultImg, image }) {
   const [imgFile, setImgFile] = useState('');
   const imgRef = useRef();
 
-  const saveImgFile = () => {
+  const saveImgFile = async() => {
     const file = imgRef.current.files[0];
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = () => {
       setImgFile(reader.result);
     };
+
+    const formData = new FormData();
+    formData.append('photo', file)
+
+    try{
+      const res = await axios.post('/api/user/upload', formData);
+      image(res.data.img);
+    } catch (err) {
+      console.log("실패" + err);
+    }
+
+
   };
 
   return (
     <InputBox>
-      <Image src={imgFile ? imgFile : image} alt="프로필 이미지" />
+      <Image src={imgFile ? imgFile : defaultImg} alt="프로필 이미지" />
       <Input type="file" id="preview" accept="image/*" onChange={saveImgFile} ref={imgRef} />
       <Label htmlFor="preview">
         <AddFileIcon />
