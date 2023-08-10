@@ -94,14 +94,13 @@ const SignUpButton = styled.button`
   ${tw`
       w-full h-12 
       my-2
-    
       font-bold text-white
     `}
-    ${props => props.disabled ? tw`bg-gray cursor-not-allowed` : tw`bg-point`}
+  ${(props) => (props.disabled ? tw`bg-gray cursor-not-allowed` : tw`bg-point`)}
 `;
 
 export default function SignUpPage() {
-  const [profileImg, setProfileImg] = useState(DefaultUserImage)
+  const [profileImg, setProfileImg] = useState(DefaultUserImage);
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -183,20 +182,20 @@ export default function SignUpPage() {
       } else {
         try {
           const res = await axios.post('/api/auth/duplicate/email', { email });
-          console.log(res)
+          console.log(res);
           if (res.status === 200) {
             setErrMessage({ emailErr: '사용 가능' });
             setEmailConfirm(true);
             setDuplicateCheck(false);
           }
         } catch (err) {
-          if(err.response.status === 409){
-          setErrMessage({ emailErr: '이미 존재하는 이메일' });
-          setEmailConfirm(false);
-          setDuplicateCheck(false);
+          if (err.response.status === 409) {
+            setErrMessage({ emailErr: '이미 존재하는 이메일' });
+            setEmailConfirm(false);
+            setDuplicateCheck(false);
+          }
         }
       }
-    }
     };
 
     const duplicateNickname = async () => {
@@ -205,14 +204,14 @@ export default function SignUpPage() {
       } else {
         try {
           const res = await axios.post('/api/auth/duplicate/nickname', { nickname });
-          console.log(res)
+          console.log(res);
           if (res.status === 200) {
             setErrMessage({ nickErr: '사용 가능' });
             setNicknameConfirm(true);
             setDuplicateCheck(false);
           }
         } catch (err) {
-          if(err.response.status === 409){
+          if (err.response.status === 409) {
             setErrMessage({ nickErr: '이미 존재하는 닉네임' });
             setNicknameConfirm(false);
             setDuplicateCheck(false);
@@ -259,11 +258,13 @@ export default function SignUpPage() {
           password,
           nickname,
           phoneNumber,
-          introduction
+          introduction,
         });
         console.log(res);
         return;
-      } catch (err) { console.log(err) }
+      } catch (err) {
+        console.log(err);
+      }
     } else return;
   };
 
@@ -271,7 +272,7 @@ export default function SignUpPage() {
     <SignUpContainer>
       <Logo>MASHILLAENG</Logo>
       <Form onSubmit={onSubmitHandler}>
-        <ImageInput defaultImg={ DefaultUserImage } image={ setProfileImg } />
+        <ImageInput defaultImg={DefaultUserImage} image={setProfileImg} />
         <InputBox>
           <Label>
             자기소개
@@ -312,7 +313,7 @@ export default function SignUpPage() {
             onBlur={() => ruleCheck('Password')}
             placeholder="비밀번호 입력"
           />
-          { passwordConfirm ? <PwdCheckIcon /> : <PwdLockIcon /> }
+          {passwordConfirm ? <PwdCheckIcon /> : <PwdLockIcon />}
         </InputBox>
         <InputBox>
           <Label>비밀번호 재확인</Label>
@@ -325,7 +326,7 @@ export default function SignUpPage() {
             placeholder="비밀번호 재입력"
           />
           <Error>{errMessage.pwdErr}</Error>
-          { passwordConfirm ? <PwdCheckIcon /> : <PwdLockIcon /> }
+          {passwordConfirm ? <PwdCheckIcon /> : <PwdLockIcon />}
         </InputBox>
         <InputBox>
           <Label>
@@ -358,7 +359,11 @@ export default function SignUpPage() {
           />
           <Error>{errMessage.phoneErr}</Error>
         </InputBox>
-        <SignUpButton disabled={ !emailConfirm || !passwordConfirm || !nicknameConfirm || !phoneConfirm } >가입하기</SignUpButton>
+        <SignUpButton
+          disabled={!emailConfirm || !passwordConfirm || !nicknameConfirm || !phoneConfirm}
+        >
+          가입하기
+        </SignUpButton>
       </Form>
     </SignUpContainer>
   );
