@@ -1,8 +1,9 @@
 import axios from 'axios';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
+import { AuthContext } from '../auth/ProvideAuthContext';
 
 const Container = styled.div`
   ${tw`
@@ -75,14 +76,17 @@ const Button = styled.button`
 `;
 
 export default function SignInPage() {
+  const { signIn } = AuthContext();
+
+  const navigate = useNavigate('');
   const [errMessage, setErrMessage] = useState('');
   const [user, setUser] = useState({ email: '', password: '' });
+  const { email, password } = user;
 
   const handleChange = ({ target }) => {
     const { name, value } = target;
     setUser({ ...user, [name]: value });
   };
-  const { email, password } = user;
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -90,16 +94,12 @@ export default function SignInPage() {
       setErrMessage('아이디 혹은 비밀번호를 입력해주세요');
       return;
     }
-
     try {
-      const res = await axios.post('/api/auth/login', { email, password });
-      if (res.status === 200) {
-        console.log(res);
-        setErrMessage('로그인 성공');
-      }
+      const response = await signIn(email, password);
+      response && navigate('/', { replace: true });
+      alert('로그인 성공');
     } catch (err) {
       setErrMessage('로그인 실패');
-      console.log(err);
     }
   };
 

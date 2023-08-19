@@ -1,8 +1,9 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 import SearchIcon from '../../statics/svg/searchIcon';
+import { AuthContext } from '../../auth/ProvideAuthContext';
 
 const HeaderStyle = styled.header`
   ${tw`h-20 px-3
@@ -22,29 +23,50 @@ const HeaderStyle = styled.header`
   }
 `;
 
+const Nav = styled.div`
+  ${tw``}
+`;
+
+const Logo = styled(Link)`
+  ${tw``}
+`;
+const Board = styled(Link)`
+  ${tw``}
+`;
+const Mypage = styled(Link)`
+  ${tw``}
+`;
+const Login = styled(Link)`
+  ${tw``}
+`;
+const LogoutButton = styled.button`
+  ${tw`
+    
+  `}
+`;
+
 export default function Header() {
+  const { signOut } = AuthContext();
+  const navigate = useNavigate('');
+  const handleLogout = () => {
+    signOut();
+    navigate('/', { replace: true });
+    alert('로그아웃 완료');
+  };
   return (
     <HeaderStyle>
-      <Link className="logo" to={'/'}>
+      <Logo className="logo" to={'/'}>
         <span>Mashillaeng</span>
-      </Link>
-      <div>
+      </Logo>
+      <Nav>
         <button>
           <SearchIcon />
         </button>
-        <Link to={'/'}>
-          <span>Board</span>
-        </Link>
-
-        <Link to={'/'}>
-          <span>MyPage</span>
-        </Link>
-        <button>Logout</button>
-
-        <Link to={'/signin'}>
-          <span>Login</span>
-        </Link>
-      </div>
+        <Board to={'/'}>Board</Board>
+        <Mypage to={'/'}>MyPage</Mypage>
+        <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
+        <Login to={'/signin'}>Login</Login>
+      </Nav>
     </HeaderStyle>
   );
 }

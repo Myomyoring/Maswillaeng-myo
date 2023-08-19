@@ -8,6 +8,7 @@ import DefaultUserImage from '../statics/images/default_user_image.jpg';
 import PwdCheckIcon from '../statics/svg/pwdCheckIcon';
 import PwdLockIcon from '../statics/svg/pwdLockIcon';
 import { emailRule, nicknameRule, passwordRule, phoneNumberRule } from '../utils/signUpRules';
+import { useNavigate } from 'react-router-dom';
 
 const SignUpContainer = styled.div`
   ${tw`
@@ -100,6 +101,7 @@ const SignUpButton = styled.button`
 `;
 
 export default function SignUpPage() {
+  const navgate = useNavigate('');
   const [profileImg, setProfileImg] = useState(DefaultUserImage);
   const [form, setForm] = useState({
     email: '',
@@ -261,6 +263,8 @@ export default function SignUpPage() {
           introduction,
         });
         console.log(res);
+        navgate('/signin', { replace: true });
+        alert('회원가입 성공');
         return;
       } catch (err) {
         console.log(err);
