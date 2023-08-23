@@ -1,9 +1,12 @@
-import React from 'react'; // eslint-disable-line no-unused-vars
+import React, { useState } from 'react'; // eslint-disable-line no-unused-vars
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import axios from 'axios';
+
+import { AuthContext } from '../auth/ProvideAuthContext';
 
 const BoardWriteContainer = styled.div`
   ${tw`
@@ -142,18 +145,63 @@ export default function BoardWritePage() {
     'color',
     'background',
   ];
+  const { getUserToken } = AuthContext();
+  const [postForm, setPostForm] = useState({
+    category: '',
+    title: '',
+    content: '',
+    thumbnail: '',
+  });
+  const { category, title, content, thumbnail } = postForm;
+
+  const handleChange = ({ target }) => {
+    const { name, value } = target;
+    setPostForm({ ...postForm, [name]: value });
+    console.log(postForm);
+  };
+
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    const post = new FormData();
+    post.append('title', title);
+    post.append('content', content);
+    post.append('category', category);
+    post.append('thumbnail', thumbnail);
+
+    console.log(post);
+    try {
+      const token = getUserToken();
+      if (!token) return;
+
+      const response = await axios.post('/api/post', post, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <BoardWriteContainer>
       <TitleBox>
         <span>
           <CategorySelector>
             <option value="">카테고리 선택</option>
-            <option>RECIPE</option>
-            <option>COCKTAIL / SNACK</option>
-            <option>ETC</option>
+            <option value="recipe">RECIPE</option>
+            <option value="cocktail">COCKTAIL / SNACK</option>
+            <option value="etc">ETC</option>
           </CategorySelector>
         </span>
-        <TitleInput type="text" placeholder="제목을 입력해주세요 ." />
+        <TitleInput
+          type="text"
+          name="title"
+          value={title}
+          onChange={handleChange}
+          placeholder="제목을 입력해주세요 ."
+        />
       </TitleBox>
       <Editor>
         <ReactQuill
@@ -165,7 +213,7 @@ export default function BoardWritePage() {
       </Editor>
       <ButtonBox>
         <Button>임시 저장</Button>
-        <Button>글 게시</Button>
+        <Button onClick={onSubmitHandler}>글 게시</Button>
       </ButtonBox>
     </BoardWriteContainer>
   );

@@ -55,17 +55,22 @@ export default function useAuth() {
   const signOut = async () => {
     const user = JSON.parse(localStorage.getItem('current_user'));
     if (!user) return;
-    try {
-      if (user.id) {
+    if (user.id) {
+      try {
         await axios.post('/api/auth/logout', { userId: user.id });
+      } catch (err) {
+        console.log(err);
       }
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('expiration');
-      localStorage.removeItem('current_user');
-    } catch (err) {
-      console.log(err);
     }
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('expiration');
+    localStorage.removeItem('current_user');
+  };
+
+  const getUserToken = () => {
+    const token = localStorage.getItem('access_token');
+    return token ? token : undefined;
   };
 
   const refresh = async (token) => {
@@ -113,5 +118,5 @@ export default function useAuth() {
     }
   };
 
-  return { signIn, signOut, refresh, autoLogoutTimer, checker };
+  return { signIn, signOut, getUserToken, refresh, autoLogoutTimer, checker };
 }
