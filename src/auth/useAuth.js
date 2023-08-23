@@ -3,25 +3,29 @@ import axios from 'axios';
 export default function useAuth() {
   const getUser = async (id) => {
     if (!id) return;
-    const { data } = await axios.get(`/api/user/${id}`);
-    if (!data) return;
+    try {
+      const { data } = await axios.get(`/api/user/${id}`);
+      if (!data) return;
 
-    let currentUser = {
-      email: data.email,
-      id: id,
-      nickname: data.nickname,
-      follower: data.followerCnt,
-      following: data.followingCnt,
-      introduction: data.introduction,
-      profileImage: data.userImage,
-    };
+      let currentUser = {
+        email: data.email,
+        id: id,
+        nickname: data.nickname,
+        follower: data.followerCnt,
+        following: data.followingCnt,
+        introduction: data.introduction,
+        profileImage: data.userImage,
+      };
 
-    localStorage.setItem('current_user', JSON.stringify(currentUser));
+      localStorage.setItem('current_user', JSON.stringify(currentUser));
 
-    return data;
+      return data;
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  const setExpire = async (expireTime) => {
+  const setExpire = (expireTime) => {
     const currentTime = new Date();
     let expire = {
       current: currentTime.getTime(),
@@ -31,55 +35,83 @@ export default function useAuth() {
   };
 
   const signIn = async (email, password) => {
-    const response = await axios.post('/api/auth/login', { email, password });
-    if (response.statusText === 'OK') {
-      localStorage.setItem('access_token', response.data.accessToken);
-      localStorage.setItem('refresh_token', response.data.refreshToken);
-      const user = await getUser(response.data.userId);
-      if (!user) return;
+    try {
+      const response = await axios.post('/api/auth/login', { email, password });
+      if (response.statusText === 'OK') {
+        localStorage.setItem('access_token', response.data.accessToken);
+        localStorage.setItem('refresh_token', response.data.refreshToken);
+        const user = await getUser(response.data.userId);
+        if (!user) return;
 
-      setExpire(response.data.expires_in);
+        setExpire(response.data.expires_in);
 
-      return true;
+        return true;
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
 
   const signOut = async () => {
     const user = JSON.parse(localStorage.getItem('current_user'));
     if (!user) return;
-    if (user.id) {
-      await axios.post('/api/auth/logout', { userId: user.id });
+    try {
+      if (user.id) {
+        await axios.post('/api/auth/logout', { userId: user.id });
+      }
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('expiration');
+      localStorage.removeItem('current_user');
+    } catch (err) {
+      console.log(err);
     }
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('expiration');
-    localStorage.removeItem('current_user');
   };
 
   const refresh = async (token) => {
     if (!token) return;
-
-    const response = await axios.post('/api/auth/issue', { refreshToken: token });
-    if (response.statusText === 'OK') {
-      localStorage.setItem('access_token', response.data.accessToken);
-      localStorage.setItem('refresh_token', response.data.refreshToken);
-
-      const user = await getUser(response.data.userId);
-      if (!user) return;
+    try {
+      const response = await axios.post('/api/auth/issue', { refreshToken: token });
+      if (response.statusText === 'OK') {
+        localStorage.setItem('access_token', response.data.accessToken);
+        localStorage.setItem('refresh_token', response.data.refreshToken);
+        const user = await getUser(response.data.userId);
+        if (!user) return;
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
 
-  const logoutTimer = async () => {
+  const autoLogoutTimer = () => {
     const getTime = JSON.parse(localStorage.getItem('expiration'));
-    const today = new Date();
-    console.log(getTime);
-    // const getExpiration = getTime.expiration;
-    const autoLogout = Math.floor(today.getTime() - getTime.current / 60 / 1000);
+    if (!getTime) return;
 
-    if (autoLogout > 1) {
-      signOut();
+    const today = new Date();
+    const current = getTime.current;
+    const getExpiration = getTime.expiration;
+
+    const autoLogout = Math.floor(today.getTime() - current);
+
+    if (autoLogout > getExpiration) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('expiration');
+      localStorage.removeItem('current_user');
+
+      return true;
     }
   };
 
-  return { signIn, signOut, refresh, logoutTimer };
+  const checker = () => {
+    let check = null;
+    const token = localStorage.getItem('refresh_token');
+
+    if (token !== undefined && token !== 'undefined' && token !== null) {
+      check = autoLogoutTimer();
+      check === null ? refresh(token) : false;
+    }
+  };
+
+  return { signIn, signOut, refresh, autoLogoutTimer, checker };
 }
