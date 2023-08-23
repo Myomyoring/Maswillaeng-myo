@@ -1,19 +1,33 @@
-import { useState } from 'react';
 import axios from 'axios';
 
-const EXPIRE_TIME = 1000 * 60 * 60;
-
 export default function useAuth() {
-  // 새로고침 시 사라지는 값
-  const [user, setUser] = useState(null);
-  const [id, setId] = useState(null);
-
   const getUser = async (id) => {
     if (!id) return;
     const { data } = await axios.get(`/api/user/${id}`);
-    setId(id);
-    console.log(user);
+    if (!data) return;
+
+    let currentUser = {
+      email: data.email,
+      id: id,
+      nickname: data.nickname,
+      follower: data.followerCnt,
+      following: data.followingCnt,
+      introduction: data.introduction,
+      profileImage: data.userImage,
+    };
+
+    localStorage.setItem('current_user', JSON.stringify(currentUser));
+
     return data;
+  };
+
+  const setExpire = async (expireTime) => {
+    const currentTime = new Date();
+    let expire = {
+      current: currentTime.getTime(),
+      expiration: expireTime,
+    };
+    localStorage.setItem('expiration', JSON.stringify(expire));
   };
 
   const signIn = async (email, password) => {
@@ -24,19 +38,22 @@ export default function useAuth() {
       const user = await getUser(response.data.userId);
       if (!user) return;
 
-      setUser(user);
+      setExpire(response.data.expires_in);
+
       return true;
     }
   };
 
   const signOut = async () => {
-    if (id) {
-      await axios.post('/api/auth/logout', { userId: id });
+    const user = JSON.parse(localStorage.getItem('current_user'));
+    if (!user) return;
+    if (user.id) {
+      await axios.post('/api/auth/logout', { userId: user.id });
     }
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-
-    setUser(null);
+    localStorage.removeItem('expiration');
+    localStorage.removeItem('current_user');
   };
 
   const refresh = async (token) => {
@@ -49,9 +66,20 @@ export default function useAuth() {
 
       const user = await getUser(response.data.userId);
       if (!user) return;
-
-      setUser(user);
     }
   };
-  return { user, signIn, signOut, refresh };
+
+  const logoutTimer = async () => {
+    const getTime = JSON.parse(localStorage.getItem('expiration'));
+    const today = new Date();
+    console.log(getTime);
+    // const getExpiration = getTime.expiration;
+    const autoLogout = Math.floor(today.getTime() - getTime.current / 60 / 1000);
+
+    if (autoLogout > 1) {
+      signOut();
+    }
+  };
+
+  return { signIn, signOut, refresh, logoutTimer };
 }
