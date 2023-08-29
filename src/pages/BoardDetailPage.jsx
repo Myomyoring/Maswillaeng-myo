@@ -256,6 +256,10 @@ export default function BoardDetailPage() {
   const [replyList, setReplyList] = useState([]);
   const [reply, setReply] = useState({ replyId: 0, replyComment: '' });
   const [editReply, setEditReply] = useState(false);
+  const [selectedReply, setSelectedReply] = useState({
+    selectedReplyId: 0,
+    selectedReplyComment: '',
+  });
 
   useEffect(() => {
     getPost();
@@ -265,7 +269,7 @@ export default function BoardDetailPage() {
     try {
       const response = await axios.get(`/api/post/${postId}`);
       if (response.statusText === 'OK') {
-        console.log(response.data);
+        // console.log(response.data);
         setPost(response.data);
         setComments(response.data.commentList);
       }
@@ -277,12 +281,9 @@ export default function BoardDetailPage() {
   const getReply = async (commentId) => {
     try {
       const response = await axios.get(`/api/comment/reply/${commentId}`);
-      if (response.statusText === 'OK') {
-        response.then((res) => setReplyList(res.data));
-
-        console.log(replyList);
-        // setReplyList(response.data);
-      }
+      console.log(response.data);
+      // response.then((res) => setReplyList(res.data));
+      // setReplyList(response.data);
     } catch (err) {
       console.log(err);
     }
@@ -355,6 +356,10 @@ export default function BoardDetailPage() {
     setEditComment(true);
   };
 
+  const eEdit = (id, content) => {
+    setSelectedReply({ selectedReplyId: id, selectedReplyComment: content });
+  };
+
   const updateComment = async () => {
     try {
       const token = getUserToken();
@@ -402,7 +407,6 @@ export default function BoardDetailPage() {
 
   const createReply = (parentId) => {
     const user = currentUser();
-    console.log(user);
     setNick(user.nickname);
     setEditReply(true);
     setReply({ replyId: parentId });
@@ -451,6 +455,7 @@ export default function BoardDetailPage() {
       setLiked(true);
       getPost();
     } catch (error) {
+      setLiked(true);
       console.error(error);
     }
   };
@@ -468,6 +473,7 @@ export default function BoardDetailPage() {
       getPost();
       setLiked(false);
     } catch (error) {
+      setLiked(false);
       console.error(error);
     }
   };
@@ -587,7 +593,7 @@ export default function BoardDetailPage() {
                   </ReComments>
                 )}
                 {
-                  (async () => await getReply(comment.commentId),
+                  (getReply(comment.commentId),
                   replyList?.map((reply) => (
                     <ReComments key={reply.commentId}>
                       <Image src={reply.userImage} />
