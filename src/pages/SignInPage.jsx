@@ -78,7 +78,7 @@ const Button = styled.button`
 export default function SignInPage() {
   const { signIn } = AuthContext();
 
-  const navigate = useNavigate('');
+  const navigate = useNavigate();
   const [errMessage, setErrMessage] = useState('');
   const [user, setUser] = useState({ email: '', password: '' });
   const { email, password } = user;

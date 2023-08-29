@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // eslint-disable-line no-unused-vars
+import React, { useEffect, useState } from 'react'; // eslint-disable-line no-unused-vars
 import axios from 'axios';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -7,9 +7,9 @@ import tw from 'twin.macro';
 
 import { AuthContext } from '../auth/ProvideAuthContext';
 import Categories from '../components/common/Categories';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-const BoardWriteContainer = styled.div`
+const BoardModifyContainer = styled.div`
   ${tw`
         w-2/3 h-full
         m-auto py-20
@@ -121,29 +121,14 @@ export default function BoardWritePage() {
               'custom-color',
             ],
           },
+          { background: [] },
         ],
         ['image'],
-        ['clean'],
       ],
     },
   };
-  // const formats = [
-  //   //'font',
-  //   'header',
-  //   'bold',
-  //   'italic',
-  //   'underline',
-  //   'strike',
-  //   'blockquote',
-  //   'list',
-  //   'bullet',
-  //   'indent',
-  //   'link',
-  //   'image',
-  //   'align',
-  //   'color',
-  //   'background',
-  // ];
+
+  const { postId } = useParams();
   const navigate = useNavigate();
   const { getUserToken } = AuthContext();
   const [postForm, setPostForm] = useState({
@@ -153,6 +138,27 @@ export default function BoardWritePage() {
     thumbnail: '',
   });
   const { category, title, content, thumbnail } = postForm;
+
+  useEffect(() => {
+    getPost();
+  }, [postId]);
+
+  const getPost = async () => {
+    try {
+      const response = await axios.get(`/api/post/${postId}`);
+      if (response.statusText === 'OK') {
+        console.log(response.data.commentList);
+        setPostForm({
+          category: response.data.category,
+          title: response.data.title,
+          content: response.data.content,
+          thumbnail: response.data.thumbnail,
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const handleChange = ({ target }) => {
     const { name, value } = target;
@@ -185,21 +191,21 @@ export default function BoardWritePage() {
       const token = getUserToken();
       if (!token) return;
 
-      const response = await axios.post('/api/post', post, {
+      const response = await axios.put(`/api/post/${postId}`, post, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
       console.log(response);
-      navigate('/', { replace: true });
-      alert('게시글 작성 완료');
+      navigate(`/board/${postId}`, { replace: true });
+      alert('게시글 수정 완료');
     } catch (err) {
       console.log(err);
     }
   };
   return (
-    <BoardWriteContainer>
+    <BoardModifyContainer>
       <TitleBox>
         <span>
           <CategorySelector name="category" onChange={handleChange}>
@@ -230,12 +236,10 @@ export default function BoardWritePage() {
           onChange={contentChange}
           placeholder="글을 입력해주세요 ."
         />
-        {/* <div dangerouslySetInnerHTML={{ __html: content }} /> */}
       </Editor>
       <ButtonBox>
-        {/* <Button>임시 저장</Button> */}
-        <Button onClick={onSubmitHandler}>글 게시</Button>
+        <Button onClick={onSubmitHandler}>글 수정</Button>
       </ButtonBox>
-    </BoardWriteContainer>
+    </BoardModifyContainer>
   );
 }

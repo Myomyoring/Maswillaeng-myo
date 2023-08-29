@@ -6,14 +6,16 @@ import SignUpPage from './pages/SignUpPage';
 import NotFound from './pages/NotFoundPage';
 import UserPage from './pages/UserPage';
 import BoardWritePage from './pages/BoardWritePage';
+import BoardModifyPage from './pages/BoardModifyPage';
 
 const routes = [
   {
     element: <Layout />,
     children: [
       { path: '/', element: <BoardListPage /> },
+      { path: '/boardwrite', element: <BoardWritePage /> },
       { path: '/board/:postId', element: <BoardDetailPage /> },
-      { path: 'boardwrite', element: <BoardWritePage /> },
+      { path: '/boardmodify/:postId', element: <BoardModifyPage /> },
       { path: '/signin', element: <SignInPage /> },
       { path: '/signup', element: <SignUpPage /> },
       { path: '/mypage', element: <UserPage /> },

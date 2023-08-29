@@ -101,7 +101,7 @@ const SignUpButton = styled.button`
 `;
 
 export default function SignUpPage() {
-  const navgate = useNavigate('');
+  const navigate = useNavigate();
   const [profileImg, setProfileImg] = useState(DefaultUserImage);
   const [form, setForm] = useState({
     email: '',
@@ -263,7 +263,7 @@ export default function SignUpPage() {
           introduction,
         });
         console.log(res);
-        navgate('/signin', { replace: true });
+        navigate('/signin', { replace: true });
         alert('회원가입 성공');
         return;
       } catch (err) {

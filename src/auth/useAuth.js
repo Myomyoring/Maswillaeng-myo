@@ -73,6 +73,11 @@ export default function useAuth() {
     return token ? token : undefined;
   };
 
+  const currentUser = () => {
+    const current = JSON.parse(localStorage.getItem('current_user'));
+    return current ? current : undefined;
+  };
+
   const refresh = async (token) => {
     if (!token) return;
     try {
@@ -118,5 +123,5 @@ export default function useAuth() {
     }
   };
 
-  return { signIn, signOut, getUserToken, refresh, autoLogoutTimer, checker };
+  return { signIn, signOut, getUserToken, currentUser, refresh, autoLogoutTimer, checker };
 }

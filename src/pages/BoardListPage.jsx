@@ -17,7 +17,7 @@ export default function BoardListPage() {
   const [loading, setLoading] = useState(false);
 
   // 탭에 의해서 카테고리 포스트 종류가 바뀌어야 한다 - 프론트에서 탭 상태 관리
-  const [tab, setTab] = useState('0');
+  const [tab, setTab] = useState(0);
   // 서버에서 현재 카테고리와 같은 포스트 리스트를 담기
   // tab이 바뀔 때마다 서버에 요청 넣어야 함
   const [list, setList] = useState([]);
@@ -30,8 +30,8 @@ export default function BoardListPage() {
     setLoading(true);
     const all = async () => {
       try {
-        const res = await axios.get(`api/post/posts/${page}`);
-        setList(res.data.content);
+        const response = await axios.get(`api/post/posts/${page}`);
+        setList(response.data.content);
         console.log('전체');
       } catch (err) {
         console.log(err);
@@ -39,8 +39,8 @@ export default function BoardListPage() {
     };
     const recipe = async () => {
       try {
-        const res = await axios.get(`api/post/posts/category/RECIPE/${page}`);
-        setList(res.data.content);
+        const response = await axios.get(`api/post/posts/category/RECIPE/${page}`);
+        setList(response.data.content);
         console.log('레시피');
       } catch (err) {
         console.log(err);
@@ -48,8 +48,8 @@ export default function BoardListPage() {
     };
     const cocktail = async () => {
       try {
-        const res = await axios.get(`api/post/posts/category/COCKTAIL/${page}`);
-        setList(res.data.content);
+        const response = await axios.get(`api/post/posts/category/COCKTAIL/${page}`);
+        setList(response.data.content);
         console.log('칵테일');
       } catch (err) {
         console.log(err);
@@ -57,27 +57,29 @@ export default function BoardListPage() {
     };
     const etc = async () => {
       try {
-        const res = await axios.get(`api/post/posts/category/ETC/${page}`);
-        setList(res.data.content);
+        const response = await axios.get(`api/post/posts/category/ETC/${page}`);
+        setList(response.data.content);
         console.log('기타');
       } catch (err) {
         console.log(err);
       }
     };
+
+    //
     switch (tab) {
-      case '0':
+      case 0:
         all();
         setPage(0);
         break;
-      case '1':
+      case 1:
         recipe();
         setPage(0);
         break;
-      case '2':
+      case 2:
         cocktail();
         setPage(0);
         break;
-      case '3':
+      case 3:
         etc();
         setPage(0);
         break;

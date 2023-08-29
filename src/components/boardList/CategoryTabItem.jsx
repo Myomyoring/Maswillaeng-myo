@@ -29,11 +29,11 @@ const Li = styled.li`
     `}
 `;
 
-export default function ToggleItem({ categoryList, active, setTab }) {
+export default function ToggleItem({ categories, active, setTab }) {
   return (
     <>
-      {categoryList
-        ? categoryList.map((category) =>
+      {categories
+        ? categories.map((category) =>
             category.id === active ? (
               <ActiveLi key={category.id}>{category.title}</ActiveLi>
             ) : (
@@ -42,7 +42,7 @@ export default function ToggleItem({ categoryList, active, setTab }) {
               </Li>
             ),
           )
-        : '탭 없음'}
+        : '탭 에러'}
     </>
   );
 }

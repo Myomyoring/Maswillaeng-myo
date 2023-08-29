@@ -1,9 +1,9 @@
 import React from 'react';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
-import TabBody from './TabBody';
-import TabItem from './TabItem';
-import TabList from './TabList';
+import CategoryTabBody from './CategoryTabBody';
+import CategoryTabItem from './CategoryTabItem';
+import Categories from '../common/Categories';
 const ToggleStyle = styled.div`
   ${tw`
         w-full h-12
@@ -13,9 +13,9 @@ const ToggleStyle = styled.div`
 export default function ToggleTab({ active, setTab }) {
   return (
     <ToggleStyle>
-      <TabBody>
-        <TabItem categoryList={TabList} active={active} setTab={setTab} />
-      </TabBody>
+      <CategoryTabBody>
+        <CategoryTabItem categories={Categories} active={active} setTab={setTab} />
+      </CategoryTabBody>
     </ToggleStyle>
   );
 }

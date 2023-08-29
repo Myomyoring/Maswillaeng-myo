@@ -1,6 +1,10 @@
-import React from 'react'; // eslint-disable-line no-unused-vars
+import React, { useEffect, useState } from 'react'; // eslint-disable-line no-unused-vars
+import axios from 'axios';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
+import { AuthContext } from '../auth/ProvideAuthContext';
 import { diplayBoardDetailDate, displayCreatedAt } from '../utils/displayDate';
 
 import ShareIcon from '../statics/svg/shareIcon';
@@ -8,7 +12,8 @@ import EditIcon from '../statics/svg/editIcon';
 import DeleteIcon from '../statics/svg/deleteIcon';
 import FullHeartIcon from '../statics/svg/fullHeartIcon';
 import EmptyHeartIcon from '../statics/svg/emptyHeartIcon';
-import LockIcon from '../statics/svg/lockIcon';
+// import LockIcon from '../statics/svg/lockIcon';
+import RecommentIcon from '../statics/svg/recommentIcon';
 
 const BoardDetailContainer = styled.div`
   ${tw`
@@ -67,11 +72,17 @@ const ProfileBox = styled.div`
 
 const Content = styled.div`
   ${tw`
-        w-full h-96
+        w-full h-auto
         p-10
         border-solid border-gray
         bg-white
     `}
+
+  img {
+    ${tw`
+        m-auto
+      `}
+  }
 `;
 
 const ButtonBox = styled.div`
@@ -93,7 +104,7 @@ const Buttons = styled.span`
         border-solid border-point rounded-full
     `}
 
-  button {
+  button, a {
     ${tw`
         px-2
         `}
@@ -162,7 +173,7 @@ const CommentContents = styled.div`
   }
 `;
 
-const Button = styled.button`
+const Button = styled(Link)`
   ${tw`
         p-3
       bg-point
@@ -221,7 +232,6 @@ const ReComments = styled.div`
         flex items-center
         p-3 pl-14
         bg-lightgray
-        
   `}
 
   * {
@@ -231,121 +241,405 @@ const ReComments = styled.div`
   }
 `;
 export default function BoardDetailPage() {
-  const boardDate = diplayBoardDetailDate('2023-07-28T02:37:50.615Z');
-  const commentDate = displayCreatedAt('2023-07-28T02:37:50.615Z');
+  const [nick, setNick] = useState('');
+  const { postId } = useParams();
+  const { getUserToken, currentUser } = AuthContext();
+  const navigate = useNavigate();
+  const [post, setPost] = useState({});
+  const [liked, setLiked] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [comment, setComment] = useState('');
+  const [editComment, setEditComment] = useState(false);
+  const [selected, setSelected] = useState({ selectedId: 0, selectedComment: '' });
+
+  // ㅠㅠ 리플
+  const [replyList, setReplyList] = useState([]);
+  const [reply, setReply] = useState({ replyId: 0, replyComment: '' });
+  const [editReply, setEditReply] = useState(false);
+
+  useEffect(() => {
+    getPost();
+  }, [postId]);
+
+  const getPost = async () => {
+    try {
+      const response = await axios.get(`/api/post/${postId}`);
+      if (response.statusText === 'OK') {
+        console.log(response.data);
+        setPost(response.data);
+        setComments(response.data.commentList);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getReply = async (commentId) => {
+    try {
+      const response = await axios.get(`/api/comment/reply/${commentId}`);
+      if (response.statusText === 'OK') {
+        response.then((res) => setReplyList(res.data));
+
+        console.log(replyList);
+        // setReplyList(response.data);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const sharePost = async () => {
+    const baseUrl = 'http://localhost:3000';
+    const pathname = window.location.pathname;
+    const url = baseUrl + pathname;
+
+    try {
+      const res = await navigator.clipboard.writeText(url);
+      alert('클립 보드에 링크가 복사 되었습니다.');
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const deletePost = async () => {
+    if (window.confirm('정말 게시물을 삭제하시겠습니까?')) {
+      try {
+        const response = await axios.delete(`/api/post/${postId}`);
+        if (response.statusText === 'OK') {
+          navigate('/', { replace: true });
+          alert('삭제 되었습니다.');
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    } else return;
+  };
+
+  const commentWrite = ({ target }) => {
+    const { value } = target;
+    setComment(value);
+    console.log(comment);
+  };
+
+  const commentSubmit = async () => {
+    if (comment === '') {
+      alert('댓글을 입력해주세요');
+      return;
+    }
+    try {
+      const token = getUserToken();
+      if (!token) return;
+
+      const response = await axios.post(
+        '/api/comment',
+        { postId: postId, content: comment },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (response.statusText === 'OK') {
+        setComment('');
+        getPost();
+      }
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const edit = (id, content) => {
+    setSelected({ selectedId: id, selectedComment: content });
+    setEditComment(true);
+  };
+
+  const updateComment = async () => {
+    try {
+      const token = getUserToken();
+      if (!token) return;
+
+      const response = await axios.put(
+        '/api/comment',
+        { commentId: selected.selectedId, content: selected.selectedComment },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (response.statusText === 'OK') {
+        setEditComment(false);
+        setComment('');
+        getPost();
+      }
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const deleteComment = async (commentId) => {
+    if (window.confirm('정말 댓글을 삭제하시겠습니까?')) {
+      try {
+        const token = getUserToken();
+        if (!token) return;
+        const response = await axios.delete(`/api/comment/${commentId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.statusText === 'OK') {
+          console.log(response);
+          getPost();
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    } else return;
+  };
+
+  const createReply = (parentId) => {
+    const user = currentUser();
+    console.log(user);
+    setNick(user.nickname);
+    setEditReply(true);
+    setReply({ replyId: parentId });
+  };
+
+  const replySubmit = async () => {
+    if (reply.replyComment === '') return;
+
+    try {
+      const token = getUserToken();
+      if (!token) return;
+      const response = await axios.post(
+        `/api/comment/reply`,
+        {
+          parentId: reply.replyId,
+          content: reply.replyComment,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      console.log(response);
+      getPost();
+      setEditReply(false);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleLike = async () => {
+    try {
+      const token = getUserToken();
+      if (!token) return;
+      await axios.post(
+        `/api/like/${postId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setLiked(true);
+      getPost();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const deleteLike = async () => {
+    try {
+      const token = getUserToken();
+      if (!token) return;
+      await axios.delete(`/api/like/${postId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      getPost();
+      setLiked(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <>
       <BoardDetailContainer>
         <BoardTitle>
-          <Category>카테고리</Category>
-          <Title>타이틀</Title>
+          <Category>{post.category}</Category>
+          <Title>{post.title}</Title>
           <ProfileBox>
-            <Image src="" />
-            <div>닉네임닉네임닉네임닉네임닉네임</div>
+            <Image src={post.userImage} />
+            <div>{post.nickname}</div>
             <span>|</span>
-            <span>{boardDate}</span>
+            <span>{diplayBoardDetailDate(post.createdDate)}</span>
           </ProfileBox>
         </BoardTitle>
 
-        <Content>글박스</Content>
+        <Content
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(String(post.content)),
+          }}
+        />
 
         <ButtonBox>
           <Likes>
-            <button>
-              <EmptyHeartIcon />
-            </button>
-            <button>
-              <FullHeartIcon />
-            </button>
-            0
+            {liked ? (
+              <span onClick={deleteLike}>
+                <FullHeartIcon />
+              </span>
+            ) : (
+              <span onClick={handleLike}>
+                <EmptyHeartIcon />
+              </span>
+            )}
+            {post.likeCnt}
           </Likes>
           <Buttons>
-            <button>
+            <button onClick={() => sharePost()}>
               <ShareIcon />
             </button>
-            <button>
+            <Link to={`/boardmodify/${postId}`}>
               <EditIcon />
-            </button>
-            <button>
+            </Link>
+            <button onClick={deletePost}>
               <DeleteIcon />
             </button>
           </Buttons>
         </ButtonBox>
 
         <CommentBox>
-          <WriteComment placeholder="댓글을 작성해주세요 ." />
+          <WriteComment
+            value={comment}
+            onChange={commentWrite}
+            placeholder="댓글을 작성해주세요 ."
+          />
           <CommentContents>
-            <span>비밀 댓글</span>
+            {/* <span>비밀 댓글</span>
             <LockIcon />
-            <input type="checkbox" alt="비밀 댓글" />
-            <Button>등록</Button>
+            <input type="checkbox" alt="비밀 댓글" /> */}
+            <Button onClick={commentSubmit}>등록</Button>
           </CommentContents>
         </CommentBox>
 
         <CommentCnt>
-          댓글 <span>0</span>
+          댓글 <span>{comments.length}</span>
         </CommentCnt>
 
         <CommentList>
-          <Comments>
-            <Image src="" />
-            <Div>
-              <span>닉네임</span>
-              <span>{commentDate}</span>
-              <div>
-                컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠
+          {comments.map((comment) =>
+            editComment && selected.selectedId === comment.commentId ? (
+              <Comments key={comment.commentId}>
+                <Image src={comment.userImage} />
+                <Div>
+                  <span>{comment.nickname}</span>
+                  <span>{displayCreatedAt(comment.createDate)}</span>
+                  <WriteComment
+                    value={selected.selectedComment}
+                    onChange={(e) => {
+                      setSelected({ ...selected, selectedComment: e.target.value });
+                    }}
+                    placeholder="댓글을 작성해주세요 . "
+                  />
+                  <button onClick={updateComment}>수정</button>
+                  <button onClick={() => setEditComment(false)}>취소</button>
+                </Div>
+              </Comments>
+            ) : (
+              <div key={comment.commentId}>
+                <Comments>
+                  <Image src={comment.userImage} />
+                  <Div>
+                    <span>{comment.nickname}</span>
+                    <span>{displayCreatedAt(comment.createDate)}</span>
+                    <div>{comment.content}</div>
+                    <button onClick={() => edit(comment.commentId, comment.content)}>수정</button>
+                    <button onClick={() => createReply(comment.commentId)}>답글</button>
+                    <button>신고</button>
+                    <button onClick={() => deleteComment(comment.commentId)}>삭제</button>
+                  </Div>
+                </Comments>
+                {editReply && (
+                  <ReComments>
+                    <Image src="" />
+                    <Div>
+                      <RecommentIcon />
+                      <span>{nick}</span>
+                      <span></span>
+                      <WriteComment
+                        value={reply.replyComment}
+                        onChange={(e) => setReply({ ...reply, replyComment: e.target.value })}
+                        placeholder="댓글을 작성해주세요. "
+                      />
+                      <button onClick={() => replySubmit()}>작성</button>
+                      <button onClick={() => setEditReply(false)}>취소</button>
+                    </Div>
+                  </ReComments>
+                )}
+                {
+                  (async () => await getReply(comment.commentId),
+                  replyList?.map((reply) => (
+                    <ReComments key={reply.commentId}>
+                      <Image src={reply.userImage} />
+                      <Div>
+                        <RecommentIcon />
+                        <span>{reply.nickname}</span>
+                        <span>{displayCreatedAt(reply.createDate)}</span>
+                        <div>{reply.content}</div>
+                        <button>삭제</button>
+                        <button>답글</button>
+                        <button>신고</button>
+                      </Div>
+                    </ReComments>
+                  )))
+                }
               </div>
-              <button>삭제</button>
-              <button>답글</button>
-              <button>신고</button>
-            </Div>
-          </Comments>
-
-          <Comments>
-            <Image src="" />
-            <Div>
-              <span>닉네임</span>
-              <span>{commentDate}</span>
-              <WriteComment placeholder="댓글을 작성해주세요 . " />
-              <button>수정</button>
-              <button>취소</button>
-            </Div>
-          </Comments>
-
-          <ReComments>
-            <Image src="" />
-            <Div>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                <path d="M1.75 1h12.5c.966 0 1.75.784 1.75 1.75v9.5A1.75 1.75 0 0 1 14.25 14H8.061l-2.574 2.573A1.458 1.458 0 0 1 3 15.543V14H1.75A1.75 1.75 0 0 1 0 12.25v-9.5C0 1.784.784 1 1.75 1ZM1.5 2.75v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25H1.75a.25.25 0 0 0-.25.25Z"></path>
-                <path d="M22.5 8.75a.25.25 0 0 0-.25-.25h-3.5a.75.75 0 0 1 0-1.5h3.5c.966 0 1.75.784 1.75 1.75v9.5A1.75 1.75 0 0 1 22.25 20H21v1.543a1.457 1.457 0 0 1-2.487 1.03L15.939 20H10.75A1.75 1.75 0 0 1 9 18.25v-1.465a.75.75 0 0 1 1.5 0v1.465c0 .138.112.25.25.25h5.5a.75.75 0 0 1 .53.22l2.72 2.72v-2.19a.75.75 0 0 1 .75-.75h2a.25.25 0 0 0 .25-.25v-9.5Z"></path>
-              </svg>
-              <span>닉네임</span>
-              <span>{commentDate}</span>
-              <div>
-                컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠
-              </div>
-              <button>삭제</button>
-              <button>답글</button>
-              <button>신고</button>
-            </Div>
-          </ReComments>
-
-          <ReComments>
-            <Image src="" />
-            <Div>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                <path d="M1.75 1h12.5c.966 0 1.75.784 1.75 1.75v9.5A1.75 1.75 0 0 1 14.25 14H8.061l-2.574 2.573A1.458 1.458 0 0 1 3 15.543V14H1.75A1.75 1.75 0 0 1 0 12.25v-9.5C0 1.784.784 1 1.75 1ZM1.5 2.75v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25H1.75a.25.25 0 0 0-.25.25Z"></path>
-                <path d="M22.5 8.75a.25.25 0 0 0-.25-.25h-3.5a.75.75 0 0 1 0-1.5h3.5c.966 0 1.75.784 1.75 1.75v9.5A1.75 1.75 0 0 1 22.25 20H21v1.543a1.457 1.457 0 0 1-2.487 1.03L15.939 20H10.75A1.75 1.75 0 0 1 9 18.25v-1.465a.75.75 0 0 1 1.5 0v1.465c0 .138.112.25.25.25h5.5a.75.75 0 0 1 .53.22l2.72 2.72v-2.19a.75.75 0 0 1 .75-.75h2a.25.25 0 0 0 .25-.25v-9.5Z"></path>
-              </svg>
-              <span>닉네임</span>
-              <span>{commentDate}</span>
-              <WriteComment placeholder="댓글을 작성해주세요 . " />
-              <button>수정</button>
-              <button>취소</button>
-            </Div>
-          </ReComments>
+            ),
+          )}
+          {/* {
+            // 대댓글이 수정 중일 경우
+            editReply ? (
+              <ReComments>
+                <Image src="" />
+                <Div>
+                  <RecommentIcon />
+                  <span>닉네임</span>
+                  <span></span>
+                  <WriteComment placeholder="댓글을 작성해주세요 . " />
+                  <button>작성</button>
+                  <button onClick={setEditReply(false)}>취소</button>
+                </Div>
+              </ReComments>
+            ) : (
+              // 대댓글이 수정 중이 아닐 경우
+              <ReComments>
+                <Image src="" />
+                <Div>
+                  <RecommentIcon />
+                  <span>닉네임</span>
+                  <span></span>
+                  <div>
+                    컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠
+                  </div>
+                  <button>삭제</button>
+                  <button>답글</button>
+                  <button>신고</button>
+                </Div>
+              </ReComments>
+            )
+          } */}
         </CommentList>
-        <Button>목록으로</Button>
+        <Button to={'/'}>목록으로</Button>
       </BoardDetailContainer>
     </>
   );
