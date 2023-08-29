@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // eslint-disable-line no-unused-vars
+import React, { useMemo, useRef, useState } from 'react'; // eslint-disable-line no-unused-vars
 import axios from 'axios';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -74,59 +74,122 @@ const Button = styled.button`
 `;
 
 export default function BoardWritePage() {
-  const modules = {
-    toolbar: {
-      container: [
-        [{ header: [1, 2, 3, 4, 5, 6, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        ['link'],
-        [
-          {
-            color: [
-              '#000000',
-              '#e60000',
-              '#ff9900',
-              '#ffff00',
-              '#008a00',
-              '#0066cc',
-              '#9933ff',
-              '#ffffff',
-              '#facccc',
-              '#ffebcc',
-              '#ffffcc',
-              '#cce8cc',
-              '#cce0f5',
-              '#ebd6ff',
-              '#bbbbbb',
-              '#f06666',
-              '#ffc266',
-              '#ffff66',
-              '#66b966',
-              '#66a3e0',
-              '#c285ff',
-              '#888888',
-              '#a10000',
-              '#b26b00',
-              '#b2b200',
-              '#006100',
-              '#0047b2',
-              '#6b24b2',
-              '#444444',
-              '#5c0000',
-              '#663d00',
-              '#666600',
-              '#003700',
-              '#002966',
-              '#3d1466',
-              'custom-color',
-            ],
-          },
-        ],
-        ['image'],
-        ['clean'],
-      ],
-    },
+  const quillRef = useRef(null);
+  const [postForm, setPostForm] = useState({
+    category: '',
+    title: '',
+    content: '',
+    thumbnail: '',
+  });
+  const [editorValue, setEditorValue] = useState('');
+  const changeEditorValue = (e) => {
+    setEditorValue(e);
+    console.log(editorValue);
   };
+  const [thumbnail, setThumbnail] = useState('');
+  const [uploadImages] = useState([]);
+  const getUploadImageArray = (imageArray) => {
+    if (imageArray.length > 0) {
+      setThumbnail(imageArray[0]);
+      console.log(thumbnail);
+    }
+  };
+  const { category, title, content } = postForm;
+  const imageHandler = () => {
+    console.log('핸들러시작');
+    console.log(quillRef?.current);
+
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+
+    input.onchange = async () => {
+      const file = input.files[0];
+
+      const formData = new FormData();
+      formData.append('photo', file);
+      try {
+        const token = getUserToken();
+        if (!token) return;
+        const response = await axios.post('/api/post/upload', formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const IMG_URL = response.data.img;
+        uploadImages.push(IMG_URL);
+        getUploadImageArray(uploadImages);
+
+        const range = quillRef.current.getEditor().getSelection();
+        quillRef.current.getEditor().insertEmbed(range.index, 'image', IMG_URL);
+        input.value = '';
+        // document.body.removeChild(input);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    input.click();
+  };
+
+  const modules = useMemo(
+    () => ({
+      toolbar: {
+        container: [
+          [{ header: [1, 2, 3, 4, 5, 6, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          ['link'],
+          [
+            {
+              color: [
+                '#000000',
+                '#e60000',
+                '#ff9900',
+                '#ffff00',
+                '#008a00',
+                '#0066cc',
+                '#9933ff',
+                '#ffffff',
+                '#facccc',
+                '#ffebcc',
+                '#ffffcc',
+                '#cce8cc',
+                '#cce0f5',
+                '#ebd6ff',
+                '#bbbbbb',
+                '#f06666',
+                '#ffc266',
+                '#ffff66',
+                '#66b966',
+                '#66a3e0',
+                '#c285ff',
+                '#888888',
+                '#a10000',
+                '#b26b00',
+                '#b2b200',
+                '#006100',
+                '#0047b2',
+                '#6b24b2',
+                '#444444',
+                '#5c0000',
+                '#663d00',
+                '#666600',
+                '#003700',
+                '#002966',
+                '#3d1466',
+                'custom-color',
+              ],
+            },
+          ],
+          ['image'],
+          ['clean'],
+        ],
+        handlers: {
+          image: imageHandler,
+        },
+      },
+    }),
+    [],
+  );
   // const formats = [
   //   //'font',
   //   'header',
@@ -144,15 +207,9 @@ export default function BoardWritePage() {
   //   'color',
   //   'background',
   // ];
+
   const navigate = useNavigate();
   const { getUserToken } = AuthContext();
-  const [postForm, setPostForm] = useState({
-    category: '',
-    title: '',
-    content: '',
-    thumbnail: '',
-  });
-  const { category, title, content, thumbnail } = postForm;
 
   const handleChange = ({ target }) => {
     const { name, value } = target;
@@ -161,6 +218,7 @@ export default function BoardWritePage() {
   };
 
   const contentChange = (content) => {
+    console.log(content);
     setPostForm({ ...postForm, content: content });
     console.log(postForm);
   };
@@ -175,7 +233,7 @@ export default function BoardWritePage() {
 
     const post = new FormData();
     post.append('title', title);
-    post.append('content', content);
+    post.append('content', editorValue);
     post.append('category', category);
     post.append('thumbnail', thumbnail);
 
@@ -226,8 +284,9 @@ export default function BoardWritePage() {
         <ReactQuill
           theme="snow"
           modules={modules}
-          value={content}
-          onChange={contentChange}
+          ref={quillRef}
+          value={editorValue}
+          onChange={changeEditorValue}
           placeholder="글을 입력해주세요 ."
         />
         {/* <div dangerouslySetInnerHTML={{ __html: content }} /> */}
