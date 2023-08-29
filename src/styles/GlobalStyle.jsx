@@ -1,4 +1,4 @@
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
     * {
@@ -7,8 +7,11 @@ const GlobalStyle = createGlobalStyle`
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        background: #FBF9EC;
         outline: 1px solid #cdd;
+    }
+
+    html {
+        background: #FBF9EC;
     }
 
     a {
@@ -16,6 +19,7 @@ const GlobalStyle = createGlobalStyle`
     }
 
     button {
+        background: none;
         font-size: 16px;
         border: none;
         cursor: pointer;
@@ -27,6 +31,15 @@ const GlobalStyle = createGlobalStyle`
 
     li {
         list-style-type: none;
+    }
+
+    textarea {
+        border: none;
+        resize: none;
+    }
+    
+    textarea::placeholder {
+        color: lightgray;
     }
 
     .logo {
