@@ -1,29 +1,22 @@
-import React from 'react';
+import { styled } from 'styled-components';
+import tw from 'twin.macro';
 
-const MyPageToggle = ({ userContent, setUserContent }) => {
-  const contentToggle = () => {
-    setUserContent(!userContent);
-  };
+import CategoryTabBody from '../boardList/CategoryTabBody';
+import CategoryTabItem from '../boardList/CategoryTabItem';
+import UserCategories from './UserCategories';
+
+const ToggleStyle = styled.div`
+  ${tw`
+    // w-full
+  `}
+`;
+
+export default function UserTab({ active, setTab }) {
   return (
-    <>
-      <div className="w-full h-20 flex text-center p-5">
-        <div
-          className={
-            userContent ? 'w-1/2 mx-3' : 'font-bold w-1/2 mx-3 border-b-2 border-b-[#EA4E4E]'
-          }
-        >
-          <button onClick={contentToggle}>작성한 글</button>
-        </div>
-        <div
-          className={
-            userContent ? 'font-bold w-1/2 mx-3 border-b-2 border-b-[#EA4E4E]' : 'w-1/2 mx-3'
-          }
-        >
-          <button onClick={contentToggle}>좋아요한 글</button>
-        </div>
-      </div>
-    </>
+    <ToggleStyle>
+      <CategoryTabBody>
+        <CategoryTabItem categories={UserCategories} active={active} setTab={setTab} />
+      </CategoryTabBody>
+    </ToggleStyle>
   );
-};
-
-export default MyPageToggle;
+}

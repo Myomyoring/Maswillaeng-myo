@@ -15,15 +15,8 @@ const Pagination = styled.div`
 
 export default function BoardListPage() {
   const [loading, setLoading] = useState(false);
-
-  // 탭에 의해서 카테고리 포스트 종류가 바뀌어야 한다 - 프론트에서 탭 상태 관리
   const [tab, setTab] = useState(0);
-  // 서버에서 현재 카테고리와 같은 포스트 리스트를 담기
-  // tab이 바뀔 때마다 서버에 요청 넣어야 함
   const [list, setList] = useState([]);
-
-  // 카테고리가 바뀌며 리스트를 새로 불러 올 경우, 0으로 초기화, 페이지 네이션 버튼이 클릭될 때 바뀌는 값
-  // 바뀔 때마다 서버에 요청 넣어야 함
   const [page, setPage] = useState(0);
 
   useEffect(() => {
@@ -32,6 +25,7 @@ export default function BoardListPage() {
       try {
         const response = await axios.get(`api/post/posts/${page}`);
         setList(response.data.content);
+        console.log(response.data.content);
         console.log('전체');
       } catch (err) {
         console.log(err);
@@ -90,7 +84,7 @@ export default function BoardListPage() {
     setLoading(false);
   }, [tab]);
 
-  useEffect(() => {}, [page]);
+  // useEffect(() => {}, [page]);
 
   return (
     <>

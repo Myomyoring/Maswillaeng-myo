@@ -3,6 +3,7 @@ import axios from 'axios';
 export default function useAuth() {
   const getUser = async (id) => {
     if (!id) return;
+
     try {
       const { data } = await axios.get(`/api/user/${id}`);
       if (!data) return;

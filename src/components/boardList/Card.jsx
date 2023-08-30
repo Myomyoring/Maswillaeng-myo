@@ -90,8 +90,8 @@ export default function TabBoard({ posts }) {
     <>
       <TabBoardStyle>
         <Card>
-          {posts.length !== 0 ? (
-            posts.map((post) => (
+          {posts?.length !== 0 ? (
+            posts?.map((post) => (
               <CardContents key={post.id}>
                 <Link to={`/board/${post.id}`}>
                   <img src={post.thumbnail ? post.thumbnail : DefaultThumbnail} />
