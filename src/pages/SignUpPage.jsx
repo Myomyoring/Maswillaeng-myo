@@ -28,10 +28,9 @@ const Logo = styled.h1`
 
 const Form = styled.form``;
 
-const Label = styled.label`
+const InputName = styled.div`
   ${tw`
       pt-2
-      block
       text-sm
   `}
 `;
@@ -130,7 +129,7 @@ export default function SignUpPage() {
     setForm({ ...form, [name]: value });
   };
 
-  const ruleCheck = async (checkValue) => {
+  const ruleCheck = (checkValue) => {
     const emailCheck = () => {
       if (!emailRule(email)) {
         setErrMessage({ emailErr: '올바른 형식으로 작성해주세요.' });
@@ -278,10 +277,10 @@ export default function SignUpPage() {
       <Form onSubmit={onSubmitHandler}>
         <ImageInput defaultImg={DefaultUserImage} image={setProfileImg} />
         <InputBox>
-          <Label>
+          <InputName>
             자기소개
             <Span>* 최대 30자까지 입력</Span>
-          </Label>
+          </InputName>
           <Input
             type="text"
             name="introduction"
@@ -292,7 +291,7 @@ export default function SignUpPage() {
           />
         </InputBox>
         <InputBox>
-          <Label>이메일</Label>
+          <InputName>이메일</InputName>
           <Input
             type="text"
             name="email"
@@ -305,10 +304,10 @@ export default function SignUpPage() {
           <Error>{errMessage.emailErr}</Error>
         </InputBox>
         <InputBox>
-          <Label>
+          <InputName>
             비밀번호
             <Span>* 영문, 숫자 포함 8~16자 입력</Span>
-          </Label>
+          </InputName>
           <Input
             type="password"
             name="password"
@@ -320,7 +319,7 @@ export default function SignUpPage() {
           {passwordConfirm ? <PwdCheckIcon /> : <PwdLockIcon />}
         </InputBox>
         <InputBox>
-          <Label>비밀번호 재확인</Label>
+          <InputName>비밀번호 재확인</InputName>
           <Input
             type="password"
             name="confirmPassword"
@@ -333,10 +332,10 @@ export default function SignUpPage() {
           {passwordConfirm ? <PwdCheckIcon /> : <PwdLockIcon />}
         </InputBox>
         <InputBox>
-          <Label>
+          <InputName>
             닉네임
             <Span>* 한글, 영문 2~10자 입력</Span>
-          </Label>
+          </InputName>
           <Input
             type="text"
             name="nickname"
@@ -349,10 +348,10 @@ export default function SignUpPage() {
           <Error>{errMessage.nickErr}</Error>
         </InputBox>
         <InputBox>
-          <Label>
+          <InputName>
             휴대전화
             <Span>ex) 01012345678</Span>
-          </Label>
+          </InputName>
           <Input
             type="text"
             name="phoneNumber"

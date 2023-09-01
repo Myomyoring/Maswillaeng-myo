@@ -8,8 +8,10 @@ import { useEffect, useState } from 'react';
 const ContentsStyle = styled.div`
   ${tw`
     // w-full
-    p-10
+    h-screen
+    // p-10
     text-center
+    overflow-hidden
   `}
 `;
 

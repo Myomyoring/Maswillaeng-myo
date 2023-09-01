@@ -1,9 +1,15 @@
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../auth/ProvideAuthContext';
+
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
+import EditProfileModal from './EditProfileModal';
+import { useState } from 'react';
 
 const ProfileStyle = styled.div`
   ${tw`
-    w-1/3 h-full
+    w-1/3 h-screen
     m-auto mx-2.5
     text-center
   `}
@@ -82,26 +88,72 @@ const FollowBtn = styled.button`
   `}
 `;
 
-const UserProfile = ({ member }) => {
+// , {
+//   headers: {
+//     Authorization: `Bearer `,
+//   },
+// }
+
+const UserProfile = ({ visitor, user }) => {
+  console.log('v', visitor);
+  console.log('u', user);
+  const navigate = useNavigate();
+  const { getUserToken } = AuthContext();
+  const [modal, setModal] = useState(false);
+
+  // 서버 쪽  로직이 완전하지 않아 에러 발생 함
+  /* 서버 문제 : 유저 id를 삭제 할 경우 이를 참조하는 like쪽 테이블에 대한 처리가 되어 있지 않음 */
+  const handleDelete = async () => {
+    if (window.confirm('정말 탈퇴하시겠습니까?')) {
+      try {
+        const token = getUserToken();
+        if (!token) return;
+
+        const response = await axios.delete(`/api/user`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response);
+
+        if (response.statusText === 'OK') {
+          navigate(`/signin`, { replace: true });
+          alert('이용해주셔서 감사합니다.');
+        }
+      } catch (err) {
+        alert('탈퇴를 처리하는 중 문제가 생겼습니다.');
+        console.log(err);
+      }
+    } else {
+      return;
+    }
+  };
+
   return (
-    <ProfileStyle>
-      <ProfileImage>
-        <img src={member.userImage} />
-      </ProfileImage>
-      <Nickname>{member.nickname}</Nickname>
-      <FollowContent>
-        <span>팔로워</span>
-        <span>{member.followerCnt === undefined ? '0' : member.followerCnt}</span>
-        <span>팔로잉</span>
-        <span>{member.followingCnt === undefined ? '0' : member.followingCnt}</span>
-      </FollowContent>
-      <Introduction>{member.introduction}zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz</Introduction>
-      <Buttons>
-        <ProfileEditBtn>프로필 수정</ProfileEditBtn>
-        <DeleteUserBtn>회원 탈퇴</DeleteUserBtn>
-      </Buttons>
-      <FollowBtn>팔로우</FollowBtn>
-    </ProfileStyle>
+    <>
+      <ProfileStyle>
+        <ProfileImage>
+          <img src={user ? visitor.profileImage : visitor.userImage} />
+        </ProfileImage>
+        <Nickname>{visitor.nickname}</Nickname>
+        <FollowContent>
+          <span>팔로워</span>
+          <span>{visitor.followerCnt === undefined ? '0' : visitor.followerCnt}</span>
+          <span>팔로잉</span>
+          <span>{visitor.followingCnt === undefined ? '0' : visitor.followingCnt}</span>
+        </FollowContent>
+        <Introduction>{visitor.introduction}zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz</Introduction>
+        {user ? (
+          <Buttons>
+            <ProfileEditBtn onClick={() => setModal(true)}>프로필 수정</ProfileEditBtn>
+            <DeleteUserBtn onClick={handleDelete}>회원 탈퇴</DeleteUserBtn>
+          </Buttons>
+        ) : (
+          <FollowBtn>팔로우</FollowBtn>
+        )}
+      </ProfileStyle>
+      {modal ? <EditProfileModal setModal={setModal} user={visitor} /> : null}
+    </>
   );
 };
 export default UserProfile;

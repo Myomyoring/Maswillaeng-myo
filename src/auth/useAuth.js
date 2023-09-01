@@ -76,7 +76,7 @@ export default function useAuth() {
 
   const currentUser = () => {
     const current = JSON.parse(localStorage.getItem('current_user'));
-    return current ? current : undefined;
+    return current ? current : alert('로그인 먼저 해주세요!');
   };
 
   const refresh = async (token) => {

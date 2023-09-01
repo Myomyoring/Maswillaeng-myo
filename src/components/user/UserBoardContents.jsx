@@ -5,8 +5,8 @@ import tw from 'twin.macro';
 
 const ContentsStyle = styled.div`
   ${tw`
-        w-2/3 h-full
-        mx-2.5
+        w-2/3 h-screen
+        // mx-2.5
         // flex justify-center items-center
 `}
 `;

@@ -50,8 +50,11 @@ export default function Header() {
   const navigate = useNavigate('');
 
   const handleMypage = () => {
-    const { nickname } = currentUser();
-    navigate(`/user/${nickname}`, { replace: true });
+    const user = currentUser();
+    if (user === undefined) {
+      return;
+    }
+    navigate(`/user/${user.nickname}`, { replace: true });
   };
 
   const handleLogout = () => {

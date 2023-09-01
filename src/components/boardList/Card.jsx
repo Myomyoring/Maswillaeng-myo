@@ -99,7 +99,7 @@ export default function TabBoard({ posts }) {
                   <span>[-]</span>
                 </Link>
                 <Content>
-                  <Link to={'/'}>{post.nickname}</Link>
+                  <Link to={`/user/${post.nickname}`}>{post.nickname}</Link>
                   <span>{displayCreatedAt(post.createdDate)}</span>
                   <span>👀 -</span>
                   <span>💗 -</span>
