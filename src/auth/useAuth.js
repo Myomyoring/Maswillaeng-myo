@@ -7,6 +7,8 @@ export default function useAuth() {
     try {
       const { data } = await axios.get(`/api/user/${id}`);
       if (!data) return;
+      // localStorage.removeItem('current_user');
+      console.log(data);
 
       let currentUser = {
         email: data.email,
@@ -38,6 +40,7 @@ export default function useAuth() {
   const signIn = async (email, password) => {
     try {
       const response = await axios.post('/api/auth/login', { email, password });
+      console.log(response);
       if (response.statusText === 'OK') {
         localStorage.setItem('access_token', response.data.accessToken);
         localStorage.setItem('refresh_token', response.data.refreshToken);
@@ -49,7 +52,7 @@ export default function useAuth() {
         return true;
       }
     } catch (err) {
-      console.log(err);
+      return false;
     }
   };
 
@@ -124,5 +127,5 @@ export default function useAuth() {
     }
   };
 
-  return { signIn, signOut, getUserToken, currentUser, refresh, autoLogoutTimer, checker };
+  return { getUser, signIn, signOut, getUserToken, currentUser, refresh, autoLogoutTimer, checker };
 }

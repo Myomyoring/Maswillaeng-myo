@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../auth/ProvideAuthContext';
 import UserProfile from '../components/user/UserProfile';
@@ -23,6 +23,7 @@ export default function UserPage() {
   const [user, setUser] = useState(false);
   const [visitor, setVisitor] = useState({});
   const [tab, setTab] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const user = currentUser();
@@ -37,9 +38,15 @@ export default function UserPage() {
   }, [nickname]);
 
   const getVisitor = async () => {
-    const { data } = await axios.get(`/api/user/nickname?nickname=${nickname}`);
-    console.log('data', data);
-    setVisitor(data);
+    try {
+      const { data } = await axios.get(`/api/user/nickname?nickname=${nickname}`);
+      console.log('data', data);
+      setVisitor(data);
+    } catch (err) {
+      if (err.response.status === 500) {
+        navigate('404', { replace: true });
+      }
+    }
   };
 
   return (

@@ -142,7 +142,7 @@ const UserProfile = ({ visitor, user }) => {
           <span>팔로잉</span>
           <span>{visitor.followingCnt === undefined ? '0' : visitor.followingCnt}</span>
         </FollowContent>
-        <Introduction>{visitor.introduction}zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz</Introduction>
+        <Introduction>{visitor.introduction}</Introduction>
         {user ? (
           <Buttons>
             <ProfileEditBtn onClick={() => setModal(true)}>프로필 수정</ProfileEditBtn>

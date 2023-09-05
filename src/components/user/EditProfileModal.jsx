@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 
-import { emailRule, nicknameRule, passwordRule, phoneNumberRule } from '../../utils/signUpRules';
+import { nicknameRule, passwordRule, phoneNumberRule } from '../../utils/signUpRules';
 import ImageInput from '../signUp/ImageInput';
 import DefaultUserImage from '../../statics/images/default_user_image.jpg';
 import axios from 'axios';
 import { AuthContext } from '../../auth/ProvideAuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Modal = styled.div`
   ${tw`
@@ -134,7 +135,8 @@ const SubmitButton = styled.button`
 `;
 
 export default function EditProfileModal({ setModal, user }) {
-  const { getUserToken } = AuthContext();
+  const navigate = useNavigate();
+  const { getUserToken, getUser, refresh } = AuthContext();
   const [profileImg, setProfileImg] = useState(user.profileImage);
   const [form, setForm] = useState({
     userImage: profileImg,
@@ -158,35 +160,49 @@ export default function EditProfileModal({ setModal, user }) {
 
   const handleChange = ({ target }) => {
     const { name, value } = target;
-    setForm({ ...form, [name]: value });
-    console.log(form);
+
+    if (name === 'newPwd' || name === 'newConfirmPwd') {
+      setNewPwds({ ...newPwds, [name]: value });
+      console.log(newPwds);
+    } else {
+      setForm({ ...form, [name]: value });
+      console.log(form);
+    }
   };
 
-  const newPwdsChange = ({ target }) => {
-    const { name, value } = target;
-    setNewPwds({ ...newPwds, [name]: value });
-    console.log(newPwds);
-  };
+  const [nicknameConfirm, setNicknameConfirm] = useState(false);
+  const [passwordConfirm, setPasswordConfirm] = useState(false);
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState(false);
+  const [phoneConfirm, setPhoneConfirm] = useState(false);
 
-  const ruleCheck = (checkValue) => {
+  const ruleCheck = ({ target }) => {
+    const { name } = target;
+
     const nicknameCheck = async () => {
       if (!nicknameRule(nickname)) {
         setErrMessage({
           nickErr: '2~10자리의 한글이나 영문으로 이루어진 닉네임을 작성해주세요.',
         });
+        return;
       } else {
         try {
           const response = await axios.post('/api/auth/duplicate/nickname', { nickname });
           console.log(response);
-          if (response.status === 200) {
+          if (response.statusText === 'OK') {
             setErrMessage({ nickErr: '사용 가능' });
-            // setNicknameConfirm(true);
-            // setDuplicateCheck(false);
+            setNicknameConfirm(true);
           }
         } catch (err) {
           console.log(err);
           if (err.response.status === 409) {
-            setErrMessage({ nickErr: '이미 존재하는 닉네임' });
+            if (nickname === user.nickname) {
+              setErrMessage({ nickErr: '현재 닉네임과 같습니다' });
+              setNicknameConfirm(true);
+            } else {
+              setErrMessage({ nickErr: '이미 존재하는 닉네임' });
+              setNicknameConfirm(false);
+              return;
+            }
           }
         }
       }
@@ -201,7 +217,7 @@ export default function EditProfileModal({ setModal, user }) {
         const token = getUserToken();
         if (!token) return;
 
-        const { data } = await axios.post(
+        const res = await axios.post(
           '/api/auth/password',
           {
             userId: user.id,
@@ -213,9 +229,15 @@ export default function EditProfileModal({ setModal, user }) {
             },
           },
         );
-        if (data) {
+        console.log(res);
+        if (res.data) {
           setErrMessage({ passwordErr: '비밀번호가 일치합니다' });
-        } else setErrMessage({ passwordErr: '비밀번호가 일치하지 않습니다' });
+          setPasswordConfirm(true);
+        } else {
+          setErrMessage({ passwordErr: '비밀번호가 일치하지 않습니다' });
+          setPasswordConfirm(false);
+          return;
+        }
       } catch (err) {
         console.log(err);
       }
@@ -226,36 +248,41 @@ export default function EditProfileModal({ setModal, user }) {
         setErrMessage({
           phoneNumberErr: "'-' 를 제외한 10~11자의 올바른 핸드폰 번호를 작성해주세요.",
         });
+        setPhoneConfirm(false);
         return;
-      } else
+      } else {
         setErrMessage({
           phoneNumberErr: '',
         });
-      //   if () {
-      //     setErrMessage({
-      //       phoneNumberErr: "'-' 를 제외한 10~11자의 올바른 핸드폰 번호를 작성해주세요.",
-      //     });
-      //     return;
-      //   }
+        setPhoneConfirm(true);
+      }
     };
 
     const newPasswordCheck = () => {
-      if (newPwd === '' && newConfirmPwd === '') return;
+      console.log('동작');
+      if (newPwd === '' && newConfirmPwd === '') {
+        setErrMessage({ newPwdErr: '' });
+        setNewPasswordConfirm(false);
+        return;
+      }
 
       if (newPwd === newConfirmPwd) {
         if (passwordRule(newPwd)) {
           setErrMessage({ newPwdErr: '새 비밀번호가 일치합니다' });
+          setNewPasswordConfirm(true);
         } else {
           setErrMessage({ newPwdErr: '영문과 숫자를 포함하여 8~15자를 작성해주세요' });
+          setNewPasswordConfirm(false);
           return;
         }
       } else {
         setErrMessage({ newPwdErr: '새 비밀번호가 일치하지 않습니다' });
+        setNewPasswordConfirm(false);
         return;
       }
     };
 
-    switch (checkValue) {
+    switch (name) {
       case 'nickname':
         nicknameCheck();
         break;
@@ -267,10 +294,57 @@ export default function EditProfileModal({ setModal, user }) {
         break;
       case 'newPwd':
         newPasswordCheck();
+        break;
+      case 'newConfirmPwd':
+        newPasswordCheck();
+        break;
       default:
         return false;
     }
   };
+
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    console.log(form);
+
+    if (nicknameConfirm && passwordConfirm && phoneConfirm) {
+      try {
+        const token = getUserToken();
+        if (!token) return;
+
+        const response = await axios.put(
+          `/api/user`,
+          {
+            password: newPasswordConfirm ? newPwds.newPwd : password,
+            phoneNumber,
+            nickname,
+            userImage,
+            introduction,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        console.log(response);
+        if (response.statusText === 'OK') {
+          getUser(user.id);
+          setModal(false);
+          navigate(`/user/${nickname}`, { replace: true });
+          alert('프로필 수정이 완료되었습니다.');
+        }
+      } catch (err) {
+        console.log(err);
+        alert('프로필 수정 에러');
+      }
+    } else {
+      alert('입력한 정보를 다시 확인해주세요.');
+      return;
+    }
+  };
+
   return (
     <Modal>
       <Container>
@@ -279,7 +353,7 @@ export default function EditProfileModal({ setModal, user }) {
           <CloseButton onClick={() => setModal(false)}>X</CloseButton>
         </Cap>
 
-        <Form>
+        <Form onSubmit={onSubmitHandler}>
           <ProfileImage>
             <ImageInput defaultImg={DefaultUserImage} image={setProfileImg} />
           </ProfileImage>
@@ -297,7 +371,9 @@ export default function EditProfileModal({ setModal, user }) {
                 onChange={handleChange}
                 placeholder="닉네임 입력"
               />
-              <Button onClick={() => ruleCheck('nickname')}>중복확인</Button>
+              <Button name="nickname" onClick={ruleCheck}>
+                중복확인
+              </Button>
               <Error>{errMessage.nickErr}</Error>
             </InputDiv>
             <InputDiv>
@@ -307,7 +383,7 @@ export default function EditProfileModal({ setModal, user }) {
                 name="password"
                 value={password}
                 onChange={handleChange}
-                onBlur={() => ruleCheck('password')}
+                onBlur={ruleCheck}
                 placeholder="비밀번호 입력"
               />
               <Error>{errMessage.passwordErr}</Error>
@@ -321,8 +397,8 @@ export default function EditProfileModal({ setModal, user }) {
                 type="password"
                 name="newPwd"
                 value={newPwd}
-                onChange={newPwdsChange}
-                onBlur={() => ruleCheck('newPwd')}
+                onChange={handleChange}
+                onBlur={ruleCheck}
                 placeholder="새 비밀번호 입력"
               />
             </InputDiv>
@@ -332,8 +408,8 @@ export default function EditProfileModal({ setModal, user }) {
                 type="password"
                 name="newConfirmPwd"
                 value={newConfirmPwd}
-                onChange={newPwdsChange}
-                onBlur={() => ruleCheck('newPwd')}
+                onChange={handleChange}
+                onBlur={ruleCheck}
                 placeholder="새 비밀번호 확인"
               />
               <Error>{errMessage.newPwdErr}</Error>
@@ -348,7 +424,7 @@ export default function EditProfileModal({ setModal, user }) {
                 name="phoneNumber"
                 value={phoneNumber}
                 onChange={handleChange}
-                onBlur={() => ruleCheck('phoneNumber')}
+                onBlur={ruleCheck}
                 placeholder="전화번호 입력"
               />
               <Error>{errMessage.phoneNumberErr}</Error>
@@ -356,7 +432,7 @@ export default function EditProfileModal({ setModal, user }) {
             <InputDiv>
               <InputName>
                 자기소개
-                <Span>* 최대 30자까지 입력</Span>
+                <Span>* 최대 30자까지 입력 가능</Span>
               </InputName>
               <Input
                 type="text"
