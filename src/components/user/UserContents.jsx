@@ -1,15 +1,14 @@
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 
-// import displayCreatedAt from '../../utils/displayDate';
 import Card from '../boardList/Card';
 import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { AuthContext } from '../../auth/ProvideAuthContext';
 
 const ContentsStyle = styled.div`
   ${tw`
-    // w-full
     h-screen
-    // p-10
     text-center
     overflow-hidden
   `}
@@ -101,16 +100,39 @@ const likeList = [
 
 const writeList = [];
 
-export default function UserContents({ active }) {
+export default function UserContents({ visitor, active }) {
+  const { getUserToken } = AuthContext();
   const [list, setList] = useState([]);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     if (active === 0) {
-      setList(likeList);
+      getLikeList();
     } else if (active === 1) {
-      setList(writeList);
+      getWriteList();
     }
   }, [active]);
+
+  const getLikeList = async () => {
+    setList([]);
+  };
+  const getWriteList = async () => {
+    try {
+      const token = getUserToken();
+      if (!token) return;
+
+      const response = await axios.get(`/api/post/posts/nickname/${visitor.nickname}/${page}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data.content);
+      setList(response.data.content);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <ContentsStyle>
       <Card posts={list} />

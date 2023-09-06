@@ -85,6 +85,7 @@ export default function useAuth() {
   const refresh = async (token) => {
     if (!token) return;
     try {
+      console.log('refreshed');
       const response = await axios.post('/api/auth/issue', { refreshToken: token });
       if (response.statusText === 'OK') {
         localStorage.setItem('access_token', response.data.accessToken);

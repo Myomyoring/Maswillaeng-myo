@@ -11,11 +11,11 @@ const ContentsStyle = styled.div`
 `}
 `;
 
-export default function UserBoardContents({ active, setTab }) {
+export default function UserBoardContents({ visitor, active, setTab }) {
   return (
     <ContentsStyle>
       <UserTab active={active} setTab={setTab} />
-      <UserContents active={active} />
+      <UserContents active={active} visitor={visitor} />
     </ContentsStyle>
   );
 }

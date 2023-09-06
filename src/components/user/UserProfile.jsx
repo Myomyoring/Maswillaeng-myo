@@ -5,7 +5,7 @@ import { AuthContext } from '../../auth/ProvideAuthContext';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 import EditProfileModal from './EditProfileModal';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const ProfileStyle = styled.div`
   ${tw`
@@ -82,23 +82,23 @@ const FollowBtn = styled.button`
   ${tw`
     w-1/2 h-10
     my-7
-  bg-point
     font-bold text-white text-sm
+    cursor-pointer
+  `}
+  ${(props) => (props.bg === 'gray' ? tw`bg-gray` : tw`bg-point`)}
+`;
+
+const Label = styled.label`
+  ${tw`
     cursor-pointer
   `}
 `;
 
-// , {
-//   headers: {
-//     Authorization: `Bearer `,
-//   },
-// }
-
-const UserProfile = ({ visitor, user }) => {
+const UserProfile = ({ visitor, user, followerList, followingList, followState }) => {
   console.log('v', visitor);
   console.log('u', user);
   const navigate = useNavigate();
-  const { getUserToken } = AuthContext();
+  const { getUserToken, currentUser } = AuthContext();
   const [modal, setModal] = useState(false);
 
   // 서버 쪽  로직이 완전하지 않아 에러 발생 함
@@ -129,6 +129,43 @@ const UserProfile = ({ visitor, user }) => {
     }
   };
 
+  // 팔로우에 변화가 생길 때, 리렌더링
+  const onFollow = async ({ target }) => {
+    const { innerText } = target;
+    console.log(innerText);
+
+    if (innerText === '팔로우') {
+      try {
+        const token = getUserToken();
+        if (!token) return;
+        const response = await axios.post(
+          `/api/follow/${visitor.nickname}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        navigate(`/user/${visitor.nickname}`, { replace: true });
+      } catch (err) {
+        return;
+      }
+    } else if (innerText === '팔로잉') {
+      try {
+        const token = getUserToken();
+        if (!token) return;
+        const response = await axios.delete(`/api/follow/${visitor.nickname}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        navigate(`/user/${visitor.nickname}`, { replace: true });
+      } catch (err) {
+        return;
+      }
+    } else return;
+  };
   return (
     <>
       <ProfileStyle>
@@ -137,10 +174,14 @@ const UserProfile = ({ visitor, user }) => {
         </ProfileImage>
         <Nickname>{visitor.nickname}</Nickname>
         <FollowContent>
-          <span>팔로워</span>
-          <span>{visitor.followerCnt === undefined ? '0' : visitor.followerCnt}</span>
-          <span>팔로잉</span>
-          <span>{visitor.followingCnt === undefined ? '0' : visitor.followingCnt}</span>
+          <Label>
+            <span>팔로워</span>
+            <span>{visitor.followerCnt === undefined ? '0' : visitor.followerCnt}</span>
+          </Label>
+          <Label>
+            <span>팔로잉</span>
+            <span>{visitor.followingCnt === undefined ? '0' : visitor.followingCnt}</span>
+          </Label>
         </FollowContent>
         <Introduction>{visitor.introduction}</Introduction>
         {user ? (
@@ -149,7 +190,9 @@ const UserProfile = ({ visitor, user }) => {
             <DeleteUserBtn onClick={handleDelete}>회원 탈퇴</DeleteUserBtn>
           </Buttons>
         ) : (
-          <FollowBtn>팔로우</FollowBtn>
+          <FollowBtn bg={followState ? 'gray' : 'point'} onClick={onFollow}>
+            {followState ? '팔로잉' : '팔로우'}
+          </FollowBtn>
         )}
       </ProfileStyle>
       {modal ? <EditProfileModal setModal={setModal} user={visitor} /> : null}

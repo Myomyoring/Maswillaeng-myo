@@ -25,6 +25,10 @@ export default function UserPage() {
   const [tab, setTab] = useState(0);
   const navigate = useNavigate();
 
+  const [followState, setFollowState] = useState(false);
+  const [followerList, setFollowerList] = useState([]);
+  const [followingList, setFollowingList] = useState([]);
+
   useEffect(() => {
     const user = currentUser();
     if (user.nickname === nickname) {
@@ -35,12 +39,14 @@ export default function UserPage() {
       getVisitor();
       setUser(false);
     }
+
+    getFollowerList();
+    getFollowingList();
   }, [nickname]);
 
   const getVisitor = async () => {
     try {
       const { data } = await axios.get(`/api/user/nickname?nickname=${nickname}`);
-      console.log('data', data);
       setVisitor(data);
     } catch (err) {
       if (err.response.status === 500) {
@@ -49,10 +55,33 @@ export default function UserPage() {
     }
   };
 
+  const getFollowerList = async () => {
+    const user = currentUser();
+    const { data } = await axios.get(`/api/follow/follower/nickname/${nickname}`);
+    setFollowerList(data);
+    console.log(data);
+    data.find((follower) => follower.nickname === user.nickname)
+      ? setFollowState(true)
+      : setFollowState(false);
+
+    console.log('state', followState);
+  };
+
+  const getFollowingList = async () => {
+    const { data } = await axios.get(`/api/follow/following/nickname/${nickname}`);
+    setFollowingList(data);
+  };
+
   return (
     <UserPageStyle>
-      <UserProfile visitor={visitor} user={user} />
-      <UserBoardContents active={tab} setTab={setTab} />
+      <UserProfile
+        visitor={visitor}
+        user={user}
+        followerList={followerList}
+        followingList={followingList}
+        followState={followState}
+      />
+      <UserBoardContents visitor={visitor} active={tab} setTab={setTab} />
     </UserPageStyle>
   );
 }
