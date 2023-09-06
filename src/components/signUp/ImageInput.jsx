@@ -6,6 +6,7 @@ import axios from 'axios';
 
 const InputBox = styled.div`
   ${tw`
+        w-40 h-40
         relative
         mx-auto
         text-center
@@ -40,7 +41,7 @@ export default function ImageInput({ defaultImg, image }) {
   const [imgFile, setImgFile] = useState('');
   const imgRef = useRef();
 
-  const saveImgFile = async() => {
+  const saveImgFile = async () => {
     const file = imgRef.current.files[0];
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -49,16 +50,14 @@ export default function ImageInput({ defaultImg, image }) {
     };
 
     const formData = new FormData();
-    formData.append('photo', file)
+    formData.append('photo', file);
 
-    try{
+    try {
       const res = await axios.post('/api/user/upload', formData);
       image(res.data.img);
     } catch (err) {
-      console.log("실패" + err);
+      console.log('실패', err);
     }
-
-
   };
 
   return (

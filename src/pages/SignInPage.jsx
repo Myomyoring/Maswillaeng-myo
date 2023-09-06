@@ -96,10 +96,15 @@ export default function SignInPage() {
     }
     try {
       const response = await signIn(email, password);
+      if (!response) {
+        setErrMessage('아이디 또는 비밀번호를 확인해주세요');
+        return;
+      }
       response && navigate('/', { replace: true });
       alert('로그인 성공');
     } catch (err) {
       setErrMessage('로그인 실패');
+      return;
     }
   };
 

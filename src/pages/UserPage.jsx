@@ -1,32 +1,87 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
+import { AuthContext } from '../auth/ProvideAuthContext';
+import UserProfile from '../components/user/UserProfile';
+
+import { styled } from 'styled-components';
+import tw from 'twin.macro';
+import UserBoardContents from '../components/user/UserBoardContents';
+
+const UserPageStyle = styled.div`
+  ${tw`
+      w-full h-screen
+      px-2.5 py-10
+      flex justify-center items-center
+      overflow-hidden
+  `}
+`;
 
 export default function UserPage() {
-  const handlerDelete = async () => {
-    let confirm = window.confirm('정말 탈퇴하시겠습니까?');
+  const { nickname } = useParams();
+  const { currentUser } = AuthContext();
+  const [user, setUser] = useState(false);
+  const [visitor, setVisitor] = useState({});
+  const [tab, setTab] = useState(0);
+  const navigate = useNavigate();
 
-    if (confirm === true) {
-      await axios
-        .delete(`/api/user`)
-        .then((res) => {
-          if (res.status === 200) {
-            axios.post(`/api/auth/logout`, {});
-            alert('이용해주셔서 감사합니다.');
-          } else {
-            alert('탈퇴를 처리하는 중 문제가 생겼습니다.');
-            return;
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } else if (confirm === false) {
-      return;
+  const [followState, setFollowState] = useState(false);
+  const [followerList, setFollowerList] = useState([]);
+  const [followingList, setFollowingList] = useState([]);
+
+  useEffect(() => {
+    const user = currentUser();
+    if (user.nickname === nickname) {
+      console.log('user', user);
+      setVisitor(user);
+      setUser(true);
+    } else if (user.nickname !== nickname) {
+      getVisitor();
+      setUser(false);
+    }
+
+    getFollowerList();
+    getFollowingList();
+  }, [nickname]);
+
+  const getVisitor = async () => {
+    try {
+      const { data } = await axios.get(`/api/user/nickname?nickname=${nickname}`);
+      setVisitor(data);
+    } catch (err) {
+      if (err.response.status === 500) {
+        navigate('404', { replace: true });
+      }
     }
   };
 
+  const getFollowerList = async () => {
+    const user = currentUser();
+    const { data } = await axios.get(`/api/follow/follower/nickname/${nickname}`);
+    setFollowerList(data);
+    console.log(data);
+    data.find((follower) => follower.nickname === user.nickname)
+      ? setFollowState(true)
+      : setFollowState(false);
+
+    console.log('state', followState);
+  };
+
+  const getFollowingList = async () => {
+    const { data } = await axios.get(`/api/follow/following/nickname/${nickname}`);
+    setFollowingList(data);
+  };
+
   return (
-    <>
-      <button onClick={handlerDelete}>회원탈퇴</button>
-    </>
+    <UserPageStyle>
+      <UserProfile
+        visitor={visitor}
+        user={user}
+        followerList={followerList}
+        followingList={followingList}
+        followState={followState}
+      />
+      <UserBoardContents visitor={visitor} active={tab} setTab={setTab} />
+    </UserPageStyle>
   );
 }

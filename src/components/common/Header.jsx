@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
@@ -33,7 +33,7 @@ const Logo = styled(Link)`
 const Board = styled(Link)`
   ${tw``}
 `;
-const Mypage = styled(Link)`
+const Mypage = styled.button`
   ${tw``}
 `;
 const Login = styled(Link)`
@@ -46,13 +46,24 @@ const LogoutButton = styled.button`
 `;
 
 export default function Header() {
-  const { signOut } = AuthContext();
+  const { signOut, currentUser } = AuthContext();
   const navigate = useNavigate('');
+
+  const handleMypage = () => {
+    const user = currentUser();
+    if (user === undefined) {
+      return;
+    }
+    navigate(`/user/${user.nickname}`, { replace: true });
+  };
+
   const handleLogout = () => {
     signOut();
     navigate('/', { replace: true });
     alert('로그아웃 완료');
   };
+
+  useEffect(() => {}, []);
   return (
     <HeaderStyle>
       <Logo className="logo" to={'/'}>
@@ -63,7 +74,7 @@ export default function Header() {
           <SearchIcon />
         </button>
         <Board to={'/'}>Board</Board>
-        <Mypage to={'/'}>MyPage</Mypage>
+        <Mypage onClick={handleMypage}>MyPage</Mypage>
         <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
         <Login to={'/signin'}>Login</Login>
       </Nav>

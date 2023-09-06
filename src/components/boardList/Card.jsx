@@ -85,13 +85,13 @@ const NothingMessage = styled.div`
   `}
 `;
 
-export default function TabBoard({ posts }) {
+export default function TabBoard({ posts, guide }) {
   return (
     <>
       <TabBoardStyle>
         <Card>
-          {posts.length !== 0 ? (
-            posts.map((post) => (
+          {posts?.length !== 0 ? (
+            posts?.map((post) => (
               <CardContents key={post.id}>
                 <Link to={`/board/${post.id}`}>
                   <img src={post.thumbnail ? post.thumbnail : DefaultThumbnail} />
@@ -99,7 +99,7 @@ export default function TabBoard({ posts }) {
                   <span>[-]</span>
                 </Link>
                 <Content>
-                  <Link to={'/'}>{post.nickname}</Link>
+                  <Link to={`/user/${post.nickname}`}>{post.nickname}</Link>
                   <span>{displayCreatedAt(post.createdDate)}</span>
                   <span>👀 -</span>
                   <span>💗 -</span>
@@ -108,7 +108,7 @@ export default function TabBoard({ posts }) {
               </CardContents>
             ))
           ) : (
-            <NothingMessage>첫 게시물을 작성해주세요 🍹</NothingMessage>
+            <NothingMessage>{guide}</NothingMessage>
           )}
         </Card>
       </TabBoardStyle>

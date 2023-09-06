@@ -3,9 +3,12 @@ import axios from 'axios';
 export default function useAuth() {
   const getUser = async (id) => {
     if (!id) return;
+
     try {
       const { data } = await axios.get(`/api/user/${id}`);
       if (!data) return;
+      // localStorage.removeItem('current_user');
+      console.log(data);
 
       let currentUser = {
         email: data.email,
@@ -37,6 +40,7 @@ export default function useAuth() {
   const signIn = async (email, password) => {
     try {
       const response = await axios.post('/api/auth/login', { email, password });
+      console.log(response);
       if (response.statusText === 'OK') {
         localStorage.setItem('access_token', response.data.accessToken);
         localStorage.setItem('refresh_token', response.data.refreshToken);
@@ -48,7 +52,7 @@ export default function useAuth() {
         return true;
       }
     } catch (err) {
-      console.log(err);
+      return false;
     }
   };
 
@@ -75,12 +79,13 @@ export default function useAuth() {
 
   const currentUser = () => {
     const current = JSON.parse(localStorage.getItem('current_user'));
-    return current ? current : undefined;
+    return current ? current : alert('로그인 먼저 해주세요!');
   };
 
   const refresh = async (token) => {
     if (!token) return;
     try {
+      console.log('refreshed');
       const response = await axios.post('/api/auth/issue', { refreshToken: token });
       if (response.statusText === 'OK') {
         localStorage.setItem('access_token', response.data.accessToken);
@@ -123,5 +128,5 @@ export default function useAuth() {
     }
   };
 
-  return { signIn, signOut, getUserToken, currentUser, refresh, autoLogoutTimer, checker };
+  return { getUser, signIn, signOut, getUserToken, currentUser, refresh, autoLogoutTimer, checker };
 }

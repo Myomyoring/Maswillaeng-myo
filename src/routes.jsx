@@ -18,7 +18,7 @@ const routes = [
       { path: '/boardmodify/:postId', element: <BoardModifyPage /> },
       { path: '/signin', element: <SignInPage /> },
       { path: '/signup', element: <SignUpPage /> },
-      { path: '/mypage', element: <UserPage /> },
+      { path: '/user/:nickname', element: <UserPage /> },
     ],
     errorElement: <NotFound />,
   },
