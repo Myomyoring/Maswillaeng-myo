@@ -18,6 +18,7 @@ export default function BoardListPage() {
   const [tab, setTab] = useState(0);
   const [list, setList] = useState([]);
   const [page, setPage] = useState(0);
+  const guide = '첫 게시물을 작성해주세요 🍹';
 
   useEffect(() => {
     setLoading(true);
@@ -96,7 +97,7 @@ export default function BoardListPage() {
           <div>게시물 불러오는 중...</div>
         ) : (
           <>
-            <Card posts={list} />
+            <Card posts={list} guide={guide} />
             <Pagination />
           </>
         )}

@@ -104,12 +104,15 @@ export default function UserContents({ visitor, active }) {
   const { getUserToken } = AuthContext();
   const [list, setList] = useState([]);
   const [page, setPage] = useState(0);
+  const [guide, setGuide] = useState('');
 
   useEffect(() => {
     if (active === 0) {
       getLikeList();
+      setGuide('준비 중 입니다');
     } else if (active === 1) {
       getWriteList();
+      setGuide('작성한 게시물이 없습니다');
     }
   }, [active]);
 
@@ -135,7 +138,7 @@ export default function UserContents({ visitor, active }) {
 
   return (
     <ContentsStyle>
-      <Card posts={list} />
+      <Card posts={list} guide={guide} />
     </ContentsStyle>
   );
 }

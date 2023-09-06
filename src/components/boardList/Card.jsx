@@ -85,7 +85,7 @@ const NothingMessage = styled.div`
   `}
 `;
 
-export default function TabBoard({ posts }) {
+export default function TabBoard({ posts, guide }) {
   return (
     <>
       <TabBoardStyle>
@@ -108,7 +108,7 @@ export default function TabBoard({ posts }) {
               </CardContents>
             ))
           ) : (
-            <NothingMessage>첫 게시물을 작성해주세요 🍹</NothingMessage>
+            <NothingMessage>{guide}</NothingMessage>
           )}
         </Card>
       </TabBoardStyle>
