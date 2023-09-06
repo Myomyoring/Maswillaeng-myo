@@ -1,23 +1,19 @@
 import React, { useEffect, useState } from 'react'; // eslint-disable-line no-unused-vars
 import axios from 'axios';
-import { styled } from 'styled-components';
-import tw from 'twin.macro';
 
 import ImageLabel from '../components/boardList/ImageLabel';
 import CategoryTab from '../components/boardList/CategoryTab';
 import Card from '../components/boardList/Card';
 import BoardStyle from '../components/boardList/BoardStyle';
 import BoardNav from '../components/boardList/BoardNav';
-
-const Pagination = styled.div`
-  ${tw``}
-`;
+import Pagination from '../utils/Pagination';
 
 export default function BoardListPage() {
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState(0);
   const [list, setList] = useState([]);
   const [page, setPage] = useState(0);
+  const [lastPage, setLastPage] = useState(0);
   const guide = '첫 게시물을 작성해주세요 🍹';
 
   useEffect(() => {
@@ -26,7 +22,9 @@ export default function BoardListPage() {
       try {
         const response = await axios.get(`api/post/posts/${page}`);
         setList(response.data.content);
-        console.log(response.data.content);
+        setPage(response.data.number + 1);
+        setLastPage(response.data.totalPages);
+        console.log(response.data);
         console.log('전체');
       } catch (err) {
         console.log(err);
@@ -91,6 +89,7 @@ export default function BoardListPage() {
     <>
       <ImageLabel />
       <BoardStyle>
+        총
         <CategoryTab active={tab} setTab={setTab} />
         <BoardNav />
         {loading ? (
@@ -98,7 +97,12 @@ export default function BoardListPage() {
         ) : (
           <>
             <Card posts={list} guide={guide} />
-            <Pagination />
+            <Pagination
+              page={page}
+              count={lastPage}
+              hidePrevButton={false}
+              hideNextButton={false}
+            />
           </>
         )}
       </BoardStyle>
