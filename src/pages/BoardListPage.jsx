@@ -16,25 +16,35 @@ export default function BoardListPage() {
   const [lastPage, setLastPage] = useState(0);
   const guide = '첫 게시물을 작성해주세요 🍹';
 
+  const [total, setTotal] = useState(0);
+
   useEffect(() => {
     setLoading(true);
     const all = async () => {
       try {
         const response = await axios.get(`api/post/posts/${page}`);
         setList(response.data.content);
-        setPage(response.data.number + 1);
         setLastPage(response.data.totalPages);
         console.log(response.data);
-        console.log('전체');
+        /* 
+          number: 현재 페이지
+          totalElements: 이 탭에 대한 총 게시물 수
+          totalPages: 총 페이지 수
+        */
+
+        setTotal(response.data.totalElements);
       } catch (err) {
         console.log(err);
       }
     };
+
     const recipe = async () => {
       try {
         const response = await axios.get(`api/post/posts/category/RECIPE/${page}`);
         setList(response.data.content);
-        console.log('레시피');
+        setLastPage(response.data.totalPages);
+
+        setTotal(response.data.totalElements);
       } catch (err) {
         console.log(err);
       }
@@ -43,7 +53,9 @@ export default function BoardListPage() {
       try {
         const response = await axios.get(`api/post/posts/category/COCKTAIL/${page}`);
         setList(response.data.content);
-        console.log('칵테일');
+        setLastPage(response.data.totalPages);
+
+        setTotal(response.data.totalElements);
       } catch (err) {
         console.log(err);
       }
@@ -52,7 +64,9 @@ export default function BoardListPage() {
       try {
         const response = await axios.get(`api/post/posts/category/ETC/${page}`);
         setList(response.data.content);
-        console.log('기타');
+        setLastPage(response.data.totalPages);
+
+        setTotal(response.data.totalElements);
       } catch (err) {
         console.log(err);
       }
@@ -62,34 +76,37 @@ export default function BoardListPage() {
     switch (tab) {
       case 0:
         all();
-        setPage(0);
+        // setPage(0);
         break;
       case 1:
         recipe();
-        setPage(0);
+        // setPage(0);
         break;
       case 2:
         cocktail();
-        setPage(0);
+        // setPage(0);
         break;
       case 3:
         etc();
-        setPage(0);
+        // setPage(0);
         break;
       default:
         all();
-        setPage(0);
+      // setPage(0);
     }
     setLoading(false);
-  }, [tab]);
+  }, [tab, page]);
 
-  // useEffect(() => {}, [page]);
+  const currentPage = (value) => {
+    console.log(value);
+    setPage(value - 1);
+  };
 
   return (
     <>
       <ImageLabel />
       <BoardStyle>
-        총
+        총 {total}개의 게시물
         <CategoryTab active={tab} setTab={setTab} />
         <BoardNav />
         {loading ? (
@@ -100,8 +117,9 @@ export default function BoardListPage() {
             <Pagination
               page={page}
               count={lastPage}
-              hidePrevButton={false}
-              hideNextButton={false}
+              hidePrevButton={page < 10}
+              hideNextButton={(page + 1) / 10 < 1}
+              onChange={currentPage}
             />
           </>
         )}
