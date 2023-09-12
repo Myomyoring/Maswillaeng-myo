@@ -108,10 +108,9 @@ export default function SignUpPage() {
     confirmPassword: '',
     nickname: '',
     phoneNumber: '',
-    userImage: profileImg,
     introduction: '',
   });
-  const { email, password, confirmPassword, nickname, phoneNumber, userImage, introduction } = form;
+  const { email, password, confirmPassword, nickname, phoneNumber, introduction } = form;
   const [errMessage, setErrMessage] = useState({
     emailErr: '',
     pwdErr: '',
@@ -254,7 +253,7 @@ export default function SignUpPage() {
     if (emailConfirm && passwordConfirm && nicknameConfirm && phoneConfirm) {
       try {
         const res = await axios.post('/api/auth/sign', {
-          userImage,
+          userImage: profileImg,
           email,
           password,
           nickname,
@@ -262,6 +261,7 @@ export default function SignUpPage() {
           introduction,
         });
         console.log(res);
+        console.log(profileImg);
         navigate('/signin', { replace: true });
         alert('회원가입 성공');
         return;

@@ -72,9 +72,7 @@ export default function Pagination({ page, count, hidePrevButton, hideNextButton
           ))}
           <NextButton hidden={hideNextButton}>다음</NextButton>
         </>
-      ) : (
-        '널!'
-      )}
+      ) : null}
     </PaginationStyle>
   );
 }

@@ -139,7 +139,6 @@ export default function EditProfileModal({ setModal, user }) {
   const { getUserToken, getUser, refresh } = AuthContext();
   const [profileImg, setProfileImg] = useState(user.profileImage);
   const [form, setForm] = useState({
-    userImage: profileImg,
     nickname: user.nickname,
     password: '',
     phoneNumber: '',
@@ -318,7 +317,7 @@ export default function EditProfileModal({ setModal, user }) {
             password: newPasswordConfirm ? newPwds.newPwd : password,
             phoneNumber,
             nickname,
-            userImage,
+            userImage: profileImg,
             introduction,
           },
           {
@@ -355,7 +354,11 @@ export default function EditProfileModal({ setModal, user }) {
 
         <Form onSubmit={onSubmitHandler}>
           <ProfileImage>
-            <ImageInput defaultImg={DefaultUserImage} image={setProfileImg} />
+            <ImageInput
+              defaultImg={DefaultUserImage}
+              currentImg={profileImg}
+              image={setProfileImg}
+            />
           </ProfileImage>
 
           <Div>

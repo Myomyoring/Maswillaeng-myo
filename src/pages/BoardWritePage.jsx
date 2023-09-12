@@ -81,33 +81,32 @@ export default function BoardWritePage() {
     content: '',
     thumbnail: '',
   });
+  const { category, title, content } = postForm;
+
   const [editorValue, setEditorValue] = useState('');
   const changeEditorValue = (e) => {
     setEditorValue(e);
     console.log(editorValue);
   };
+
   const [thumbnail, setThumbnail] = useState('');
-  const [uploadImages] = useState([]);
-  const getUploadImageArray = (imageArray) => {
-    if (imageArray.length > 0) {
-      setThumbnail(imageArray[0]);
-      console.log(thumbnail);
+  const [imageList] = useState([]);
+  const setThumbnailImage = (imgList) => {
+    if (imgList.length > 0) {
+      setThumbnail(imgList[0]);
     }
   };
-  const { category, title, content } = postForm;
-  const imageHandler = () => {
-    console.log('핸들러시작');
-    console.log(quillRef?.current);
 
+  const imageHandler = () => {
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
     input.setAttribute('accept', 'image/*');
 
     input.onchange = async () => {
       const file = input.files[0];
-
       const formData = new FormData();
       formData.append('photo', file);
+
       try {
         const token = getUserToken();
         if (!token) return;
@@ -116,18 +115,19 @@ export default function BoardWritePage() {
             Authorization: `Bearer ${token}`,
           },
         });
-        const IMG_URL = response.data.img;
-        uploadImages.push(IMG_URL);
-        getUploadImageArray(uploadImages);
 
+        imageList.push(response.data.img);
+        setThumbnailImage(imageList);
+
+        // quill에서는 이미지를 어떻게 표시할건지
         const range = quillRef.current.getEditor().getSelection();
-        quillRef.current.getEditor().insertEmbed(range.index, 'image', IMG_URL);
+        quillRef.current.getEditor().insertEmbed(range.index, 'image', response.data.img);
         input.value = '';
-        // document.body.removeChild(input);
       } catch (error) {
         console.log(error);
       }
     };
+
     input.click();
   };
 
@@ -181,7 +181,6 @@ export default function BoardWritePage() {
             },
           ],
           ['image'],
-          ['clean'],
         ],
         handlers: {
           image: imageHandler,
@@ -190,23 +189,6 @@ export default function BoardWritePage() {
     }),
     [],
   );
-  // const formats = [
-  //   //'font',
-  //   'header',
-  //   'bold',
-  //   'italic',
-  //   'underline',
-  //   'strike',
-  //   'blockquote',
-  //   'list',
-  //   'bullet',
-  //   'indent',
-  //   'link',
-  //   'image',
-  //   'align',
-  //   'color',
-  //   'background',
-  // ];
 
   const navigate = useNavigate();
   const { getUserToken } = AuthContext();
@@ -256,6 +238,7 @@ export default function BoardWritePage() {
       console.log(err);
     }
   };
+
   return (
     <BoardWriteContainer>
       <TitleBox>
@@ -289,7 +272,6 @@ export default function BoardWritePage() {
           onChange={changeEditorValue}
           placeholder="글을 입력해주세요 ."
         />
-        {/* <div dangerouslySetInnerHTML={{ __html: content }} /> */}
       </Editor>
       <ButtonBox>
         {/* <Button>임시 저장</Button> */}

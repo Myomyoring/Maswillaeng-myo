@@ -37,8 +37,8 @@ const Label = styled.label`
   }
 `;
 
-export default function ImageInput({ defaultImg, image }) {
-  const [imgFile, setImgFile] = useState('');
+export default function ImageInput({ defaultImg, currentImg, image }) {
+  const [imgFile, setImgFile] = useState(currentImg ? currentImg : '');
   const imgRef = useRef();
 
   const saveImgFile = async () => {
@@ -55,6 +55,8 @@ export default function ImageInput({ defaultImg, image }) {
     try {
       const res = await axios.post('/api/user/upload', formData);
       image(res.data.img);
+
+      console.log(res.data.img);
     } catch (err) {
       console.log('실패', err);
     }

@@ -5,15 +5,15 @@ import DOMPurify from 'dompurify';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 import { AuthContext } from '../auth/ProvideAuthContext';
-import { diplayBoardDetailDate, displayCreatedAt } from '../utils/displayDate';
+import { diplayBoardDetailDate } from '../utils/displayDate';
 
 import ShareIcon from '../statics/svg/shareIcon';
 import EditIcon from '../statics/svg/editIcon';
 import DeleteIcon from '../statics/svg/deleteIcon';
 import FullHeartIcon from '../statics/svg/fullHeartIcon';
 import EmptyHeartIcon from '../statics/svg/emptyHeartIcon';
+import CommentList from '../components/boardDetail/CommentList';
 // import LockIcon from '../statics/svg/lockIcon';
-import RecommentIcon from '../statics/svg/recommentIcon';
 
 const BoardDetailContainer = styled.div`
   ${tw`
@@ -132,21 +132,12 @@ const CommentCnt = styled.div`
     py-5 
     font-semibold text-lg
   `}
+
   span {
     ${tw`
     font-bold text-point
     `}
   }
-`;
-
-const WriteComment = styled.textarea`
-  ${tw`
-        w-full
-        p-3
-        block
-        bg-white
-        border-solid border-gray
-    `}
 `;
 
 const CommentContents = styled.div`
@@ -182,94 +173,41 @@ const Button = styled(Link)`
     `}
 `;
 
-const CommentList = styled.div`
+const WriteComment = styled.textarea`
+  ${tw`
+    w-full
+    p-3
+    block
+  bg-white
+    border-solid border-gray
+  `}
+`;
+
+const Comment = styled.div`
   ${tw`
     bg-white
-
   `}
-  textarea
 `;
 
-const Comments = styled.div`
-  ${tw`
-        flex items-center
-        p-3
-        
-  `}
-
-  * {
-    ${tw`
-        p-1 text-sm
-   `}
-  }
-`;
-
-const Div = styled.div`
-  ${tw`
-        w-full
-        my-1 pl-3
-  `}
-  span {
-    ${tw`
-        font-bold
-    `}
-  }
-  div {
-    ${tw`
-        text-darkgray
-        overflow-visible
-    `}
-  }
-  button {
-    ${tw`
-        text-sm
-    `}
-  }
-`;
-
-const ReComments = styled.div`
-  ${tw`
-        flex items-center
-        p-3 pl-14
-        bg-lightgray
-  `}
-
-  * {
-    ${tw`
-        p-1 text-sm
-   `}
-  }
-`;
 export default function BoardDetailPage() {
-  const [nick, setNick] = useState('');
   const { postId } = useParams();
-  const { getUserToken, currentUser } = AuthContext();
+  const { getUserToken } = AuthContext();
   const navigate = useNavigate();
   const [post, setPost] = useState({});
   const [liked, setLiked] = useState(false);
   const [comments, setComments] = useState([]);
   const [comment, setComment] = useState('');
-  const [editComment, setEditComment] = useState(false);
-  const [selected, setSelected] = useState({ selectedId: 0, selectedComment: '' });
 
-  // ㅠㅠ 리플
-  const [replyList, setReplyList] = useState([]);
-  const [reply, setReply] = useState({ replyId: 0, replyComment: '' });
-  const [editReply, setEditReply] = useState(false);
-  const [selectedReply, setSelectedReply] = useState({
-    selectedReplyId: 0,
-    selectedReplyComment: '',
-  });
-
+  // 상세페이지 접근할 때, 해당 게시물의 id를 받아 상세 게시물 내용 불러오기, 그 id가 변할 때 마다 useEffect로 리렌더링
   useEffect(() => {
     getPost();
   }, [postId]);
 
+  // 비동기 게시물 불러오기
   const getPost = async () => {
     try {
       const response = await axios.get(`/api/post/${postId}`);
       if (response.statusText === 'OK') {
-        // console.log(response.data);
         setPost(response.data);
         setComments(response.data.commentList);
       }
@@ -277,19 +215,9 @@ export default function BoardDetailPage() {
       console.log(err);
     }
   };
-
-  const getReply = async (commentId) => {
-    try {
-      const response = await axios.get(`/api/comment/reply/${commentId}`);
-      console.log(response.data);
-      // response.then((res) => setReplyList(res.data));
-      // setReplyList(response.data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
+  // 클립보드에 url 복사 (공유)
   const sharePost = async () => {
+    // 로컬용 url
     const baseUrl = 'http://localhost:3000';
     const pathname = window.location.pathname;
     const url = baseUrl + pathname;
@@ -303,6 +231,7 @@ export default function BoardDetailPage() {
     }
   };
 
+  // 게시물 삭제 요청
   const deletePost = async () => {
     if (window.confirm('정말 게시물을 삭제하시겠습니까?')) {
       try {
@@ -317,17 +246,19 @@ export default function BoardDetailPage() {
     } else return;
   };
 
-  const commentWrite = ({ target }) => {
+  // 댓글 작성 onChange
+  const handleChangeComment = ({ target }) => {
     const { value } = target;
     setComment(value);
-    console.log(comment);
   };
 
+  // 댓글 작성 요청
   const commentSubmit = async () => {
     if (comment === '') {
       alert('댓글을 입력해주세요');
       return;
     }
+
     try {
       const token = getUserToken();
       if (!token) return;
@@ -345,104 +276,18 @@ export default function BoardDetailPage() {
         setComment('');
         getPost();
       }
-      console.log(response);
     } catch (err) {
       console.log(err);
     }
   };
 
-  const edit = (id, content) => {
-    setSelected({ selectedId: id, selectedComment: content });
-    setEditComment(true);
-  };
-
-  const eEdit = (id, content) => {
-    setSelectedReply({ selectedReplyId: id, selectedReplyComment: content });
-  };
-
-  const updateComment = async () => {
-    try {
-      const token = getUserToken();
-      if (!token) return;
-
-      const response = await axios.put(
-        '/api/comment',
-        { commentId: selected.selectedId, content: selected.selectedComment },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      if (response.statusText === 'OK') {
-        setEditComment(false);
-        setComment('');
-        getPost();
-      }
-      console.log(response);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const deleteComment = async (commentId) => {
-    if (window.confirm('정말 댓글을 삭제하시겠습니까?')) {
-      try {
-        const token = getUserToken();
-        if (!token) return;
-        const response = await axios.delete(`/api/comment/${commentId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.statusText === 'OK') {
-          console.log(response);
-          getPost();
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    } else return;
-  };
-
-  const createReply = (parentId) => {
-    const user = currentUser();
-    setNick(user.nickname);
-    setEditReply(true);
-    setReply({ replyId: parentId });
-  };
-
-  const replySubmit = async () => {
-    if (reply.replyComment === '') return;
-
-    try {
-      const token = getUserToken();
-      if (!token) return;
-      const response = await axios.post(
-        `/api/comment/reply`,
-        {
-          parentId: reply.replyId,
-          content: reply.replyComment,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      console.log(response);
-      getPost();
-      setEditReply(false);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
+  // 좋아요 요청
   const handleLike = async () => {
     try {
       const token = getUserToken();
       if (!token) return;
-      await axios.post(
+
+      const res = await axios.post(
         `/api/like/${postId}`,
         {},
         {
@@ -451,30 +296,34 @@ export default function BoardDetailPage() {
           },
         },
       );
-
+      if (res.statusText === 'OK') {
+        setLiked(true);
+        getPost();
+      }
+    } catch (err) {
       setLiked(true);
-      getPost();
-    } catch (error) {
-      setLiked(true);
-      console.error(error);
+      console.error(err);
     }
   };
 
+  // 좋아요 취소 요청
   const deleteLike = async () => {
     try {
       const token = getUserToken();
       if (!token) return;
-      await axios.delete(`/api/like/${postId}`, {
+
+      const res = await axios.delete(`/api/like/${postId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      getPost();
+      if (res.statusText === 'OK') {
+        setLiked(false);
+        getPost();
+      }
+    } catch (err) {
       setLiked(false);
-    } catch (error) {
-      setLiked(false);
-      console.error(error);
+      console.error(err);
     }
   };
 
@@ -524,10 +373,11 @@ export default function BoardDetailPage() {
           </Buttons>
         </ButtonBox>
 
+        {/* 댓글 */}
         <CommentBox>
           <WriteComment
             value={comment}
-            onChange={commentWrite}
+            onChange={handleChangeComment}
             placeholder="댓글을 작성해주세요 ."
           />
           <CommentContents>
@@ -542,109 +392,10 @@ export default function BoardDetailPage() {
           댓글 <span>{comments.length}</span>
         </CommentCnt>
 
-        <CommentList>
-          {comments.map((comment) =>
-            editComment && selected.selectedId === comment.commentId ? (
-              <Comments key={comment.commentId}>
-                <Image src={comment.userImage} />
-                <Div>
-                  <span>{comment.nickname}</span>
-                  <span>{displayCreatedAt(comment.createDate)}</span>
-                  <WriteComment
-                    value={selected.selectedComment}
-                    onChange={(e) => {
-                      setSelected({ ...selected, selectedComment: e.target.value });
-                    }}
-                    placeholder="댓글을 작성해주세요 . "
-                  />
-                  <button onClick={updateComment}>수정</button>
-                  <button onClick={() => setEditComment(false)}>취소</button>
-                </Div>
-              </Comments>
-            ) : (
-              <div key={comment.commentId}>
-                <Comments>
-                  <Image src={comment.userImage} />
-                  <Div>
-                    <span>{comment.nickname}</span>
-                    <span>{displayCreatedAt(comment.createDate)}</span>
-                    <div>{comment.content}</div>
-                    <button onClick={() => edit(comment.commentId, comment.content)}>수정</button>
-                    <button onClick={() => createReply(comment.commentId)}>답글</button>
-                    <button>신고</button>
-                    <button onClick={() => deleteComment(comment.commentId)}>삭제</button>
-                  </Div>
-                </Comments>
-                {editReply && (
-                  <ReComments>
-                    <Image src="" />
-                    <Div>
-                      <RecommentIcon />
-                      <span>{nick}</span>
-                      <span></span>
-                      <WriteComment
-                        value={reply.replyComment}
-                        onChange={(e) => setReply({ ...reply, replyComment: e.target.value })}
-                        placeholder="댓글을 작성해주세요. "
-                      />
-                      <button onClick={() => replySubmit()}>작성</button>
-                      <button onClick={() => setEditReply(false)}>취소</button>
-                    </Div>
-                  </ReComments>
-                )}
-                {
-                  (getReply(comment.commentId),
-                  replyList?.map((reply) => (
-                    <ReComments key={reply.commentId}>
-                      <Image src={reply.userImage} />
-                      <Div>
-                        <RecommentIcon />
-                        <span>{reply.nickname}</span>
-                        <span>{displayCreatedAt(reply.createDate)}</span>
-                        <div>{reply.content}</div>
-                        <button>삭제</button>
-                        <button>답글</button>
-                        <button>신고</button>
-                      </Div>
-                    </ReComments>
-                  )))
-                }
-              </div>
-            ),
-          )}
-          {/* {
-            // 대댓글이 수정 중일 경우
-            editReply ? (
-              <ReComments>
-                <Image src="" />
-                <Div>
-                  <RecommentIcon />
-                  <span>닉네임</span>
-                  <span></span>
-                  <WriteComment placeholder="댓글을 작성해주세요 . " />
-                  <button>작성</button>
-                  <button onClick={setEditReply(false)}>취소</button>
-                </Div>
-              </ReComments>
-            ) : (
-              // 대댓글이 수정 중이 아닐 경우
-              <ReComments>
-                <Image src="" />
-                <Div>
-                  <RecommentIcon />
-                  <span>닉네임</span>
-                  <span></span>
-                  <div>
-                    컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠
-                  </div>
-                  <button>삭제</button>
-                  <button>답글</button>
-                  <button>신고</button>
-                </Div>
-              </ReComments>
-            )
-          } */}
-        </CommentList>
+        <Comment>
+          <CommentList comments={comments} getPost={getPost} />
+        </Comment>
+
         <Button to={'/'}>목록으로</Button>
       </BoardDetailContainer>
     </>
