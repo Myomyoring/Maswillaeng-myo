@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 import tw from 'twin.macro';
 
-import { AuthContext } from '../../auth/ProvideAuthContext';
+import { useAuth } from '../../context/ProvideAuthContext';
 import { useState } from 'react';
 import axios from 'axios';
-import { displayCreatedAt } from '../../utils/displayDate';
+import { displayCreatedAt } from '../../utils/display_date';
 import ModifyComment from './ModifyComment';
 import ReplyComment from './ReplyComment';
 
@@ -58,7 +58,7 @@ export default function CommentList({ comments, getPost }) {
   // 대댓 작성 시 표기 할 현재 로그인 한 유저 닉네임
   const [nick, setNick] = useState('');
 
-  const { getUserToken, currentUser } = AuthContext();
+  const { getUserToken, currentUser } = useAuth();
   const [editMode, setEditMode] = useState(false);
   const [replyMode, setReplyMode] = useState(false);
   // 수정 버튼 클릭 시, 선택된 수정할 댓글
@@ -120,9 +120,7 @@ export default function CommentList({ comments, getPost }) {
                 <span>{comment.nickname}</span>
                 <span>{displayCreatedAt(comment.createDate)}</span>
                 <div>{comment.content}</div>
-                <button onClick={() => handleEditComment(comment.commentId, comment.content)}>
-                  수정
-                </button>
+                <button onClick={() => handleEditComment(comment.commentId, comment.content)}>수정</button>
                 <button onClick={() => handleCreateReply(comment.commentId)}>답글</button>
                 <button>신고</button>
                 <button onClick={() => deleteComment(comment.commentId)}>삭제</button>

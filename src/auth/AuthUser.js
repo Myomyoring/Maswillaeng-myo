@@ -1,14 +1,11 @@
-import axios from 'axios';
+import { userService } from '../services/user.service';
 
-export default function useAuth() {
-  const getUser = async (id) => {
+export default function AuthUser() {
+  const setUser = async (id) => {
     if (!id) return;
-
     try {
-      const { data } = await axios.get(`/api/user/${id}`);
+      const { data } = await userService.getUser({ userId: id });
       if (!data) return;
-      // localStorage.removeItem('current_user');
-      console.log(data);
 
       let currentUser = {
         email: data.email,
@@ -19,7 +16,6 @@ export default function useAuth() {
         introduction: data.introduction,
         profileImage: data.userImage,
       };
-
       localStorage.setItem('current_user', JSON.stringify(currentUser));
 
       return data;
@@ -39,14 +35,12 @@ export default function useAuth() {
 
   const signIn = async (email, password) => {
     try {
-      const response = await axios.post('/api/auth/login', { email, password });
-      console.log(response);
+      const response = await userService.signIn({ email, password });
       if (response.statusText === 'OK') {
+        const user = await setUser(response.data.userId);
+        if (!user) return;
         localStorage.setItem('access_token', response.data.accessToken);
         localStorage.setItem('refresh_token', response.data.refreshToken);
-        const user = await getUser(response.data.userId);
-        if (!user) return;
-
         setExpire(response.data.expires_in);
 
         return true;
@@ -56,20 +50,21 @@ export default function useAuth() {
     }
   };
 
-  const signOut = async () => {
+  const signOut = () => {
     const user = JSON.parse(localStorage.getItem('current_user'));
     if (!user) return;
     if (user.id) {
       try {
-        await axios.post('/api/auth/logout', { userId: user.id });
+        userService.signOut({ userId: user.id });
+        window.location.replace('/');
       } catch (err) {
         console.log(err);
       }
     }
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    localStorage.removeItem('expiration');
     localStorage.removeItem('current_user');
+    localStorage.removeItem('expiration');
   };
 
   const getUserToken = () => {
@@ -79,19 +74,17 @@ export default function useAuth() {
 
   const currentUser = () => {
     const current = JSON.parse(localStorage.getItem('current_user'));
-    return current ? current : alert('로그인 먼저 해주세요!');
+    return current ?? false;
   };
 
   const refresh = async (token) => {
     if (!token) return;
     try {
-      console.log('refreshed');
-      const response = await axios.post('/api/auth/issue', { refreshToken: token });
+      const response = await userService.refresh({ refreshToken: token });
       if (response.statusText === 'OK') {
         localStorage.setItem('access_token', response.data.accessToken);
         localStorage.setItem('refresh_token', response.data.refreshToken);
-        const user = await getUser(response.data.userId);
-        if (!user) return;
+        await setUser(response.data.userId);
       }
     } catch (err) {
       console.log(err);
@@ -106,16 +99,16 @@ export default function useAuth() {
     const current = getTime.current;
     const getExpiration = getTime.expiration;
 
-    const autoLogout = Math.floor(today.getTime() - current);
+    const limitTime = Math.floor(today.getTime() - current);
 
-    if (autoLogout > getExpiration) {
+    if (limitTime > getExpiration) {
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
-      localStorage.removeItem('expiration');
       localStorage.removeItem('current_user');
+      localStorage.removeItem('expiration');
 
       return true;
-    }
+    } else return false;
   };
 
   const checker = () => {
@@ -124,9 +117,9 @@ export default function useAuth() {
 
     if (token !== undefined && token !== 'undefined' && token !== null) {
       check = autoLogoutTimer();
-      check === null ? refresh(token) : false;
-    }
+      check && refresh(token);
+    } else console.log('refresh X');
   };
 
-  return { getUser, signIn, signOut, getUserToken, currentUser, refresh, autoLogoutTimer, checker };
+  return { signIn, signOut, getUserToken, currentUser, checker };
 }

@@ -2,12 +2,12 @@ import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
     * {
-        font-family: sans-serif;
-        color: black;
+        box-sizing: border-box;
         margin: 0;
         padding: 0;
-        box-sizing: border-box;
-        outline: 1px solid #cdd;
+        font-family: sans-serif;
+        color: black;
+        // outline: 1px solid #cdd;
     }
 
     html {
@@ -29,7 +29,7 @@ const GlobalStyle = createGlobalStyle`
         color: lightgray;
     }
 
-    li {
+    ul {
         list-style-type: none;
     }
 
@@ -40,11 +40,6 @@ const GlobalStyle = createGlobalStyle`
     
     textarea::placeholder {
         color: lightgray;
-    }
-
-    .logo {
-        font-weight: bold;
-        font-size: 20px;
     }
 `;
 

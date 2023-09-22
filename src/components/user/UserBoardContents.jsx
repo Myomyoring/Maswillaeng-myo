@@ -1,7 +1,9 @@
-import { styled } from 'styled-components';
-import UserTab from './UserTab';
+import { userCategories } from '../../constants';
 import UserContents from './UserContents';
+import UserTab from '../common/CategoryTab';
+
 import tw from 'twin.macro';
+import { styled } from 'styled-components';
 
 const ContentsStyle = styled.div`
   ${tw`
@@ -11,10 +13,10 @@ const ContentsStyle = styled.div`
 `}
 `;
 
-export default function UserBoardContents({ visitor, active, setTab }) {
+export default function UserBoardContents({ active, setTab, visitor }) {
   return (
     <ContentsStyle>
-      <UserTab active={active} setTab={setTab} />
+      <UserTab active={active} categories={userCategories} setTab={setTab} />
       <UserContents active={active} visitor={visitor} />
     </ContentsStyle>
   );

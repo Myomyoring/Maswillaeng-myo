@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../auth/ProvideAuthContext';
+import { useAuth } from '../../context/ProvideAuthContext';
 
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
@@ -98,7 +98,7 @@ const UserProfile = ({ visitor, user, followerList, followingList, followState }
   console.log('v', visitor);
   console.log('u', user);
   const navigate = useNavigate();
-  const { getUserToken, currentUser } = AuthContext();
+  const { getUserToken, currentUser } = useAuth();
   const [modal, setModal] = useState(false);
 
   // 서버 쪽  로직이 완전하지 않아 에러 발생 함

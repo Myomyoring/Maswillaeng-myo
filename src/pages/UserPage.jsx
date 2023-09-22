@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { AuthContext } from '../auth/ProvideAuthContext';
+
+import { useAuth } from '../context/ProvideAuthContext';
+import UserBoardContents from '../components/user/UserBoardContents';
 import UserProfile from '../components/user/UserProfile';
 
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
-import UserBoardContents from '../components/user/UserBoardContents';
 
 const UserPageStyle = styled.div`
   ${tw`
@@ -19,7 +20,7 @@ const UserPageStyle = styled.div`
 
 export default function UserPage() {
   const { nickname } = useParams();
-  const { currentUser } = AuthContext();
+  const { currentUser } = useAuth();
   const [user, setUser] = useState(false);
   const [visitor, setVisitor] = useState({});
   const [tab, setTab] = useState(0);
@@ -59,12 +60,7 @@ export default function UserPage() {
     const user = currentUser();
     const { data } = await axios.get(`/api/follow/follower/nickname/${nickname}`);
     setFollowerList(data);
-    console.log(data);
-    data.find((follower) => follower.nickname === user.nickname)
-      ? setFollowState(true)
-      : setFollowState(false);
-
-    console.log('state', followState);
+    data.find((follower) => follower.nickname === user.nickname) ? setFollowState(true) : setFollowState(false);
   };
 
   const getFollowingList = async () => {

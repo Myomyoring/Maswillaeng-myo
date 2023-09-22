@@ -23,9 +23,6 @@
     "twin.macro": "^3.4.0"
   },
   "devDependencies": {
-    "@types/dompurify": "^3.0.2",
-    "@types/react": "^18.2.14",
-    "@types/react-dom": "^18.2.6",
     "@vitejs/plugin-react": "^4.0.1",
     "eslint": "^8.45.0",
     "eslint-config-prettier": "^8.8.0",

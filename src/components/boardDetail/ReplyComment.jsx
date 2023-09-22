@@ -1,11 +1,12 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 
-import RecommentIcon from '../../statics/svg/recommentIcon';
+import { displayCreatedAt } from '../../utils/display_date';
+import { useAuth } from '../../context/ProvideAuthContext';
+
 import styled from 'styled-components';
 import tw from 'twin.macro';
-import { AuthContext } from '../../auth/ProvideAuthContext';
-import { displayCreatedAt } from '../../utils/displayDate';
+import RecommentIcon from '../../statics/svg/recomment_icon';
 
 const ReComments = styled.div`
   ${tw`
@@ -73,7 +74,7 @@ export default function ReplyComment({
   getPost,
   handleCreateReply,
 }) {
-  const { getUserToken } = AuthContext();
+  const { getUserToken } = useAuth();
   // 리플 목록
   const [replyList, setReplyList] = useState([]);
 

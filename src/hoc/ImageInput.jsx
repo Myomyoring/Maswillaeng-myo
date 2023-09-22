@@ -1,8 +1,9 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import axios from 'axios';
+
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
-import AddFileIcon from '../../statics/svg/addFileIcon';
-import axios from 'axios';
+import AddFileIcon from '../statics/svg/add_file_icon';
 
 const InputBox = styled.div`
   ${tw`

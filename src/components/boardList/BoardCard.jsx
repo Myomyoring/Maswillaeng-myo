@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
-import { displayCreatedAt } from '../../utils/displayDate';
+import { displayCreatedAt } from '../../utils/display_date';
 import DefaultThumbnail from '../../statics/images/default_thumbnail.png';
 
 const TabBoardStyle = styled.div`
@@ -86,32 +86,31 @@ const NothingMessage = styled.div`
 `;
 
 export default function TabBoard({ posts, guide }) {
+  const [loading, setLoading] = useState(false);
   return (
-    <>
-      <TabBoardStyle>
-        <Card>
-          {posts?.length !== 0 ? (
-            posts?.map((post) => (
-              <CardContents key={post.id}>
-                <Link to={`/board/${post.id}`}>
-                  <img src={post.thumbnail ? post.thumbnail : DefaultThumbnail} />
-                  <div>{post.title}</div>
-                  <span>[-]</span>
-                </Link>
-                <Content>
-                  <Link to={`/user/${post.nickname}`}>{post.nickname}</Link>
-                  <span>{displayCreatedAt(post.createdDate)}</span>
-                  <span>👀 -</span>
-                  <span>💗 -</span>
-                  <HashTag>해시태그</HashTag>
-                </Content>
-              </CardContents>
-            ))
-          ) : (
-            <NothingMessage>{guide}</NothingMessage>
-          )}
-        </Card>
-      </TabBoardStyle>
-    </>
+    <TabBoardStyle>
+      <Card>
+        {posts?.length !== 0 ? (
+          posts?.map((post) => (
+            <CardContents key={post.id}>
+              <Link to={`/board/${post.id}`}>
+                <img src={post.thumbnail ? post.thumbnail : DefaultThumbnail} />
+                <div>{post.title}</div>
+                <span>[-]</span>
+              </Link>
+              <Content>
+                <Link to={`/user/${post.nickname}`}>{post.nickname}</Link>
+                <span>{displayCreatedAt(post.createdDate)}</span>
+                <span>👀 -</span>
+                <span>💗 -</span>
+                <HashTag>해시태그</HashTag>
+              </Content>
+            </CardContents>
+          ))
+        ) : (
+          <NothingMessage>{guide}</NothingMessage>
+        )}
+      </Card>
+    </TabBoardStyle>
   );
 }

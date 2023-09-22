@@ -1,10 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import routes from './routes.jsx';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { AuthProvider } from './auth/ProvideAuthContext.jsx';
-import './styles/index.css';
+
+import { AuthProvider } from './context/ProvideAuthContext';
 import GlobalStyle from './styles/GlobalStyle';
+import routes from './routes/routes';
+
+import './styles/index.css';
 
 const router = createBrowserRouter(routes);
 

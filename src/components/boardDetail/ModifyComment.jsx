@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import tw from 'twin.macro';
-import { displayCreatedAt } from '../../utils/displayDate';
-import { AuthContext } from '../../auth/ProvideAuthContext';
+import { displayCreatedAt } from '../../utils/display_date';
+import { useAuth } from '../../context/ProvideAuthContext';
 import axios from 'axios';
 
 const Comments = styled.div`
@@ -60,14 +60,8 @@ const Div = styled.div`
   }
 `;
 
-export default function ModifyComment({
-  comment,
-  setEditMode,
-  modifySelect,
-  setModifySelect,
-  getPost,
-}) {
-  const { getUserToken } = AuthContext();
+export default function ModifyComment({ comment, setEditMode, modifySelect, setModifySelect, getPost }) {
+  const { getUserToken } = useAuth();
 
   // 댓글 수정 요청
   const updateComment = async () => {

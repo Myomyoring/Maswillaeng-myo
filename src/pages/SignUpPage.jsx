@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
+import { emailRule, nicknameRule, passwordRule, phoneNumberRule } from '../utils/sign_up_rules';
+import ImageInput from '../hoc/ImageInput';
+
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
-
-import ImageInput from '../components/signUp/ImageInput';
 import DefaultUserImage from '../statics/images/default_user_image.jpg';
-import PwdCheckIcon from '../statics/svg/pwdCheckIcon';
-import PwdLockIcon from '../statics/svg/pwdLockIcon';
-import { emailRule, nicknameRule, passwordRule, phoneNumberRule } from '../utils/signUpRules';
-import { useNavigate } from 'react-router-dom';
+import PwdCheckIcon from '../statics/svg/password_check_icon';
+import PwdLockIcon from '../statics/svg/password_lock_icon';
 
 const SignUpContainer = styled.div`
   ${tw`
@@ -362,9 +363,7 @@ export default function SignUpPage() {
           />
           <Error>{errMessage.phoneErr}</Error>
         </InputBox>
-        <SignUpButton
-          disabled={!emailConfirm || !passwordConfirm || !nicknameConfirm || !phoneConfirm}
-        >
+        <SignUpButton disabled={!emailConfirm || !passwordConfirm || !nicknameConfirm || !phoneConfirm}>
           가입하기
         </SignUpButton>
       </Form>

@@ -1,13 +1,14 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+import ImageInput from '../../hoc/ImageInput';
+import { nicknameRule, passwordRule, phoneNumberRule } from '../../utils/sign_up_rules';
+import { useAuth } from '../../context/ProvideAuthContext';
+
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
-
-import { nicknameRule, passwordRule, phoneNumberRule } from '../../utils/signUpRules';
-import ImageInput from '../signUp/ImageInput';
 import DefaultUserImage from '../../statics/images/default_user_image.jpg';
-import axios from 'axios';
-import { AuthContext } from '../../auth/ProvideAuthContext';
-import { useNavigate } from 'react-router-dom';
 
 const Modal = styled.div`
   ${tw`
@@ -136,7 +137,7 @@ const SubmitButton = styled.button`
 
 export default function EditProfileModal({ setModal, user }) {
   const navigate = useNavigate();
-  const { getUserToken, getUser, refresh } = AuthContext();
+  const { getUserToken, getUser } = useAuth();
   const [profileImg, setProfileImg] = useState(user.profileImage);
   const [form, setForm] = useState({
     nickname: user.nickname,
@@ -354,11 +355,7 @@ export default function EditProfileModal({ setModal, user }) {
 
         <Form onSubmit={onSubmitHandler}>
           <ProfileImage>
-            <ImageInput
-              defaultImg={DefaultUserImage}
-              currentImg={profileImg}
-              image={setProfileImg}
-            />
+            <ImageInput defaultImg={DefaultUserImage} currentImg={profileImg} image={setProfileImg} />
           </ProfileImage>
 
           <Div>
@@ -367,13 +364,7 @@ export default function EditProfileModal({ setModal, user }) {
                 닉네임
                 <Span>* 한글, 영문 2~10자 입력</Span>
               </InputName>
-              <Input
-                type="text"
-                name="nickname"
-                value={nickname}
-                onChange={handleChange}
-                placeholder="닉네임 입력"
-              />
+              <Input type="text" name="nickname" value={nickname} onChange={handleChange} placeholder="닉네임 입력" />
               <Button name="nickname" onClick={ruleCheck}>
                 중복확인
               </Button>

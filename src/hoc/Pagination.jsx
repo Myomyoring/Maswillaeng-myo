@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 
@@ -28,6 +29,10 @@ const NextButton = styled.button`
 const PageButton = styled.button`
   ${tw`
   `}
+  span {
+    ${tw`
+    `}
+  }
 `;
 
 export default function Pagination({ page, count, hidePrevButton, hideNextButton, onChange }) {
@@ -42,22 +47,19 @@ export default function Pagination({ page, count, hidePrevButton, hideNextButton
   useEffect(() => {
     if (count !== 0) {
       getPageNumbers();
-      console.log(numbers.length);
     }
   }, [count]);
 
   const getPageNumbers = () => {
     const newNumbers = [];
-    // 숫자 생성 후 리스트
     for (let i = 1; i <= count; i++) {
       newNumbers.push(i);
     }
-    console.log(numbers.length);
     setNumbers(newNumbers);
   };
 
   const handlePageClick = (pageNumber) => {
-    onChange(pageNumber); // 선택한 페이지 번호를 다른 컴포넌트로 내보냄
+    onChange(pageNumber);
   };
 
   return (
@@ -67,7 +69,7 @@ export default function Pagination({ page, count, hidePrevButton, hideNextButton
           <PrevButton hidden={hidePrevButton}>이전</PrevButton>
           {numbers.map((number) => (
             <PageButton key={number} onClick={() => handlePageClick(number)}>
-              {number}
+              <span>{number}</span>
             </PageButton>
           ))}
           <NextButton hidden={hideNextButton}>다음</NextButton>

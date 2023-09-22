@@ -1,10 +1,10 @@
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 
-import Card from '../boardList/Card';
+import Card from '../boardList/BoardCard';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { AuthContext } from '../../auth/ProvideAuthContext';
+import { useAuth } from '../../context/ProvideAuthContext';
 
 const ContentsStyle = styled.div`
   ${tw`
@@ -15,7 +15,7 @@ const ContentsStyle = styled.div`
 `;
 
 export default function UserContents({ visitor, active }) {
-  const { getUserToken } = AuthContext();
+  const { getUserToken } = useAuth();
   const [list, setList] = useState([]);
   const [page, setPage] = useState(0);
   const [guide, setGuide] = useState('');

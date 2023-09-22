@@ -1,82 +1,64 @@
-import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+
+import Logo from './Logo';
+import { useAuth } from '../../context/ProvideAuthContext';
+
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
-import SearchIcon from '../../statics/svg/searchIcon';
-import { AuthContext } from '../../auth/ProvideAuthContext';
+import SearchIcon from '../../statics/svg/search_icon';
 
 const HeaderStyle = styled.header`
-  ${tw`h-20 px-3
-        flex justify-between items-center
-        border-solid border-t-4
-        font-extrabold
-        `}
-
-  & {
-    div {
-      ${tw`items-center`}
-    }
-    a,
-    button {
-      ${tw`no-underline px-4`}
-    }
+  ${tw`h-20
+       px-3
+       flex justify-between items-center
+       border-solid border-t-4
+    `}
+  a,
+  button {
+    ${tw`px-4 font-extrabold`}
+  }
+`;
+const Nav = styled.nav`
+  ul {
+    ${tw`flex`}
   }
 `;
 
-const Nav = styled.div`
-  ${tw``}
-`;
-
-const Logo = styled(Link)`
-  ${tw``}
-`;
-const Board = styled(Link)`
-  ${tw``}
-`;
-const Mypage = styled.button`
-  ${tw``}
-`;
-const Login = styled(Link)`
-  ${tw``}
-`;
-const LogoutButton = styled.button`
-  ${tw`
-    
-  `}
-`;
-
 export default function Header() {
-  const { signOut, currentUser } = AuthContext();
-  const navigate = useNavigate('');
+  const { currentUser, signOut } = useAuth();
+  const user = currentUser();
 
-  const handleMypage = () => {
-    const user = currentUser();
-    if (user === undefined) {
-      return;
-    }
-    navigate(`/user/${user.nickname}`, { replace: true });
-  };
-
-  const handleLogout = () => {
+  const handleSignOut = () => {
     signOut();
-    navigate('/', { replace: true });
     alert('로그아웃 완료');
   };
 
-  useEffect(() => {}, []);
   return (
     <HeaderStyle>
-      <Logo className="logo" to={'/'}>
-        <span>Mashillaeng</span>
-      </Logo>
+      <Logo />
       <Nav>
-        <button>
-          <SearchIcon />
-        </button>
-        <Board to={'/'}>Board</Board>
-        <Mypage onClick={handleMypage}>MyPage</Mypage>
-        <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
-        <Login to={'/signin'}>Login</Login>
+        <ul>
+          <li>
+            <SearchIcon />
+          </li>
+          <li>
+            <Link to={'/'}>Board</Link>
+          </li>
+          {user ? (
+            <>
+              <li>
+                <Link to={`user/${user.nickname}`}>My Page</Link>
+              </li>
+              <li>
+                <button onClick={handleSignOut}>Sign Out</button>
+              </li>
+            </>
+          ) : (
+            <li>
+              <Link to={`signIn`}>Sign In</Link>
+            </li>
+          )}
+        </ul>
       </Nav>
     </HeaderStyle>
   );

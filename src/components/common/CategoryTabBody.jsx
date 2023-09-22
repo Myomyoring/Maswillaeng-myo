@@ -1,4 +1,3 @@
-import React from 'react';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 
@@ -8,6 +7,6 @@ const Ul = styled.ul`
         flex justify-center
     `}
 `;
-export default function ToggleBody({ children }) {
-  return <Ul>{children ? children : '준비 중'}</Ul>;
+export default function CategoryTabBody({ children }) {
+  return <Ul>{children ? children : ''}</Ul>;
 }

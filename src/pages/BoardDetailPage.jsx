@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react'; // eslint-disable-line no-unused-vars
-import axios from 'axios';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 import DOMPurify from 'dompurify';
+
+import CommentList from '../components/boardDetail/CommentList';
+import { diplayBoardDetailDate } from '../utils/display_date';
+import { useAuth } from '../context/ProvideAuthContext';
+
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
-import { AuthContext } from '../auth/ProvideAuthContext';
-import { diplayBoardDetailDate } from '../utils/displayDate';
-
-import ShareIcon from '../statics/svg/shareIcon';
-import EditIcon from '../statics/svg/editIcon';
-import DeleteIcon from '../statics/svg/deleteIcon';
-import FullHeartIcon from '../statics/svg/fullHeartIcon';
-import EmptyHeartIcon from '../statics/svg/emptyHeartIcon';
-import CommentList from '../components/boardDetail/CommentList';
-// import LockIcon from '../statics/svg/lockIcon';
+import DeleteIcon from '../statics/svg/delete_icon';
+import EditIcon from '../statics/svg/edit_icon';
+import EmptyHeartIcon from '../statics/svg/empty_heart_icon';
+import FullHeartIcon from '../statics/svg/full_heart_icon';
+import ShareIcon from '../statics/svg/share_icon';
 
 const BoardDetailContainer = styled.div`
   ${tw`
@@ -191,7 +191,7 @@ const Comment = styled.div`
 
 export default function BoardDetailPage() {
   const { postId } = useParams();
-  const { getUserToken } = AuthContext();
+  const { getUserToken } = useAuth();
   const navigate = useNavigate();
   const [post, setPost] = useState({});
   const [liked, setLiked] = useState(false);
@@ -375,11 +375,7 @@ export default function BoardDetailPage() {
 
         {/* 댓글 */}
         <CommentBox>
-          <WriteComment
-            value={comment}
-            onChange={handleChangeComment}
-            placeholder="댓글을 작성해주세요 ."
-          />
+          <WriteComment value={comment} onChange={handleChangeComment} placeholder="댓글을 작성해주세요 ." />
           <CommentContents>
             {/* <span>비밀 댓글</span>
             <LockIcon />
