@@ -1,4 +1,4 @@
-export default function pwdCheckIcon() {
+export default function passwordCheckIcon() {
   return (
     <svg className="octicons" viewBox="0 0 24 24" width="24" height="24" fill="#22C55E">
       <path d="M16.53 9.78a.75.75 0 0 0-1.06-1.06L11 13.19l-1.97-1.97a.75.75 0 0 0-1.06 1.06l2.5 2.5a.75.75 0 0 0 1.06 0l5-5Z"></path>

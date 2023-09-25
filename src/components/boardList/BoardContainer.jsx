@@ -18,8 +18,8 @@ export default function BoardContainer() {
       const response = await postService.getAllPost({ page });
       setList(response.data.content);
       setLastPage(response.data.totalPages);
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -28,8 +28,8 @@ export default function BoardContainer() {
       const response = await postService.getSelectedTabPost({ tabName, page });
       setList(response.data.content);
       setLastPage(response.data.totalPages);
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 

@@ -86,7 +86,6 @@ const NothingMessage = styled.div`
 `;
 
 export default function TabBoard({ posts, guide }) {
-  const [loading, setLoading] = useState(false);
   return (
     <TabBoardStyle>
       <Card>

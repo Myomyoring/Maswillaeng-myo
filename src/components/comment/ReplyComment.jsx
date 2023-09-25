@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 
 import { displayCreatedAt } from '../../utils/display_date';
 import { useAuth } from '../../context/ProvideAuthContext';
 
 import styled from 'styled-components';
 import tw from 'twin.macro';
-import RecommentIcon from '../../statics/svg/recomment_icon';
+import ReplyIcon from '../../statics/svg/reply_icon';
+import { commentService } from '../../services/comment.service';
 
 const ReComments = styled.div`
   ${tw`
@@ -30,7 +30,7 @@ const ProfileImg = styled.img`
     `}
 `;
 
-const Div = styled.div`
+const ReplyContent = styled.div`
   ${tw`
         w-full
         my-1 pl-3
@@ -59,7 +59,6 @@ const WriteComment = styled.textarea`
 `;
 
 export default function ReplyComment({
-  nick,
   comment,
   replyMode,
   setReplyMode,
@@ -70,6 +69,7 @@ export default function ReplyComment({
 }) {
   const { getUserToken, currentUser } = useAuth();
   const { nickname } = currentUser();
+  const token = getUserToken();
   // 리플 목록
   const [replyList, setReplyList] = useState([]);
 
@@ -80,9 +80,8 @@ export default function ReplyComment({
   // 리플 리스트 요청
   const getReply = async (commentId) => {
     try {
-      const response = await axios.get(`/api/comment/reply/${commentId}`);
-      console.log(response.data);
-      setReplyList(response.data);
+      const { data } = await commentService.getReply({ commentId });
+      setReplyList(data);
     } catch (error) {
       console.log(error);
     }
@@ -92,20 +91,12 @@ export default function ReplyComment({
     if (replySelect.replyComment === '') return;
 
     try {
-      const token = getUserToken();
       if (!token) return;
-      const response = await axios.post(
-        `/api/comment/reply`,
-        {
-          parentId: replySelect.replyId,
-          content: replySelect.replyComment,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      const response = await commentService.submitReply({
+        parentId: replySelect.replyId,
+        content: replySelect.replyComment,
+        token,
+      });
       getPost();
       setReplyMode(false);
     } catch (error) {
@@ -116,13 +107,8 @@ export default function ReplyComment({
   const deleteReply = async (replyId) => {
     if (window.confirm('정말 답글을 삭제하시겠습니까?')) {
       try {
-        const token = getUserToken();
         if (!token) return;
-        const response = await axios.delete(`/api/comment/reply/${comment.commentId}/${replyId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await commentService.deleteReply({ commentId: comment.commentId, replyId, token });
         if (response.statusText === 'OK') {
           getPost();
           console.log(response);
@@ -136,11 +122,12 @@ export default function ReplyComment({
   return (
     <>
       {replyMode && replySelect.replyId === comment.commentId ? (
+        // 리플 생성 파트 -> 리플 수정 재사용 할 순 없을까?
         <ReComments>
           <ProfileImg src={comment.userImage} />
-          <Div>
-            <RecommentIcon />
-            <span>{nick}</span>
+          <ReplyContent>
+            <ReplyIcon />
+            <span>{nickname}</span>
             <WriteComment
               value={replySelect.replyComment}
               onChange={(e) => setReplySelect({ ...replySelect, replyComment: e.target.value })}
@@ -149,55 +136,23 @@ export default function ReplyComment({
             />
             <button onClick={() => replySubmit()}>작성</button>
             <button onClick={() => setReplyMode(false)}>취소</button>
-          </Div>
+          </ReplyContent>
         </ReComments>
       ) : (
         replyList.map((reply, index) => (
           <ReComments key={index}>
             <ProfileImg src={reply.userImage} />
-            <Div>
-              <RecommentIcon />
+            <ReplyContent>
+              <ReplyIcon />
               <span>{reply.nickname}</span>
               <span>{displayCreatedAt(reply.createDate)}</span>
               <p>{reply.content}</p>
               <button onClick={() => handleCreateReply(comment.commentId)}>답글</button>
               {reply.nickname === nickname ? <button onClick={() => deleteReply(reply.commentId)}>삭제</button> : null}
-            </Div>
+            </ReplyContent>
           </ReComments>
         ))
       )}
-      {/* {
-            // 대댓글이 수정 중일 경우
-            editReply ? (
-              <ReComments>
-                <Image src="" />
-                <Div>
-                  <RecommentIcon />
-                  <span>닉네임</span>
-                  <span></span>
-                  <WriteComment placeholder="댓글을 작성해주세요 . " />
-                  <button>작성</button>
-                  <button onClick={setEditReply(false)}>취소</button>
-                </Div>
-              </ReComments>
-            ) : (
-              // 대댓글이 수정 중이 아닐 경우
-              <ReComments>
-                <Image src="" />
-                <Div>
-                  <RecommentIcon />
-                  <span>닉네임</span>
-                  <span></span>
-                  <div>
-                    컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠컨텐츠
-                  </div>
-                  <button>삭제</button>
-                  <button>답글</button>
-                  <button>신고</button>
-                </Div>
-              </ReComments>
-            )
-          } */}
     </>
   );
 }

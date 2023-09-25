@@ -3,7 +3,6 @@ import { useState } from 'react';
 
 import { commentService } from '../../services/comment.service';
 import { displayCreatedAt } from '../../utils/display_date';
-import ModifyComment from './ModifyComment';
 import ReplyComment from './ReplyComment';
 
 import styled from 'styled-components';
@@ -30,7 +29,7 @@ const ProfileImg = styled.img`
     `}
 `;
 
-const Div = styled.div`
+const CommentContent = styled.div`
   ${tw`
         w-full
         my-1 pl-3
@@ -53,12 +52,21 @@ const Div = styled.div`
   }
 `;
 
+const WriteComment = styled.textarea`
+  ${tw`
+        w-full
+        p-3
+        block
+        bg-white
+        border-solid border-gray
+    `}
+`;
+
 export default function CommentList({ comments, getPost }) {
   const { getUserToken, currentUser } = useAuth();
   const token = getUserToken();
   const { nickname } = currentUser();
 
-  const [nick, setNick] = useState('');
   const [editMode, setEditMode] = useState(false);
   const [replyMode, setReplyMode] = useState(false);
   const [modifySelect, setModifySelect] = useState({ modifyCommentId: 0, modifyContent: '' });
@@ -70,10 +78,26 @@ export default function CommentList({ comments, getPost }) {
   };
 
   const handleCreateReply = (parentId) => {
-    const user = currentUser();
-    setNick(user.nickname);
     setReplyMode(true);
     setReplySelect({ replyId: parentId });
+  };
+
+  const updateComment = async () => {
+    try {
+      if (!token) return;
+
+      const response = await commentService.updateComment({
+        commentId: modifySelect.modifyCommentId,
+        content: modifySelect.modifyContent,
+        token,
+      });
+      if (response.statusText === 'OK') {
+        setEditMode(false);
+        getPost();
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const deleteComment = async (commentId) => {
@@ -84,8 +108,8 @@ export default function CommentList({ comments, getPost }) {
         if (response.statusText === 'OK') {
           getPost();
         }
-      } catch (err) {
-        console.log(err);
+      } catch (error) {
+        console.log(error);
       }
     } else return;
   };
@@ -94,19 +118,27 @@ export default function CommentList({ comments, getPost }) {
     <>
       {comments?.map((comment, index) =>
         editMode && comment.commentId === modifySelect.modifyCommentId ? (
-          <ModifyComment
-            key={index}
-            comment={comment}
-            setEditMode={setEditMode}
-            modifySelect={modifySelect}
-            setModifySelect={setModifySelect}
-            getPost={getPost}
-          />
+          <Comments key={index}>
+            <ProfileImg src={comment.userImage} />
+            <CommentContent>
+              <span>{comment.nickname}</span>
+              <span>{displayCreatedAt(comment.createDate)}</span>
+              <WriteComment
+                value={modifySelect.modifyContent}
+                onChange={(e) => {
+                  setModifySelect({ ...modifySelect, modifyContent: e.target.value });
+                }}
+                placeholder="댓글을 작성해주세요. "
+              />
+              <button onClick={updateComment}>수정</button>
+              <button onClick={() => setEditMode(false)}>취소</button>
+            </CommentContent>
+          </Comments>
         ) : (
           <div key={index}>
             <Comments>
               <ProfileImg src={comment.userImage} />
-              <Div>
+              <CommentContent>
                 <span>{comment.nickname}</span>
                 <span>{displayCreatedAt(comment.createDate)}</span>
                 <div>{comment.content}</div>
@@ -117,10 +149,9 @@ export default function CommentList({ comments, getPost }) {
                     <button onClick={() => deleteComment(comment.commentId)}>삭제</button>
                   </>
                 ) : null}
-              </Div>
+              </CommentContent>
             </Comments>
             <ReplyComment
-              nick={nick}
               comment={comment}
               replyMode={replyMode}
               setReplyMode={setReplyMode}

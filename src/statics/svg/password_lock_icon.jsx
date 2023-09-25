@@ -1,4 +1,4 @@
-export default function pwdLockIcon() {
+export default function passwordLockIcon() {
   return (
     <svg className="octicons" viewBox="0 0 24 24" width="24" height="24" fill="#EA4E4E">
       <path d="M9.28 7.72a.75.75 0 0 0-1.06 1.06l2.72 2.72-2.72 2.72a.75.75 0 1 0 1.06 1.06L12 12.56l2.72 2.72a.75.75 0 1 0 1.06-1.06l-2.72-2.72 2.72-2.72a.75.75 0 0 0-1.06-1.06L12 10.44 9.28 7.72Z"></path>
