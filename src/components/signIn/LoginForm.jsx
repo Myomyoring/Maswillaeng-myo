@@ -8,6 +8,12 @@ import tw from 'twin.macro';
 
 const Form = styled.form`
   ${tw``}
+  a {
+    ${tw`
+        text-xs
+        px-3
+    `}
+  }
 `;
 
 const Input = styled.input`
@@ -57,7 +63,7 @@ export default function LoginForm() {
     setUser({ ...user, [name]: value });
   };
 
-  const loginSubmit = async (e) => {
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
     if (email === '' || password === '') {
       setErrMessage('아이디 또는 비밀번호를 입력해주세요');
@@ -79,13 +85,13 @@ export default function LoginForm() {
   };
 
   return (
-    <Form onSubmit={loginSubmit}>
+    <Form onSubmit={onSubmitHandler}>
       <Input type="text" name="email" value={email} onChange={handleChange} placeholder="아이디" />
       <Input type="password" name="password" value={password} onChange={handleChange} placeholder="비밀번호" />
       <ErrorMessage>{errMessage}</ErrorMessage>
       <Button disabled={!email || !password}>로그인</Button>
-      <Link to={'/signup'}>회원가입</Link>
-      <Link to={'/'}>아이디 / 비밀번호 찾기</Link>
+      <Link to={`/signUp`}>회원가입</Link>
+      <Link to={`/`}>아이디 / 비밀번호 찾기</Link>
     </Form>
   );
 }

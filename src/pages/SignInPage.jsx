@@ -10,31 +10,25 @@ const SignInStyle = styled.div`
         flex justify-center items-center
         text-center
         bg-cover
-        bg-[url('/src/statics/images/default_signin_image.jpg')]
+        bg-[url('/src/statics/images/default_sign_in_image.jpg')]
     `}
 `;
-const Content = styled.div`
+const Contents = styled.div`
   ${tw`
         px-44 py-20
         items-center
         rounded-xl 
         bg-main bg-opacity-70
   `}
-  form > a {
-    ${tw`
-        text-xs
-        px-3
-    `}
-  }
 `;
 
 export default function SignInPage() {
   return (
     <SignInStyle>
-      <Content>
+      <Contents>
         <Logo />
         <LoginForm />
-      </Content>
+      </Contents>
     </SignInStyle>
   );
 }

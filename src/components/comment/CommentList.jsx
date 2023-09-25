@@ -1,18 +1,18 @@
-import styled from 'styled-components';
-import tw from 'twin.macro';
-
 import { useAuth } from '../../context/ProvideAuthContext';
 import { useState } from 'react';
-import axios from 'axios';
+
+import { commentService } from '../../services/comment.service';
 import { displayCreatedAt } from '../../utils/display_date';
 import ModifyComment from './ModifyComment';
 import ReplyComment from './ReplyComment';
+
+import styled from 'styled-components';
+import tw from 'twin.macro';
 
 const Comments = styled.div`
   ${tw`
         flex items-center
         p-3
-        
   `}
 
   * {
@@ -25,7 +25,6 @@ const Comments = styled.div`
 const ProfileImg = styled.img`
   ${tw`
     w-10 h-10
-    min-w-min min-h-min
     border-solid border-gray
     rounded-full object-cover
     `}
@@ -55,24 +54,21 @@ const Div = styled.div`
 `;
 
 export default function CommentList({ comments, getPost }) {
-  // 대댓 작성 시 표기 할 현재 로그인 한 유저 닉네임
-  const [nick, setNick] = useState('');
-
   const { getUserToken, currentUser } = useAuth();
+  const token = getUserToken();
+  const { nickname } = currentUser();
+
+  const [nick, setNick] = useState('');
   const [editMode, setEditMode] = useState(false);
   const [replyMode, setReplyMode] = useState(false);
-  // 수정 버튼 클릭 시, 선택된 수정할 댓글
   const [modifySelect, setModifySelect] = useState({ modifyCommentId: 0, modifyContent: '' });
-  // 답글 버튼 클릭 시, 선택된 대댓글의 부모 키
   const [replySelect, setReplySelect] = useState({ replyId: 0, replyComment: '' });
 
-  // 수정 버튼 클릭 핸들러
   const handleEditComment = (id, content) => {
     setEditMode(true);
     setModifySelect({ modifyCommentId: id, modifyContent: content });
   };
 
-  // 답글 버튼 클릭 핸들러
   const handleCreateReply = (parentId) => {
     const user = currentUser();
     setNick(user.nickname);
@@ -80,17 +76,11 @@ export default function CommentList({ comments, getPost }) {
     setReplySelect({ replyId: parentId });
   };
 
-  // 댓글 삭제
   const deleteComment = async (commentId) => {
     if (window.confirm('정말 댓글을 삭제하시겠습니까?')) {
       try {
-        const token = getUserToken();
         if (!token) return;
-        const response = await axios.delete(`/api/comment/${commentId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await commentService.deleteComment({ commentId, token });
         if (response.statusText === 'OK') {
           getPost();
         }
@@ -101,7 +91,7 @@ export default function CommentList({ comments, getPost }) {
   };
 
   return (
-    <div>
+    <>
       {comments?.map((comment, index) =>
         editMode && comment.commentId === modifySelect.modifyCommentId ? (
           <ModifyComment
@@ -120,10 +110,13 @@ export default function CommentList({ comments, getPost }) {
                 <span>{comment.nickname}</span>
                 <span>{displayCreatedAt(comment.createDate)}</span>
                 <div>{comment.content}</div>
-                <button onClick={() => handleEditComment(comment.commentId, comment.content)}>수정</button>
                 <button onClick={() => handleCreateReply(comment.commentId)}>답글</button>
-                <button>신고</button>
-                <button onClick={() => deleteComment(comment.commentId)}>삭제</button>
+                {comment.nickname === nickname ? (
+                  <>
+                    <button onClick={() => handleEditComment(comment.commentId, comment.content)}>수정</button>
+                    <button onClick={() => deleteComment(comment.commentId)}>삭제</button>
+                  </>
+                ) : null}
               </Div>
             </Comments>
             <ReplyComment
@@ -139,6 +132,6 @@ export default function CommentList({ comments, getPost }) {
           </div>
         ),
       )}
-    </div>
+    </>
   );
 }

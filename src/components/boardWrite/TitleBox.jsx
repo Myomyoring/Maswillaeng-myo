@@ -41,7 +41,14 @@ export default function TitleBox({ categories, onChange, category, title }) {
           )}
         </CategorySelector>
       </span>
-      <TitleInput type="text" name="title" value={title} onChange={onChange} placeholder="제목을 입력해주세요 ." />
+      <TitleInput
+        type="text"
+        name="title"
+        value={title}
+        onChange={onChange}
+        maxLength="30"
+        placeholder="제목을 입력해주세요 (최대 30자)"
+      />
     </Title>
   );
 }

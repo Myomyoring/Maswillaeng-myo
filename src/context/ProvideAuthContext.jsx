@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react'; // eslint-disable-line no-unused-vars
+import { createContext, useContext } from 'react';
 import AuthUser from '../auth/AuthUser';
 
 const authContext = createContext();

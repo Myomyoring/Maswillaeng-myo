@@ -11,7 +11,7 @@ import RecommentIcon from '../../statics/svg/recomment_icon';
 const ReComments = styled.div`
   ${tw`
         flex items-center
-        p-3 pl-14
+        p-3 pl-10
         bg-lightgray
   `}
 
@@ -25,7 +25,6 @@ const ReComments = styled.div`
 const ProfileImg = styled.img`
   ${tw`
     w-10 h-10
-    min-w-min min-h-min
     border-solid border-gray
     rounded-full object-cover
     `}
@@ -41,22 +40,17 @@ const Div = styled.div`
         font-bold
     `}
   }
-  div {
+  p {
     ${tw`
         text-darkgray
-        overflow-visible
-    `}
-  }
-  button {
-    ${tw`
-        text-sm
+        overflow-hidden
     `}
   }
 `;
 
 const WriteComment = styled.textarea`
   ${tw`
-    w-full
+    w-10/12
     p-3
     block
   bg-white
@@ -74,7 +68,8 @@ export default function ReplyComment({
   getPost,
   handleCreateReply,
 }) {
-  const { getUserToken } = useAuth();
+  const { getUserToken, currentUser } = useAuth();
+  const { nickname } = currentUser();
   // 리플 목록
   const [replyList, setReplyList] = useState([]);
 
@@ -88,8 +83,8 @@ export default function ReplyComment({
       const response = await axios.get(`/api/comment/reply/${commentId}`);
       console.log(response.data);
       setReplyList(response.data);
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -111,11 +106,10 @@ export default function ReplyComment({
           },
         },
       );
-      console.log(response);
       getPost();
       setReplyMode(false);
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -133,8 +127,8 @@ export default function ReplyComment({
           getPost();
           console.log(response);
         }
-      } catch (err) {
-        console.log(err);
+      } catch (error) {
+        console.log(error);
       }
     } else return;
   };
@@ -147,11 +141,11 @@ export default function ReplyComment({
           <Div>
             <RecommentIcon />
             <span>{nick}</span>
-            <span></span>
             <WriteComment
               value={replySelect.replyComment}
               onChange={(e) => setReplySelect({ ...replySelect, replyComment: e.target.value })}
-              placeholder="댓글을 작성해주세요. "
+              maxLength="200"
+              placeholder="댓글을 작성해주세요. (최대 200자)"
             />
             <button onClick={() => replySubmit()}>작성</button>
             <button onClick={() => setReplyMode(false)}>취소</button>
@@ -165,10 +159,9 @@ export default function ReplyComment({
               <RecommentIcon />
               <span>{reply.nickname}</span>
               <span>{displayCreatedAt(reply.createDate)}</span>
-              <div>{reply.content}</div>
-              <button onClick={() => deleteReply(reply.commentId)}>삭제</button>
+              <p>{reply.content}</p>
               <button onClick={() => handleCreateReply(comment.commentId)}>답글</button>
-              <button>신고</button>
+              {reply.nickname === nickname ? <button onClick={() => deleteReply(reply.commentId)}>삭제</button> : null}
             </Div>
           </ReComments>
         ))

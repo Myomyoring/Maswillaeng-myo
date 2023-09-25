@@ -3,12 +3,13 @@ import tw from 'twin.macro';
 
 const Button = styled.button`
   ${tw`
-        mx-2 p-3
+        p-3
         bg-point
         font-bold text-white text-sm
         cursor-pointer
     `}
+  ${(props) => (props.disabled ? tw`bg-gray cursor-not-allowed` : tw`bg-point`)}
 `;
-export default function EventButton({ children }) {
-  return <Button>{children}</Button>;
+export default function EventButton({ children, ...rest }) {
+  return <Button {...rest}>{children}</Button>;
 }

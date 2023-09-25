@@ -1,6 +1,9 @@
 import axios from 'axios';
 
 export const postService = {
+  deletePost({ postId }) {
+    return axios.delete(`/api/post/${postId}`);
+  },
   getAllPost({ page }) {
     return axios.get(`api/post/posts/${page}`);
   },
