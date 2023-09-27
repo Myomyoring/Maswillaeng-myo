@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const likeService = {
-  addLike({ postId, token }) {
+  saveLike({ postId, token }) {
     return axios.post(
       `/api/like/${postId}`,
       {},

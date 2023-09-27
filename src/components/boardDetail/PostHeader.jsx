@@ -5,7 +5,7 @@ import { diplayBoardDetailDate } from '../../utils/display_date';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 
-const PostTitleStyle = styled.div`
+const PostHeaderStyle = styled.div`
   ${tw`
       mt-10 mb-2
   `}
@@ -18,7 +18,6 @@ const Category = styled.h3`
     `}
   }
 `;
-
 const Title = styled.div`
   ${tw`
         mb-5 text-2xl font-black
@@ -46,18 +45,18 @@ const ProfileBox = styled.div`
   }
 `;
 
-export default function PostTitle({ post }) {
+export default function PostHeader({ category, title, userImage, nickname, createdDate }) {
   return (
-    <PostTitleStyle>
+    <PostHeaderStyle>
       <Category>
-        <Link to={`/`}>{post.category}</Link>
+        <Link to={`/`}>{category}</Link>
       </Category>
-      <Title>{post.title}</Title>
+      <Title>{title}</Title>
       <ProfileBox>
-        <img src={post.userImage} />
-        <Link to={`/user/${post.nickname}`}>{post.nickname}</Link>
-        <span>{diplayBoardDetailDate(post.createdDate)}</span>
+        <img src={userImage} />
+        <Link to={`/user/${nickname}`}>{nickname}</Link>
+        <span>{diplayBoardDetailDate(createdDate)}</span>
       </ProfileBox>
-    </PostTitleStyle>
+    </PostHeaderStyle>
   );
 }

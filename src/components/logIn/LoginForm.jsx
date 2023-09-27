@@ -52,7 +52,7 @@ const Button = styled.button`
 `;
 
 export default function LoginForm() {
-  const { signIn } = useAuth();
+  const { logIn } = useAuth();
 
   const [user, setUser] = useState({ email: '', password: '' });
   const { email, password } = user;
@@ -63,14 +63,14 @@ export default function LoginForm() {
     setUser({ ...user, [name]: value });
   };
 
-  const onSubmitHandler = async (e) => {
-    e.preventDefault();
+  const onSubmitHandler = async (event) => {
+    event.preventDefault();
     if (email === '' || password === '') {
       setErrMessage('아이디 또는 비밀번호를 입력해주세요');
       return;
     }
     try {
-      const response = await signIn(email, password);
+      const response = await logIn(email, password);
       if (!response) {
         setErrMessage('아이디 또는 비밀번호를 확인해주세요');
         return;
@@ -78,7 +78,7 @@ export default function LoginForm() {
         response && window.location.replace('/');
         alert('로그인 성공');
       }
-    } catch (err) {
+    } catch (error) {
       setErrMessage('로그인 실패');
       return;
     }

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
-import Logo from './Logo';
 import { useAuth } from '../../context/ProvideAuthContext';
+import Logo from './Logo';
 
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
@@ -25,11 +25,11 @@ const Nav = styled.nav`
 `;
 
 export default function Header() {
-  const { currentUser, signOut } = useAuth();
+  const { currentUser, logOut } = useAuth();
   const user = currentUser();
 
-  const handleSignOut = () => {
-    signOut();
+  const LogOutHandler = () => {
+    logOut();
     alert('로그아웃 완료');
   };
 
@@ -42,20 +42,20 @@ export default function Header() {
             <SearchIcon />
           </li>
           <li>
-            <Link to={'/'}>Board</Link>
+            <Link to={`/`}>Board</Link>
           </li>
           {user ? (
             <>
               <li>
-                <Link to={`user/${user.nickname}`}>My Page</Link>
+                <Link to={`/user/${user.nickname}`}>My Page</Link>
               </li>
               <li>
-                <button onClick={handleSignOut}>Sign Out</button>
+                <button onClick={LogOutHandler}>Log Out</button>
               </li>
             </>
           ) : (
             <li>
-              <Link to={`signIn`}>Sign In</Link>
+              <Link to={`/logIn`}>Log In</Link>
             </li>
           )}
         </ul>

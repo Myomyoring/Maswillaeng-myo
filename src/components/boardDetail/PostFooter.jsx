@@ -45,24 +45,24 @@ const Buttons = styled.span`
   }
 `;
 
-export default function PostBottom({ post, postId, getPost, visitor }) {
+export default function PostFooter({ post, postId, getPost, nickname }) {
   const navigate = useNavigate();
   const { getUserToken } = useAuth();
   const token = getUserToken();
   const [liked, setLiked] = useState(false);
 
-  const addLike = async () => {
+  const saveLike = async () => {
     try {
       if (!token) return;
 
-      const response = await likeService.addLike({ postId, token });
+      const response = await likeService.saveLike({ postId, token });
       if (response.statusText === 'OK') {
         setLiked(true);
         getPost();
       }
     } catch (error) {
       setLiked(true);
-      console.log(error);
+      console.log(error.message);
     }
   };
 
@@ -77,7 +77,7 @@ export default function PostBottom({ post, postId, getPost, visitor }) {
       }
     } catch (error) {
       setLiked(false);
-      console.error(error);
+      console.log(error.message);
     }
   };
 
@@ -89,7 +89,7 @@ export default function PostBottom({ post, postId, getPost, visitor }) {
       await navigator.clipboard.writeText(url);
       alert('클립보드에 링크가 복사 되었습니다.');
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
     }
   };
 
@@ -102,7 +102,7 @@ export default function PostBottom({ post, postId, getPost, visitor }) {
           alert('삭제 되었습니다.');
         }
       } catch (error) {
-        console.log(error);
+        console.log(error.message);
       }
     } else return;
   };
@@ -114,7 +114,7 @@ export default function PostBottom({ post, postId, getPost, visitor }) {
             <FullHeartIcon />
           </span>
         ) : (
-          <span onClick={addLike}>
+          <span onClick={saveLike}>
             <EmptyHeartIcon />
           </span>
         )}
@@ -124,7 +124,7 @@ export default function PostBottom({ post, postId, getPost, visitor }) {
         <button onClick={() => sharePost()}>
           <ShareIcon />
         </button>
-        {visitor === post.nickname ? (
+        {nickname === post.nickname ? (
           <>
             <Link to={`/boardModify/${postId}`}>
               <EditIcon />

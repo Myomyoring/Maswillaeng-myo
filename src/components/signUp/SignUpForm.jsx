@@ -208,7 +208,7 @@ export default function SignUpForm() {
           introduction,
         });
         if (response.statusText === 'OK') {
-          navigate(`/signIn`, { replace: true });
+          navigate(`/logIn`, { replace: true });
           alert('회원가입 성공');
         } else {
           alert('회원가입 에러');

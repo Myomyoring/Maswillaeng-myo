@@ -10,14 +10,14 @@ export const userService = {
   getUser({ userId }) {
     return axios.get(`/api/user/${userId}`);
   },
-  refresh({ refreshToken }) {
-    return axios.post('/api/auth/issue', { refreshToken });
-  },
-  signIn({ email, password }) {
+  logIn({ email, password }) {
     return axios.post('/api/auth/login', { email, password });
   },
-  signOut({ userId }) {
+  logOut({ userId }) {
     return axios.post('/api/auth/logout', { userId });
+  },
+  refresh({ refreshToken }) {
+    return axios.post('/api/auth/issue', { refreshToken });
   },
   signUp({ userImage, email, password, nickname, phoneNumber, introduction }) {
     return axios.post('/api/auth/sign', {

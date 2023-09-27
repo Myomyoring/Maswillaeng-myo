@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 
+import { commentService } from '../../services/comment.service';
 import { displayCreatedAt } from '../../utils/display_date';
 import { useAuth } from '../../context/ProvideAuthContext';
 
 import styled from 'styled-components';
 import tw from 'twin.macro';
 import ReplyIcon from '../../statics/svg/reply_icon';
-import { commentService } from '../../services/comment.service';
+import { Link } from 'react-router-dom';
 
 const ReComments = styled.div`
   ${tw`
@@ -65,42 +66,63 @@ export default function ReplyComment({
   replySelect,
   setReplySelect,
   getPost,
-  handleCreateReply,
+  createReplyHandler,
 }) {
   const { getUserToken, currentUser } = useAuth();
   const { nickname } = currentUser();
   const token = getUserToken();
-  // 리플 목록
   const [replyList, setReplyList] = useState([]);
 
   useEffect(() => {
     getReply(comment.commentId);
   }, [comment]);
 
-  // 리플 리스트 요청
   const getReply = async (commentId) => {
     try {
       const { data } = await commentService.getReply({ commentId });
       setReplyList(data);
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
     }
   };
 
-  const replySubmit = async () => {
+  const saveReply = async () => {
     if (replySelect.replyComment === '') return;
 
     try {
       if (!token) return;
-      const response = await commentService.submitReply({
-        parentId: replySelect.replyId,
+      const response = await commentService.saveReply({
+        parentId: replySelect.parentId,
         content: replySelect.replyComment,
         token,
       });
-      getPost();
-      setReplyMode(false);
+      if (response.statusText === 'OK') {
+        getPost();
+        setReplyMode(false);
+      } else return;
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
+    }
+  };
+
+  const modifyReplyHandler = async (parentId, replyId, content) => {
+    setReplyMode(true);
+    setReplySelect({ mode: 'update', parentId: parentId, replyId: replyId, replyComment: content });
+  };
+
+  const updateReply = async () => {
+    try {
+      const response = await commentService.updateReply({
+        replyId: replySelect.replyId,
+        content: replySelect.replyComment,
+        token,
+      });
+      if (response.statusText === 'OK') {
+        getPost();
+        setReplyMode(false);
+      } else return;
+    } catch (error) {
+      console.log(error.message);
     }
   };
 
@@ -108,11 +130,11 @@ export default function ReplyComment({
     if (window.confirm('정말 답글을 삭제하시겠습니까?')) {
       try {
         if (!token) return;
-        const response = await commentService.deleteReply({ commentId: comment.commentId, replyId, token });
+        const response = await commentService.deleteReply({ parentId: comment.commentId, replyId, token });
         if (response.statusText === 'OK') {
           getPost();
           console.log(response);
-        }
+        } else return;
       } catch (error) {
         console.log(error);
       }
@@ -121,8 +143,7 @@ export default function ReplyComment({
 
   return (
     <>
-      {replyMode && replySelect.replyId === comment.commentId ? (
-        // 리플 생성 파트 -> 리플 수정 재사용 할 순 없을까?
+      {replyMode && replySelect.parentId === comment.commentId && replySelect.mode === 'update' ? (
         <ReComments>
           <ProfileImg src={comment.userImage} />
           <ReplyContent>
@@ -130,11 +151,11 @@ export default function ReplyComment({
             <span>{nickname}</span>
             <WriteComment
               value={replySelect.replyComment}
-              onChange={(e) => setReplySelect({ ...replySelect, replyComment: e.target.value })}
+              onChange={(event) => setReplySelect({ ...replySelect, replyComment: event.target.value })}
               maxLength="200"
               placeholder="댓글을 작성해주세요. (최대 200자)"
             />
-            <button onClick={() => replySubmit()}>작성</button>
+            <button onClick={() => updateReply()}>수정</button>
             <button onClick={() => setReplyMode(false)}>취소</button>
           </ReplyContent>
         </ReComments>
@@ -144,15 +165,41 @@ export default function ReplyComment({
             <ProfileImg src={reply.userImage} />
             <ReplyContent>
               <ReplyIcon />
-              <span>{reply.nickname}</span>
+              <Link to={`/user/${reply.nickname}`}>
+                <span>{reply.nickname}</span>
+              </Link>
               <span>{displayCreatedAt(reply.createDate)}</span>
               <p>{reply.content}</p>
-              <button onClick={() => handleCreateReply(comment.commentId)}>답글</button>
-              {reply.nickname === nickname ? <button onClick={() => deleteReply(reply.commentId)}>삭제</button> : null}
+              <button onClick={() => createReplyHandler(comment.commentId)}>답글</button>
+              {reply.nickname === nickname ? (
+                <>
+                  <button onClick={() => modifyReplyHandler(comment.commentId, reply.commentId, reply.content)}>
+                    수정
+                  </button>
+                  <button onClick={() => deleteReply(reply.commentId)}>삭제</button>
+                </>
+              ) : null}
             </ReplyContent>
           </ReComments>
         ))
       )}
+      {replyMode && replySelect.parentId === comment.commentId && replySelect.mode === 'create' ? (
+        <ReComments>
+          <ProfileImg src={comment.userImage} />
+          <ReplyContent>
+            <ReplyIcon />
+            <span>{nickname}</span>
+            <WriteComment
+              value={replySelect.replyComment}
+              onChange={(event) => setReplySelect({ ...replySelect, replyComment: event.target.value })}
+              maxLength="200"
+              placeholder="댓글을 작성해주세요. (최대 200자)"
+            />
+            <button onClick={() => saveReply()}>작성</button>
+            <button onClick={() => setReplyMode(false)}>취소</button>
+          </ReplyContent>
+        </ReComments>
+      ) : null}
     </>
   );
 }

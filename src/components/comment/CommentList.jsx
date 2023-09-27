@@ -1,5 +1,5 @@
 import { useAuth } from '../../context/ProvideAuthContext';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { commentService } from '../../services/comment.service';
 import { displayCreatedAt } from '../../utils/display_date';
@@ -7,11 +7,24 @@ import ReplyComment from './ReplyComment';
 
 import styled from 'styled-components';
 import tw from 'twin.macro';
+import { Link } from 'react-router-dom';
+
+const Count = styled.div`
+  ${tw`
+    py-5 
+    font-semibold text-lg
+  `}// span {
+  //   ${tw`
+  //     font-bold text-point
+  //   `}
+  // }
+`;
 
 const Comments = styled.div`
   ${tw`
-        flex items-center
-        p-3
+      p-3
+      flex items-center
+    bg-white
   `}
 
   * {
@@ -67,19 +80,19 @@ export default function CommentList({ comments, getPost }) {
   const token = getUserToken();
   const { nickname } = currentUser();
 
-  const [editMode, setEditMode] = useState(false);
+  const [modifyMode, setModifyMode] = useState(false);
   const [replyMode, setReplyMode] = useState(false);
   const [modifySelect, setModifySelect] = useState({ modifyCommentId: 0, modifyContent: '' });
-  const [replySelect, setReplySelect] = useState({ replyId: 0, replyComment: '' });
+  const [replySelect, setReplySelect] = useState({ mode: '', parentId: 0, replyId: 0, replyComment: '' });
 
-  const handleEditComment = (id, content) => {
-    setEditMode(true);
+  const modifyCommentHandler = (id, content) => {
+    setModifyMode(true);
     setModifySelect({ modifyCommentId: id, modifyContent: content });
   };
 
-  const handleCreateReply = (parentId) => {
+  const createReplyHandler = (parentId) => {
     setReplyMode(true);
-    setReplySelect({ replyId: parentId });
+    setReplySelect({ mode: 'create', parentId: parentId });
   };
 
   const updateComment = async () => {
@@ -92,11 +105,11 @@ export default function CommentList({ comments, getPost }) {
         token,
       });
       if (response.statusText === 'OK') {
-        setEditMode(false);
+        setModifyMode(false);
         getPost();
       }
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
     }
   };
 
@@ -109,15 +122,18 @@ export default function CommentList({ comments, getPost }) {
           getPost();
         }
       } catch (error) {
-        console.log(error);
+        console.log(error.message);
       }
     } else return;
   };
 
   return (
     <>
+      <Count>
+        댓글 <span></span>
+      </Count>
       {comments?.map((comment, index) =>
-        editMode && comment.commentId === modifySelect.modifyCommentId ? (
+        modifyMode && comment.commentId === modifySelect.modifyCommentId ? (
           <Comments key={index}>
             <ProfileImg src={comment.userImage} />
             <CommentContent>
@@ -131,7 +147,7 @@ export default function CommentList({ comments, getPost }) {
                 placeholder="댓글을 작성해주세요. "
               />
               <button onClick={updateComment}>수정</button>
-              <button onClick={() => setEditMode(false)}>취소</button>
+              <button onClick={() => setModifyMode(false)}>취소</button>
             </CommentContent>
           </Comments>
         ) : (
@@ -139,26 +155,30 @@ export default function CommentList({ comments, getPost }) {
             <Comments>
               <ProfileImg src={comment.userImage} />
               <CommentContent>
-                <span>{comment.nickname}</span>
+                <Link to={`/user/${comment.nickname}`}>
+                  <span>{comment.nickname}</span>
+                </Link>
                 <span>{displayCreatedAt(comment.createDate)}</span>
                 <div>{comment.content}</div>
-                <button onClick={() => handleCreateReply(comment.commentId)}>답글</button>
+                <button onClick={() => createReplyHandler(comment.commentId)}>답글</button>
                 {comment.nickname === nickname ? (
                   <>
-                    <button onClick={() => handleEditComment(comment.commentId, comment.content)}>수정</button>
+                    <button onClick={() => modifyCommentHandler(comment.commentId, comment.content)}>수정</button>
                     <button onClick={() => deleteComment(comment.commentId)}>삭제</button>
                   </>
                 ) : null}
               </CommentContent>
             </Comments>
             <ReplyComment
-              comment={comment}
-              replyMode={replyMode}
-              setReplyMode={setReplyMode}
-              replySelect={replySelect}
-              setReplySelect={setReplySelect}
-              getPost={getPost}
-              handleCreateReply={handleCreateReply}
+              {...{
+                comment,
+                replyMode,
+                setReplyMode,
+                replySelect,
+                setReplySelect,
+                getPost,
+                createReplyHandler,
+              }}
             />
           </div>
         ),

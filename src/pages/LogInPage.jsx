@@ -1,10 +1,10 @@
-import LoginForm from '../components/signIn/LoginForm';
+import LoginForm from '../components/logIn/LoginForm';
 import Logo from '../components/common/Logo';
 
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 
-const SignInStyle = styled.div`
+const LogInStyle = styled.div`
   ${tw`
         w-full h-screen
         flex justify-center items-center
@@ -19,16 +19,16 @@ const Contents = styled.div`
         items-center
         rounded-xl 
         bg-main bg-opacity-70
-  `}
+    `}
 `;
 
-export default function SignInPage() {
+export default function LogInPage() {
   return (
-    <SignInStyle>
+    <LogInStyle>
       <Contents>
         <Logo />
         <LoginForm />
       </Contents>
-    </SignInStyle>
+    </LogInStyle>
   );
 }

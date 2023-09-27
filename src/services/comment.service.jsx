@@ -8,8 +8,8 @@ export const commentService = {
       },
     });
   },
-  deleteReply({ commentId, replyId, token }) {
-    return axios.delete(`/api/comment/reply/${commentId}/${replyId}`, {
+  deleteReply({ parentId, replyId, token }) {
+    return axios.delete(`/api/comment/reply/${parentId}/${replyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -18,7 +18,7 @@ export const commentService = {
   getReply({ commentId }) {
     return axios.get(`/api/comment/reply/${commentId}`);
   },
-  submitComment({ postId, content, token }) {
+  saveComment({ postId, content, token }) {
     return axios.post(
       '/api/comment',
       { postId, content },
@@ -29,7 +29,7 @@ export const commentService = {
       },
     );
   },
-  submitReply({ parentId, content, token }) {
+  saveReply({ parentId, content, token }) {
     return axios.post(
       `/api/comment/reply`,
       {
@@ -47,6 +47,17 @@ export const commentService = {
     return axios.put(
       '/api/comment',
       { commentId, content },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+  },
+  updateReply({ replyId, content, token }) {
+    return axios.put(
+      `/api/comment/reply`,
+      { replyId, content },
       {
         headers: {
           Authorization: `Bearer ${token}`,

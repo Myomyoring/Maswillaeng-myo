@@ -3,7 +3,7 @@ import BoardListPage from '../pages/BoardListPage';
 import BoardWritePage from '../pages/BoardWritePage';
 import Layout from '../Layout';
 import NotFound from '../pages/NotFoundPage';
-import SignInPage from '../pages/SignInPage';
+import LogInPage from '../pages/LogInPage';
 import SignUpPage from '../pages/SignUpPage';
 import UserPage from '../pages/UserPage';
 import PrivateRoute from '../auth/PrivateRoute';
@@ -59,10 +59,10 @@ const routes = [
     errorElement: <NotFound />,
   },
   {
-    path: 'signIn',
+    path: 'logIn',
     element: (
       <PublicRoute>
-        <SignInPage />
+        <LogInPage />
       </PublicRoute>
     ),
   },

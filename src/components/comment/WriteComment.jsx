@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { commentService } from '../../services/comment.service';
 import { useAuth } from '../../context/ProvideAuthContext';
-import EventButton from '../common/EventButton';
+import SaveButton from '../common/EventButton';
 
 import styled from 'styled-components';
 import tw from 'twin.macro';
@@ -36,7 +36,7 @@ export default function WriteComment({ postId, getPost }) {
     setComment(value);
   };
 
-  const commentSubmit = async () => {
+  const saveComment = async () => {
     if (comment === '') {
       alert('댓글을 입력해주세요');
       return;
@@ -44,19 +44,19 @@ export default function WriteComment({ postId, getPost }) {
     try {
       if (!token) return;
 
-      const response = await commentService.submitComment({ postId, content: comment, token });
+      const response = await commentService.saveComment({ postId, content: comment, token });
       if (response.statusText === 'OK') {
         setComment('');
         getPost();
       }
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
     }
   };
   return (
     <WriteCommentStyle>
       <Comment value={comment} onChange={handleChangeComment} placeholder="댓글을 작성해주세요 ." />
-      <EventButton onClick={commentSubmit}>등록</EventButton>
+      <SaveButton onClick={saveComment}>등록</SaveButton>
     </WriteCommentStyle>
   );
 }

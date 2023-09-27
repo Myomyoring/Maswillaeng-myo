@@ -62,8 +62,8 @@ export default function WriteContents({ postId }) {
     console.log(postForm);
   };
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
+  const submitHandler = async (event) => {
+    event.preventDefault();
 
     if (category === '' || title === '') {
       alert('카테고리 또는 제목을 설정해주세요.');
@@ -80,21 +80,20 @@ export default function WriteContents({ postId }) {
     if (postId) {
       try {
         const response = await postService.submitModifyPost({ postId, post, token });
-        console.log(response);
         navigate(`/board/${postId}`, { replace: true });
         alert('게시글 수정 완료');
-      } catch (err) {
-        console.log(err);
+      } catch (error) {
+        console.log(error);
       }
     } else {
       try {
         const response = await postService.submitWritePost({ post, token });
         if (response.statusText === 'OK') {
-          navigate('/', { replace: true });
+          navigate(`/`, { replace: true });
           alert('게시글 작성 완료');
         } else alert('게시글 작성 실패');
-      } catch (err) {
-        console.log(err);
+      } catch (error) {
+        console.log(error);
       }
     }
   };
