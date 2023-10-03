@@ -4,7 +4,7 @@ export default function AuthUser() {
   const setUser = async (userId) => {
     if (!userId) return;
     try {
-      const { data } = await userService.getUser({ userId });
+      const { data } = await userService.getUserById({ userId });
       if (!data) return;
 
       let currentUser = {
@@ -14,13 +14,13 @@ export default function AuthUser() {
         follower: data.followerCnt,
         following: data.followingCnt,
         introduction: data.introduction,
-        profileImage: data.userImage,
+        userImage: data.userImage,
       };
       localStorage.setItem('current_user', JSON.stringify(currentUser));
 
       return true;
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
       return false;
     }
   };
@@ -47,7 +47,7 @@ export default function AuthUser() {
         return true;
       }
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
       return false;
     }
   };
@@ -61,7 +61,7 @@ export default function AuthUser() {
         userService.logOut({ userId: user.id });
         window.location.replace('/');
       } catch (error) {
-        console.log(error);
+        console.log(error.message);
       }
     }
     localStorage.removeItem('access_token');
@@ -90,7 +90,7 @@ export default function AuthUser() {
         await setUser(response.data.userId);
       } else return;
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
       return;
     }
   };

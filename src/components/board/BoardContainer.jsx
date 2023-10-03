@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 
-import BoardHeader from './BoardHeader';
 import { BOARD_GUIDE, categories } from '../../constants/index';
-import CategoryTab from '../common/CategoryTab';
-import CardList from './BoardCard';
-import Pagination from '../../hoc/Pagination';
 import { postService } from '../../services/post.service';
+import BoardHeader from './BoardHeader';
+import CategoryTab from '../common/CategoryTab';
+import CardList from './Card';
+import Pagination from '../../hoc/Pagination';
 
 export default function BoardContainer() {
   const [lastPage, setLastPage] = useState(0);

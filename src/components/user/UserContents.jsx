@@ -1,10 +1,13 @@
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+
+import { postService } from '../../services/post.service';
+import { useAuth } from '../../context/ProvideAuthContext';
+import { USER_LIKE_GUIDE, USER_WRITE_GUIDE } from '../../constants';
+import Card from '../board/Card';
+
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
-
-import Card from '../boardList/BoardCard';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useAuth } from '../../context/ProvideAuthContext';
 
 const ContentsStyle = styled.div`
   ${tw`
@@ -14,45 +17,42 @@ const ContentsStyle = styled.div`
   `}
 `;
 
-export default function UserContents({ visitor, active }) {
+export default function UserContents({ active }) {
+  const { nickname } = useParams();
   const { getUserToken } = useAuth();
-  const [list, setList] = useState([]);
+  const token = getUserToken();
+  const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(0);
   const [guide, setGuide] = useState('');
 
   useEffect(() => {
     if (active === 0) {
       getLikeList();
-      setGuide('준비 중 입니다');
+      setGuide(USER_LIKE_GUIDE);
     } else if (active === 1) {
       getWriteList();
-      setGuide('작성한 게시물이 없습니다');
+      setGuide(USER_WRITE_GUIDE);
     }
   }, [active]);
 
   const getLikeList = async () => {
-    setList([]);
+    setPosts([]);
   };
+
   const getWriteList = async () => {
     try {
-      const token = getUserToken();
       if (!token) return;
-
-      const response = await axios.get(`/api/post/posts/nickname/${visitor.nickname}/${page}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log(response.data.content);
-      setList(response.data.content);
-    } catch (err) {
-      console.log(err);
+      const response = await postService.getUserWritePost({ nickname, page, token });
+      console.log(response);
+      setPosts(response.data.content);
+    } catch (error) {
+      console.log(error.message);
     }
   };
 
   return (
     <ContentsStyle>
-      <Card posts={list} guide={guide} />
+      <Card {...{ posts, guide }} />
     </ContentsStyle>
   );
 }

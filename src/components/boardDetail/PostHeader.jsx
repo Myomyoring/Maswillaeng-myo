@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 
 import { diplayBoardDetailDate } from '../../utils/display_date';
+import DisplayMemberProfile from '../common/DisplayMemberProfile';
 
 import styled from 'styled-components';
 import tw from 'twin.macro';
@@ -20,7 +21,7 @@ const Category = styled.h3`
 `;
 const Title = styled.div`
   ${tw`
-        mb-5 text-2xl font-black
+      mb-5 text-2xl font-black
     `}
 `;
 
@@ -28,20 +29,10 @@ const ProfileBox = styled.div`
   ${tw`
       flex items-center
     `}
-  * {
-    ${tw`mr-2`}
-  }
-  img {
-    ${tw`
-      w-10 h-10
-      border-solid border-gray
-      rounded-full object-cover
-    `}
-  }
   span {
     ${tw`
         font-bold text-xs text-darkgray
-    `}
+      `}
   }
 `;
 
@@ -53,8 +44,7 @@ export default function PostHeader({ category, title, userImage, nickname, creat
       </Category>
       <Title>{title}</Title>
       <ProfileBox>
-        <img src={userImage} />
-        <Link to={`/user/${nickname}`}>{nickname}</Link>
+        <DisplayMemberProfile {...{ userImage, nickname }} />
         <span>{diplayBoardDetailDate(createdDate)}</span>
       </ProfileBox>
     </PostHeaderStyle>

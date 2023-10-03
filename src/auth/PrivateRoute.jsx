@@ -5,5 +5,5 @@ export default function PrivateRoute({ children }) {
   const { currentUser } = useAuth();
   const user = currentUser();
 
-  return user ? <>{children}</> : <Navigate to="/signIn" />;
+  return user ? <>{children}</> : <Navigate to="/logIn" />;
 }

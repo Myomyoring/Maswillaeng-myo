@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { userCategories } from '../../constants';
 import UserContents from './UserContents';
 import UserTab from '../common/CategoryTab';
@@ -13,11 +15,12 @@ const ContentsStyle = styled.div`
 `}
 `;
 
-export default function UserBoardContents({ active, setTab, visitor }) {
+export default function UserBoardContents() {
+  const [tab, setTab] = useState(0);
   return (
     <ContentsStyle>
-      <UserTab active={active} categories={userCategories} setTab={setTab} />
-      <UserContents active={active} visitor={visitor} />
+      <UserTab active={tab} categories={userCategories} setTab={setTab} />
+      <UserContents active={tab} />
     </ContentsStyle>
   );
 }

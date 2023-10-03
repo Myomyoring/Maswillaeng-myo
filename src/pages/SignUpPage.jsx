@@ -21,7 +21,7 @@ const SignUpStyle = styled.div`
 export default function SignUpPage() {
   return (
     <SignUpStyle>
-      <Logo className="logo" />
+      <Logo />
       <SignUpForm />
     </SignUpStyle>
   );

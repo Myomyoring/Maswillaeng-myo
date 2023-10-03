@@ -1,5 +1,5 @@
 import BoardDetailPage from '../pages/BoardDetailPage';
-import BoardListPage from '../pages/BoardListPage';
+import BoardPage from '../pages/BoardPage';
 import BoardWritePage from '../pages/BoardWritePage';
 import Layout from '../Layout';
 import NotFound from '../pages/NotFoundPage';
@@ -14,7 +14,7 @@ const routes = [
     element: <Layout />,
     path: '/',
     children: [
-      { index: true, element: <BoardListPage /> },
+      { index: true, element: <BoardPage /> },
       {
         path: 'boardWrite',
         element: (

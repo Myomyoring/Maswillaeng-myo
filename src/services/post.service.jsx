@@ -13,6 +13,13 @@ export const postService = {
   getPost({ postId }) {
     return axios.get(`/api/post/${postId}`);
   },
+  getUserWritePost({ nickname, page, token }) {
+    return axios.get(`/api/post/posts/nickname/${nickname}/${page}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
   submitWritePost({ post, token }) {
     return axios.post('/api/post', post, {
       headers: {

@@ -12,6 +12,12 @@ import tw from 'twin.macro';
 import DefaultUserImage from '../../statics/images/default_user_image.jpg';
 import PwdCheckIcon from '../../statics/svg/password_check_icon.jsx';
 import PwdLockIcon from '../../statics/svg/password_lock_icon.jsx';
+import {
+  SIGN_UP_INTRODUCTION_GUIDE,
+  SIGN_UP_NICKNAME_GUIDE,
+  SIGN_UP_PASSWORD_GUIDE,
+  SIGN_UP_PHONE_NUMBER_GUIDE,
+} from '../../constants/index.jsx';
 
 const Form = styled.form`
   ${tw``}
@@ -26,7 +32,8 @@ const InputName = styled.div`
 
 const InputBox = styled.div`
   ${tw`
-      text-left relative
+      relative
+      text-left
   `}
 
   input[name="email"], input[name="nickname"] {
@@ -75,7 +82,7 @@ const Error = styled.div`
 
 export default function SignUpForm() {
   const navigate = useNavigate();
-  const [profileImg, setProfileImg] = useState(DefaultUserImage);
+  const [userImg, setUserImg] = useState(DefaultUserImage);
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -200,7 +207,7 @@ export default function SignUpForm() {
     if (emailConfirm && passwordConfirm && nicknameConfirm && phoneConfirm) {
       try {
         const response = await userService.signUp({
-          userImage: profileImg,
+          userImage: userImg,
           email,
           password,
           nickname,
@@ -228,7 +235,7 @@ export default function SignUpForm() {
 
   return (
     <Form onSubmit={onSubmitHandler}>
-      <ImageInput defaultImg={DefaultUserImage} image={setProfileImg} />
+      <ImageInput defaultImg={DefaultUserImage} image={setUserImg} />
       <InputBox>
         <InputName>* 이메일</InputName>
         <Input
@@ -245,7 +252,7 @@ export default function SignUpForm() {
       <InputBox>
         <InputName>
           * 비밀번호
-          <Guide>* 영문, 숫자 포함 8~16자 입력</Guide>
+          <Guide>{SIGN_UP_PASSWORD_GUIDE}</Guide>
         </InputName>
         <Input
           type="password"
@@ -273,7 +280,7 @@ export default function SignUpForm() {
       <InputBox>
         <InputName>
           * 닉네임
-          <Guide>* 한글, 영문 2~10자 입력</Guide>
+          <Guide>{SIGN_UP_NICKNAME_GUIDE}</Guide>
         </InputName>
         <Input
           type="text"
@@ -289,7 +296,7 @@ export default function SignUpForm() {
       <InputBox>
         <InputName>
           * 휴대전화
-          <Guide>ex) 01012345678</Guide>
+          <Guide>{SIGN_UP_PHONE_NUMBER_GUIDE}</Guide>
         </InputName>
         <Input
           type="text"
@@ -304,7 +311,7 @@ export default function SignUpForm() {
       <InputBox>
         <InputName>
           자기소개
-          <Guide>* 최대 30자까지 입력</Guide>
+          <Guide>{SIGN_UP_INTRODUCTION_GUIDE}</Guide>
         </InputName>
         <Input
           type="text"

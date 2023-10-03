@@ -1,5 +1,5 @@
-import BoardContainer from '../components/boardList/BoardContainer';
-import ImageLabel from '../components/boardList/ImageLabel';
+import BoardContainer from '../components/board/BoardContainer';
+import ImageLabel from '../components/board/ImageLabel';
 
 import styled from 'styled-components';
 import tw from 'twin.macro';
@@ -11,10 +11,10 @@ const BoardStyle = styled.div`
     `}
 `;
 
-export default function BoardListPage() {
+export default function BoardPage() {
   return (
     <>
-      <ImageLabel />
+      {/* <ImageLabel /> */}
       <BoardStyle>
         <BoardContainer />
       </BoardStyle>

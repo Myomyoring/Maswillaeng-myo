@@ -1,11 +1,13 @@
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+
+import { followService } from '../../services/follow.service';
 import { useAuth } from '../../context/ProvideAuthContext';
+import { userService } from '../../services/user.service';
+import Modal from './Modal';
 
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
-import EditProfileModal from './EditProfileModal';
-import { useEffect, useState } from 'react';
 
 const ProfileStyle = styled.div`
   ${tw`
@@ -39,7 +41,7 @@ const Nickname = styled.div`
   `}
 `;
 
-const FollowContent = styled.div`
+const FollowContents = styled.div`
   ${tw`
   `}
   span {
@@ -80,123 +82,135 @@ const DeleteUserBtn = styled.button`
 
 const FollowBtn = styled.button`
   ${tw`
-    w-1/2 h-10
-    my-7
-    font-bold text-white text-sm
-    cursor-pointer
+      w-1/2 h-10
+      my-7
+      font-bold text-white text-sm
+      cursor-pointer
   `}
-  ${(props) => (props.bg === 'gray' ? tw`bg-gray` : tw`bg-point`)}
+  ${(props) => (props.className ? tw`bg-gray` : tw`bg-point`)}
 `;
 
-const Label = styled.label`
-  ${tw`
-    cursor-pointer
-  `}
-`;
-
-const UserProfile = ({ visitor, user, followerList, followingList, followState }) => {
-  console.log('v', visitor);
-  console.log('u', user);
+export default function UserProfile() {
+  const { nickname } = useParams();
   const navigate = useNavigate();
-  const { getUserToken, currentUser } = useAuth();
+  const { getUserToken, currentUser, logOut } = useAuth();
+  const token = getUserToken();
+  const user = currentUser();
+  const [member, setMember] = useState({});
   const [modal, setModal] = useState(false);
+  const [modalId, setModalId] = useState(0);
+  const [followerList, setFollowerList] = useState([]);
+  const [followState, setFollowState] = useState(false);
 
-  // 서버 쪽  로직이 완전하지 않아 에러 발생 함
-  /* 서버 문제 : 유저 id를 삭제 할 경우 이를 참조하는 like쪽 테이블에 대한 처리가 되어 있지 않음 */
-  const handleDelete = async () => {
+  useEffect(() => {
+    getMember();
+    getFollowerList();
+  }, [nickname]);
+
+  const getMember = async () => {
+    try {
+      const { data } = await userService.getUserByNickname({ nickname });
+      setMember(data);
+    } catch (error) {
+      if (error.response.status === 500) {
+        navigate('500', { replace: true });
+      } else console.log(error.message);
+    }
+  };
+  const getFollowerList = async () => {
+    try {
+      const { data } = await followService.getFollower({ nickname });
+      setFollowerList(data);
+      data.find((follower) => follower.nickname === user.nickname) ? setFollowState(true) : setFollowState(false);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  /* 탈퇴 할 사용자가 작성한 게시물이 있을 시, 탈퇴되지 않음 */
+  const deleteUserHandler = async () => {
     if (window.confirm('정말 탈퇴하시겠습니까?')) {
       try {
-        const token = getUserToken();
         if (!token) return;
-
-        const response = await axios.delete(`/api/user`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log(response);
-
+        const response = await userService.deleteUser({ token });
         if (response.statusText === 'OK') {
-          navigate(`/signin`, { replace: true });
+          logOut();
           alert('이용해주셔서 감사합니다.');
         }
-      } catch (err) {
+      } catch (error) {
         alert('탈퇴를 처리하는 중 문제가 생겼습니다.');
-        console.log(err);
+        console.log(error);
       }
     } else {
       return;
     }
   };
 
-  // 팔로우에 변화가 생길 때, 리렌더링
-  const onFollow = async ({ target }) => {
+  const followHandler = async ({ target }) => {
     const { innerText } = target;
-    console.log(innerText);
 
     if (innerText === '팔로우') {
       try {
-        const token = getUserToken();
         if (!token) return;
-        const response = await axios.post(
-          `/api/follow/${visitor.nickname}`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        navigate(`/user/${visitor.nickname}`, { replace: true });
-      } catch (err) {
+        const response = await followService.saveFollow({ nickname, token });
+        if (response.statusText === 'OK') {
+          getMember();
+          getFollowerList();
+        }
+      } catch (error) {
+        console.log(error.message);
         return;
       }
     } else if (innerText === '팔로잉') {
       try {
-        const token = getUserToken();
         if (!token) return;
-        const response = await axios.delete(`/api/follow/${visitor.nickname}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        navigate(`/user/${visitor.nickname}`, { replace: true });
-      } catch (err) {
+        const response = await followService.deleteFollow({ nickname, token });
+        if (response.statusText === 'OK') {
+          getMember();
+          getFollowerList();
+        }
+      } catch (error) {
+        console.log(error.message);
         return;
       }
     } else return;
   };
+
+  const modalHandler = async (id) => {
+    setModal(true);
+    setModalId(id);
+  };
+
   return (
     <>
       <ProfileStyle>
         <ProfileImage>
-          <img src={user ? visitor.profileImage : visitor.userImage} />
+          <img src={member.userImage} />
         </ProfileImage>
-        <Nickname>{visitor.nickname}</Nickname>
-        <FollowContent>
-          <Label>
+        <Nickname>{nickname}</Nickname>
+        <FollowContents>
+          <button onClick={() => modalHandler(1)}>
             <span>팔로워</span>
-            <span>{visitor.followerCnt === undefined ? '0' : visitor.followerCnt}</span>
-          </Label>
-          <Label>
+            <span>{member.followerCnt ? member.followerCnt : 0}</span>
+          </button>
+          <button onClick={() => modalHandler(2)}>
             <span>팔로잉</span>
-            <span>{visitor.followingCnt === undefined ? '0' : visitor.followingCnt}</span>
-          </Label>
-        </FollowContent>
-        <Introduction>{visitor.introduction}</Introduction>
-        {user ? (
+            <span>{member.followingCnt ? member.followingCnt : 0}</span>
+          </button>
+        </FollowContents>
+        <Introduction>{member.introduction}</Introduction>
+        {nickname === user.nickname ? (
           <Buttons>
-            <ProfileEditBtn onClick={() => setModal(true)}>프로필 수정</ProfileEditBtn>
-            <DeleteUserBtn onClick={handleDelete}>회원 탈퇴</DeleteUserBtn>
+            <ProfileEditBtn onClick={() => modalHandler(0)}>프로필 수정</ProfileEditBtn>
+            <DeleteUserBtn onClick={deleteUserHandler}>회원 탈퇴</DeleteUserBtn>
           </Buttons>
         ) : (
-          <FollowBtn bg={followState ? 'gray' : 'point'} onClick={onFollow}>
+          <FollowBtn className={followState ? 'following' : ''} onClick={followHandler}>
             {followState ? '팔로잉' : '팔로우'}
           </FollowBtn>
         )}
       </ProfileStyle>
-      {modal ? <EditProfileModal setModal={setModal} user={visitor} /> : null}
+      {modal ? <Modal setModal={setModal} modalId={modalId} followerList={followerList} /> : null}
     </>
   );
-};
-export default UserProfile;
+}
