@@ -1,11 +1,12 @@
 import { useRef, useState } from 'react';
-import axios from 'axios';
+
+import { uploadService } from '../../services/upload.service';
 
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
-import AddFileIcon from '../statics/svg/add_file_icon';
+import AddFileIcon from '../../statics/svg/add_file_icon';
 
-const InputBox = styled.div`
+const ImageStyle = styled.div`
   ${tw`
         w-40 h-40
         relative
@@ -21,25 +22,20 @@ const Image = styled.img`
         border-solid border-gray border-[1px]
     `}
 `;
-const Input = styled.input`
-  ${tw`
-         hidden
-    `}
-`;
-const Label = styled.label`
+const AddFileLabel = styled.label`
   ${tw`
         cursor-pointer
     `}
   svg {
     ${tw`
-            absolute
-            top-32 right-28
-        `}
+          absolute
+          top-32 right-28
+      `}
   }
 `;
 
-export default function ImageInput({ defaultImg, currentImg, image }) {
-  const [imgFile, setImgFile] = useState(currentImg ? currentImg : '');
+export default function ImageInput({ defaultImg, currentImg, setImage }) {
+  const [imgFile, setImgFile] = useState(currentImg ?? '');
   const imgRef = useRef();
 
   const saveImgFile = async () => {
@@ -54,22 +50,20 @@ export default function ImageInput({ defaultImg, currentImg, image }) {
     formData.append('photo', file);
 
     try {
-      const res = await axios.post('/api/user/upload', formData);
-      image(res.data.img);
-
-      console.log(res.data.img);
-    } catch (err) {
-      console.log('실패', err);
+      const response = await uploadService.uploadImage({ formData });
+      setImage(response.data.img);
+    } catch (error) {
+      console.log(error.message);
     }
   };
 
   return (
-    <InputBox>
+    <ImageStyle>
       <Image src={imgFile ? imgFile : defaultImg} alt="프로필 이미지" />
-      <Input type="file" id="preview" accept="image/*" onChange={saveImgFile} ref={imgRef} />
-      <Label htmlFor="preview">
+      <input hidden type="file" id="preview" accept="image/*" onChange={saveImgFile} ref={imgRef} />
+      <AddFileLabel htmlFor="preview">
         <AddFileIcon />
-      </Label>
-    </InputBox>
+      </AddFileLabel>
+    </ImageStyle>
   );
 }

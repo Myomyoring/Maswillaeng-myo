@@ -1,4 +1,4 @@
-import LoginForm from '../components/logIn/LoginForm';
+import LoginForm from '../components/logIn/containers/LoginForm.container';
 import Logo from '../components/common/Logo';
 
 import { styled } from 'styled-components';
@@ -13,10 +13,10 @@ const LogInStyle = styled.div`
         bg-[url('/src/statics/images/default_sign_in_image.jpg')]
     `}
 `;
+
 const Contents = styled.div`
   ${tw`
         px-44 py-20
-        items-center
         rounded-xl 
         bg-main bg-opacity-70
     `}

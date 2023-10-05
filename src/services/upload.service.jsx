@@ -8,4 +8,7 @@ export const uploadService = {
       },
     });
   },
+  uploadImage({ formData }) {
+    return axios.post('/api/user/upload', formData);
+  },
 };

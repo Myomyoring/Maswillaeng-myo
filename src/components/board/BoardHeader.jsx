@@ -1,9 +1,8 @@
-import { Link } from 'react-router-dom';
+import BoardWriteButton from '../common/LinkButton';
 
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 import WriteIcon from '../../statics/svg/write_icon';
-import LinkButton from '../common/LinkButton';
 
 const BoardHeaderStyle = styled.header`
   ${tw`
@@ -13,14 +12,14 @@ const BoardHeaderStyle = styled.header`
 
   span {
     ${tw`
-      flex items-center
-    text-white
+        flex items-center
+      text-white
     `}
   }
 
   svg {
     ${tw`
-    fill-white
+      fill-white
     `}
   }
 `;
@@ -28,11 +27,11 @@ const BoardHeaderStyle = styled.header`
 export default function BoardHeader() {
   return (
     <BoardHeaderStyle>
-      <LinkButton to={`boardWrite`}>
+      <BoardWriteButton to={`/boardWrite`}>
         <span>
           <WriteIcon /> 글쓰기
         </span>
-      </LinkButton>
+      </BoardWriteButton>
     </BoardHeaderStyle>
   );
 }

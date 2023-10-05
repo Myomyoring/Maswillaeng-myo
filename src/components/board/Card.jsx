@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 
-import { displayCreatedAt } from '../../utils/display_date';
+import { BOARD_GUIDE } from '../../constants';
+import { DisplayPostDate } from '../../utils/display_date';
 
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
@@ -80,7 +81,7 @@ const NothingMessage = styled.div`
     `}
 `;
 
-export default function Card({ posts, guide }) {
+export default function Card({ posts }) {
   return (
     <CardStyle>
       <CardLayout>
@@ -90,19 +91,20 @@ export default function Card({ posts, guide }) {
               <Link to={`/board/${post.id}`}>
                 <img src={post.thumbnail ? post.thumbnail : DefaultThumbnail} />
                 <div>{post.title}</div>
-                {/* <span>[]</span> */}
+                <span>[{post.commentCount}]</span>
               </Link>
               <Content>
                 <Link to={`/user/${post.nickname}`}>{post.nickname}</Link>
-                <span>{displayCreatedAt(post.createdDate)}</span>
+                <span>{DisplayPostDate(post.createdDate)}</span>
                 <span>
                   <LikeIcon />
+                  <span> {post.likeCnt}</span>
                 </span>
               </Content>
             </CardContents>
           ))
         ) : (
-          <NothingMessage>{guide}</NothingMessage>
+          <NothingMessage>{BOARD_GUIDE}</NothingMessage>
         )}
       </CardLayout>
     </CardStyle>

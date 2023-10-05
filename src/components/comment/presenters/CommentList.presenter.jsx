@@ -1,23 +1,16 @@
-import { useAuth } from '../../context/ProvideAuthContext';
-import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import { commentService } from '../../services/comment.service';
-import { displayCreatedAt } from '../../utils/display_date';
-import ReplyComment from './ReplyComment';
+import { DisplayPostDate } from '../../../utils/display_date';
+import ReplyComment from '../containers/ReplyComment.container';
 
 import styled from 'styled-components';
 import tw from 'twin.macro';
-import { Link } from 'react-router-dom';
 
 const Count = styled.div`
   ${tw`
-    py-5 
-    font-semibold text-lg
-  `}// span {
-  //   ${tw`
-  //     font-bold text-point
-  //   `}
-  // }
+      py-5 
+      font-semibold text-lg
+    `}
 `;
 
 const Comments = styled.div`
@@ -75,62 +68,28 @@ const WriteComment = styled.textarea`
     `}
 `;
 
-export default function CommentList({ comments, getPost }) {
-  const { getUserToken, currentUser } = useAuth();
-  const token = getUserToken();
-  const { nickname } = currentUser();
-
-  const [modifyMode, setModifyMode] = useState(false);
-  const [replyMode, setReplyMode] = useState(false);
-  const [modifySelect, setModifySelect] = useState({ modifyCommentId: 0, modifyContent: '' });
-  const [replySelect, setReplySelect] = useState({ mode: '', parentId: 0, replyId: 0, replyComment: '' });
-
-  const modifyCommentHandler = (id, content) => {
-    setModifyMode(true);
-    setModifySelect({ modifyCommentId: id, modifyContent: content });
-  };
-
-  const createReplyHandler = (parentId) => {
-    setReplyMode(true);
-    setReplySelect({ mode: 'create', parentId: parentId });
-  };
-
-  const updateComment = async () => {
-    try {
-      if (!token) return;
-
-      const response = await commentService.updateComment({
-        commentId: modifySelect.modifyCommentId,
-        content: modifySelect.modifyContent,
-        token,
-      });
-      if (response.statusText === 'OK') {
-        setModifyMode(false);
-        getPost();
-      }
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  const deleteComment = async (commentId) => {
-    if (window.confirm('정말 댓글을 삭제하시겠습니까?')) {
-      try {
-        if (!token) return;
-        const response = await commentService.deleteComment({ commentId, token });
-        if (response.statusText === 'OK') {
-          getPost();
-        }
-      } catch (error) {
-        console.log(error.message);
-      }
-    } else return;
-  };
-
+export default function CommentListPresenter({
+  getPost,
+  nickname,
+  comments,
+  commentCount,
+  modifyMode,
+  modifySelect,
+  setModifySelect,
+  setModifyMode,
+  createReplyHandler,
+  modifyCommentHandler,
+  deleteComment,
+  updateComment,
+  replyMode,
+  replySelect,
+  setReplyMode,
+  setReplySelect,
+}) {
   return (
     <>
       <Count>
-        댓글 <span></span>
+        댓글 <span>{commentCount}</span>
       </Count>
       {comments?.map((comment, index) =>
         modifyMode && comment.commentId === modifySelect.modifyCommentId ? (
@@ -138,7 +97,7 @@ export default function CommentList({ comments, getPost }) {
             <ProfileImg src={comment.userImage} />
             <CommentContent>
               <span>{comment.nickname}</span>
-              <span>{displayCreatedAt(comment.createDate)}</span>
+              <span>{DisplayPostDate(comment.createDate)}</span>
               <WriteComment
                 value={modifySelect.modifyContent}
                 onChange={(e) => {
@@ -158,7 +117,7 @@ export default function CommentList({ comments, getPost }) {
                 <Link to={`/user/${comment.nickname}`}>
                   <span>{comment.nickname}</span>
                 </Link>
-                <span>{displayCreatedAt(comment.createDate)}</span>
+                <span>{DisplayPostDate(comment.createDate)}</span>
                 <div>{comment.content}</div>
                 <button onClick={() => createReplyHandler(comment.commentId)}>답글</button>
                 {comment.nickname === nickname ? (

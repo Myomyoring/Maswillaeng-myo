@@ -1,13 +1,10 @@
-import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import { commentService } from '../../services/comment.service';
-import { displayCreatedAt } from '../../utils/display_date';
-import { useAuth } from '../../context/ProvideAuthContext';
+import { DisplayPostDate } from '../../../utils/display_date';
 
 import styled from 'styled-components';
 import tw from 'twin.macro';
-import ReplyIcon from '../../statics/svg/reply_icon';
-import { Link } from 'react-router-dom';
+import ReplyIcon from '../../../statics/svg/reply_icon';
 
 const ReComments = styled.div`
   ${tw`
@@ -59,88 +56,20 @@ const WriteComment = styled.textarea`
   `}
 `;
 
-export default function ReplyComment({
+export default function ReplyCommentPresenter({
+  nickname,
   comment,
   replyMode,
   setReplyMode,
   replySelect,
   setReplySelect,
-  getPost,
+  updateReply,
   createReplyHandler,
+  saveReply,
+  modifyReplyHandler,
+  deleteReply,
+  replyList,
 }) {
-  const { getUserToken, currentUser } = useAuth();
-  const { nickname } = currentUser();
-  const token = getUserToken();
-  const [replyList, setReplyList] = useState([]);
-
-  useEffect(() => {
-    getReply(comment.commentId);
-  }, [comment]);
-
-  const getReply = async (commentId) => {
-    try {
-      const { data } = await commentService.getReply({ commentId });
-      setReplyList(data);
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  const saveReply = async () => {
-    if (replySelect.replyComment === '') return;
-
-    try {
-      if (!token) return;
-      const response = await commentService.saveReply({
-        parentId: replySelect.parentId,
-        content: replySelect.replyComment,
-        token,
-      });
-      if (response.statusText === 'OK') {
-        getPost();
-        setReplyMode(false);
-      } else return;
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  const modifyReplyHandler = async (parentId, replyId, content) => {
-    setReplyMode(true);
-    setReplySelect({ mode: 'update', parentId: parentId, replyId: replyId, replyComment: content });
-  };
-
-  const updateReply = async () => {
-    try {
-      const response = await commentService.updateReply({
-        replyId: replySelect.replyId,
-        content: replySelect.replyComment,
-        token,
-      });
-      if (response.statusText === 'OK') {
-        getPost();
-        setReplyMode(false);
-      } else return;
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  const deleteReply = async (replyId) => {
-    if (window.confirm('정말 답글을 삭제하시겠습니까?')) {
-      try {
-        if (!token) return;
-        const response = await commentService.deleteReply({ parentId: comment.commentId, replyId, token });
-        if (response.statusText === 'OK') {
-          getPost();
-          console.log(response);
-        } else return;
-      } catch (error) {
-        console.log(error);
-      }
-    } else return;
-  };
-
   return (
     <>
       {replyMode && replySelect.parentId === comment.commentId && replySelect.mode === 'update' ? (
@@ -168,7 +97,7 @@ export default function ReplyComment({
               <Link to={`/user/${reply.nickname}`}>
                 <span>{reply.nickname}</span>
               </Link>
-              <span>{displayCreatedAt(reply.createDate)}</span>
+              <span>{DisplayPostDate(reply.createDate)}</span>
               <p>{reply.content}</p>
               <button onClick={() => createReplyHandler(comment.commentId)}>답글</button>
               {reply.nickname === nickname ? (

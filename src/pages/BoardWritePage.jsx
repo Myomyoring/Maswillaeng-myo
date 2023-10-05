@@ -1,6 +1,4 @@
-import { useParams } from 'react-router-dom';
-
-import WriteContents from '../components/boardWrite/WriteContents';
+import WriteContents from '../components/boardWrite/containers/WriteContents.container';
 
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
@@ -13,10 +11,9 @@ const BoardWriteStyle = styled.div`
 `;
 
 export default function BoardWritePage() {
-  const { postId } = useParams();
   return (
     <BoardWriteStyle>
-      <WriteContents postId={postId} />
+      <WriteContents />
     </BoardWriteStyle>
   );
 }

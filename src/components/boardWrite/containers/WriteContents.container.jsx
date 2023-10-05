@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import ButtonBox from './ButtonBox';
-import Editor from './Editor';
-import TitleBox from './TitleBox';
+import { postService } from '../../../services/post.service';
+import { useAuth } from '../../../context/ProvideAuthContext';
+import WriteContentsPresenter from '../presenters/WriteContents.presenter';
 
-import { categories } from '../../constants/index';
-import { postService } from '../../services/post.service';
-import { useAuth } from '../../context/ProvideAuthContext';
-
-export default function WriteContents({ postId }) {
+export default function WriteContentsContainer() {
+  const { postId } = useParams();
   const navigate = useNavigate();
   const { getUserToken, currentUser } = useAuth();
   const token = getUserToken();
@@ -98,16 +95,18 @@ export default function WriteContents({ postId }) {
     }
   };
   return (
-    <>
-      <TitleBox categories={categories} onChange={handleChange} category={category} title={title} />
-      <Editor
-        token={token}
-        editorValue={editorValue}
-        setEditorValue={setEditorValue}
-        imageList={imageList}
-        setThumbnail={setThumbnailImage}
-      />
-      <ButtonBox onPostSubmit={submitHandler} />
-    </>
+    <WriteContentsPresenter
+      {...{
+        submitHandler,
+        handleChange,
+        category,
+        title,
+        token,
+        editorValue,
+        setEditorValue,
+        imageList,
+        setThumbnailImage,
+      }}
+    />
   );
 }

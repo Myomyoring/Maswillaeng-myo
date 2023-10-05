@@ -1,6 +1,6 @@
 /* https://kdinner.tistory.com/68 */
 
-export const displayCreatedAt = (createdDate) => {
+export const DisplayPostDate = (createdDate) => {
   const today = new Date();
   const timeValue = new Date(createdDate);
 
@@ -22,7 +22,7 @@ export const displayCreatedAt = (createdDate) => {
   return `${year}년 ${month}월 ${day}일`;
 };
 // YYYY. MM. DD 오전/오후 hh:mm:ss
-export const diplayBoardDetailDate = (boardDate) => {
+export const DisplayFullDate = (boardDate) => {
   const timeValue = new Date(boardDate);
 
   return timeValue.toLocaleString();

@@ -1,9 +1,7 @@
-import React from 'react'; // eslint-disable-line no-unused-vars
 import { Link, useRouteError } from 'react-router-dom';
 
-export default function NotFound() {
+export default function NotFoundPage() {
   const error = useRouteError();
-  console.log('errorpage', error);
 
   return (
     <div>

@@ -18,7 +18,7 @@ export default function AuthUser() {
       };
       localStorage.setItem('current_user', JSON.stringify(currentUser));
 
-      return true;
+      return !!data;
     } catch (error) {
       console.log(error.message);
       return false;
@@ -44,7 +44,7 @@ export default function AuthUser() {
         localStorage.setItem('refresh_token', response.data.refreshToken);
         setExpire(response.data.expires_in);
 
-        return true;
+        return !!user;
       }
     } catch (error) {
       console.log(error.message);
@@ -91,7 +91,6 @@ export default function AuthUser() {
       } else return;
     } catch (error) {
       console.log(error.message);
-      return;
     }
   };
 
@@ -121,7 +120,7 @@ export default function AuthUser() {
     if (token !== undefined && token !== 'undefined' && token !== null) {
       check = logoutTimer();
       if (!check) refresh(token);
-    } else console.log('user X');
+    }
   };
 
   return { logIn, logOut, getUserToken, currentUser, checker };

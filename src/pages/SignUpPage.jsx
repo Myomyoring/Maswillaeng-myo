@@ -1,5 +1,5 @@
 import Logo from '../components/common/Logo';
-import SignUpForm from '../components/signUp/SignUpForm';
+import SignUpForm from '../components/signUp/containers/SignUpForm.container';
 
 import { styled } from 'styled-components';
 import tw from 'twin.macro';

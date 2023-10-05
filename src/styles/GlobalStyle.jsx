@@ -1,26 +1,26 @@
 import { createGlobalStyle } from 'styled-components';
+import reset from 'styled-reset';
 
 const GlobalStyle = createGlobalStyle`
+    ${reset}
+
     * {
         box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        font-family: sans-serif;
-        color: black;
-        // outline: 1px solid #cdd;
+        /* outline: 1px solid #cdd; */
     }
 
     html {
-        background: #FBF9EC;
+        background: #FBF9EC; // main color
+        font-family: sans-serif;
     }
 
     a {
         text-decoration: none;
+        color: inherit;
     }
 
     button {
         background: none;
-        font-size: 16px;
         border: none;
         cursor: pointer;
     }

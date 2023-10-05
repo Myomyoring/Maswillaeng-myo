@@ -11,7 +11,7 @@ const HeaderStyle = styled.header`
   ${tw`h-20
        px-3
        flex justify-between items-center
-       border-solid border-t-4
+       border-solid border-t-4 border-b-[1px]
     `}
   a,
   button {

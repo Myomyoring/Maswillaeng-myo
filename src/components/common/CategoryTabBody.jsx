@@ -8,5 +8,5 @@ const Ul = styled.ul`
     `}
 `;
 export default function CategoryTabBody({ children }) {
-  return <Ul>{children ? children : ''}</Ul>;
+  return <Ul>{children ? children : null}</Ul>;
 }

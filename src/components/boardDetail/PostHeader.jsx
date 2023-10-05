@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-import { diplayBoardDetailDate } from '../../utils/display_date';
+import { DisplayFullDate } from '../../utils/display_date';
 import DisplayMemberProfile from '../common/DisplayMemberProfile';
 
 import styled from 'styled-components';
@@ -45,7 +45,7 @@ export default function PostHeader({ category, title, userImage, nickname, creat
       <Title>{title}</Title>
       <ProfileBox>
         <DisplayMemberProfile {...{ userImage, nickname }} />
-        <span>{diplayBoardDetailDate(createdDate)}</span>
+        <span>{DisplayFullDate(createdDate)}</span>
       </ProfileBox>
     </PostHeaderStyle>
   );

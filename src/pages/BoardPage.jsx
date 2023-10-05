@@ -1,4 +1,4 @@
-import BoardContainer from '../components/board/BoardContainer';
+import PostList from '../components/board/containers/PostList.container';
 import ImageLabel from '../components/board/ImageLabel';
 
 import styled from 'styled-components';
@@ -14,9 +14,9 @@ const BoardStyle = styled.div`
 export default function BoardPage() {
   return (
     <>
-      {/* <ImageLabel /> */}
+      <ImageLabel />
       <BoardStyle>
-        <BoardContainer />
+        <PostList />
       </BoardStyle>
     </>
   );

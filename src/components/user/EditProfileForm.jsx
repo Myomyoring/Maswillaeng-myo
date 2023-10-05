@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { nicknameRule, passwordRule, phoneNumberRule } from '../../utils/sign_up_rules';
 import { useAuth } from '../../context/ProvideAuthContext';
 import { userService } from '../../services/user.service';
-import ImageInput from '../../hoc/ImageInput';
+import ImageInput from '../common/ImageInput';
 import DefaultUserImage from '../../statics/images/default_user_image.jpg';
 import DuplicateButton from '../common/EventButton';
 import SubmitButton from '../common/FormButton';
@@ -266,7 +266,7 @@ export default function EditProfileForm({ setModal }) {
     <div>
       <Form onSubmit={onSubmitHandler}>
         <ProfileImage>
-          <ImageInput defaultImg={DefaultUserImage} currentImg={profileImg} image={setProfileImg} />
+          <ImageInput defaultImg={DefaultUserImage} currentImg={profileImg} setImage={setProfileImg} />
         </ProfileImage>
 
         <Div>

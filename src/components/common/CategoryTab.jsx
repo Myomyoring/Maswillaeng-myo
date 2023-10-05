@@ -6,7 +6,7 @@ import tw from 'twin.macro';
 
 const TabStyle = styled.div`
   ${tw`
-        w-full h-12
+      w-full h-12
     `}
 `;
 

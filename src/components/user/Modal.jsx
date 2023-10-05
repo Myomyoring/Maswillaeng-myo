@@ -57,7 +57,7 @@ export default function Modal({ setModal, modalId, followerList }) {
     },
   ];
   return (
-    <ModalStyle onClick={() => setModal(false)}>
+    <ModalStyle>
       <Container>
         {modalContentsList.map((content) =>
           content.id === modalId ? (

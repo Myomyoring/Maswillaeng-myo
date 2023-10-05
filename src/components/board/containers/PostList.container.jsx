@@ -1,19 +1,16 @@
 import { useEffect, useState } from 'react';
 
-import { BOARD_GUIDE, categories } from '../../constants/index';
-import { postService } from '../../services/post.service';
-import BoardHeader from './BoardHeader';
-import CategoryTab from '../common/CategoryTab';
-import CardList from './Card';
-import Pagination from '../../hoc/Pagination';
+import { categories } from '../../../constants/index';
+import { postService } from '../../../services/post.service';
+import PostListPresenter from '../presenters/PostList.presenter';
 
-export default function BoardContainer() {
+export default function PostListContainer() {
   const [lastPage, setLastPage] = useState(0);
   const [list, setList] = useState([]);
   const [page, setPage] = useState(0);
   const [tab, setTab] = useState(0);
 
-  const allList = async () => {
+  const getAllList = async () => {
     try {
       const response = await postService.getAllPost({ page });
       setList(response.data.content);
@@ -23,7 +20,7 @@ export default function BoardContainer() {
     }
   };
 
-  const selectedList = async (tabName) => {
+  const getSelectedList = async (tabName) => {
     try {
       const response = await postService.getSelectedTabPost({ tabName, page });
       setList(response.data.content);
@@ -39,25 +36,12 @@ export default function BoardContainer() {
 
   useEffect(() => {
     if (tab === 0) {
-      allList();
+      getAllList();
     } else if (tab !== 0) {
       const selectTab = categories.find((category) => category.id === tab);
-      selectedList(selectTab.name);
+      getSelectedList(selectTab.name);
     } else return;
   }, [tab, page]);
 
-  return (
-    <>
-      <CategoryTab active={tab} categories={categories} setTab={setTab} />
-      <BoardHeader />
-      <CardList posts={list} guide={BOARD_GUIDE} />
-      <Pagination
-        page={page}
-        count={lastPage}
-        hidePrevButton={page < 10}
-        hideNextButton={(page + 1) / 10 < 1}
-        onChange={currentPage}
-      />
-    </>
-  );
+  return <PostListPresenter {...{ categories, tab, setTab, list, page, currentPage, lastPage }} />;
 }

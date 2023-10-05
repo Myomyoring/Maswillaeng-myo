@@ -1,22 +1,9 @@
 import { useMemo, useRef } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 
-import styled from 'styled-components';
-import tw from 'twin.macro';
-import { uploadService } from '../../services/upload.service';
+import { uploadService } from '../../../services/upload.service';
+import EditorPresenter from '../presenters/Editor.presenter';
 
-const EditorStyle = styled.div`
-  ${tw`
-     py-3
-  `}
-
-  .ql-editor {
-    ${tw`h-96`}
-  }
-`;
-
-export default function Editor({ editorValue, setEditorValue, imageList, setThumbnail, token }) {
+export default function EditorContainer({ editorValue, setEditorValue, imageList, setThumbnail, token }) {
   const quillRef = useRef(null);
   const changeEditorValue = (quillValue) => {
     setEditorValue(quillValue);
@@ -106,16 +93,5 @@ export default function Editor({ editorValue, setEditorValue, imageList, setThum
     }),
     [],
   );
-  return (
-    <EditorStyle>
-      <ReactQuill
-        theme="snow"
-        modules={modules}
-        ref={quillRef}
-        value={editorValue}
-        onChange={changeEditorValue}
-        placeholder="글을 입력해주세요 ."
-      />
-    </EditorStyle>
-  );
+  return <EditorPresenter {...{ modules, quillRef, editorValue, changeEditorValue }} />;
 }

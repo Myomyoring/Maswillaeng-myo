@@ -27,7 +27,7 @@ export default function CategoryTabItem({ categories, active, setTab }) {
               {category.title}
             </Li>
           ))
-        : ''}
+        : null}
     </>
   );
 }

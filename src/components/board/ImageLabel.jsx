@@ -1,7 +1,7 @@
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 
-const ImageLabel = styled.div`
+const ImageLabelStyle = styled.div`
   ${tw`
         w-full h-28
         bg-[url('/src/statics/images/default_label_image.jpg')]
@@ -9,4 +9,6 @@ const ImageLabel = styled.div`
     `}
 `;
 
-export default ImageLabel;
+export default function ImageLabel() {
+  return <ImageLabelStyle />;
+}

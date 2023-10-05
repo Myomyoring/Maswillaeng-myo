@@ -1,4 +1,4 @@
-import UserBoardContents from '../components/user/UserBoardContents';
+import UserPostContents from '../components/user/UserBoardContents';
 import UserProfile from '../components/user/UserProfile';
 
 import { styled } from 'styled-components';
@@ -17,7 +17,7 @@ export default function UserPage() {
   return (
     <UserPageStyle>
       <UserProfile />
-      <UserBoardContents />
+      <UserPostContents />
     </UserPageStyle>
   );
 }
