@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { postService } from '../../../services/post.service';
 import { useAuth } from '../../../context/ProvideAuthContext';
 import WriteContentsPresenter from '../presenters/WriteContents.presenter';
 

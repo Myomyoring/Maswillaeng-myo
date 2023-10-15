@@ -1,6 +1,5 @@
 import { useMemo, useRef } from 'react';
 
-import { uploadService } from '../../../services/upload.service';
 import EditorPresenter from '../presenters/Editor.presenter';
 
 export default function EditorContainer({ editorValue, setEditorValue, imageList, setThumbnail, token }) {

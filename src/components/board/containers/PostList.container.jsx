@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 import { categories } from '../../../constants/index';
-import { postService } from '../../../services/post.service';
 import PostListPresenter from '../presenters/PostList.presenter';
 
 export default function PostListContainer() {
@@ -12,9 +11,9 @@ export default function PostListContainer() {
 
   const getAllList = async () => {
     try {
-      const response = await postService.getAllPost({ page });
-      setList(response.data.content);
-      setLastPage(response.data.totalPages);
+      // const response = await postService.getAllPost({ page });
+      // setList(response.data.content);
+      // setLastPage(response.data.totalPages);
     } catch (error) {
       console.log(error);
     }
@@ -22,9 +21,9 @@ export default function PostListContainer() {
 
   const getSelectedList = async (tabName) => {
     try {
-      const response = await postService.getSelectedTabPost({ tabName, page });
-      setList(response.data.content);
-      setLastPage(response.data.totalPages);
+      // const response = await postService.getSelectedTabPost({ tabName, page });
+      // setList(response.data.content);
+      // setLastPage(response.data.totalPages);
     } catch (error) {
       console.log(error);
     }

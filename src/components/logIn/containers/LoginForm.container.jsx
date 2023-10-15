@@ -1,11 +1,13 @@
 import { useState } from 'react';
 
-import { useAuth } from '../../../context/ProvideAuthContext';
 import LoginFormPresenter from '../presenters/LoginForm.presenter';
+import { Navi } from '../../common/Navi';
+import { useAuth } from '../../../context/ProvideAuthContext';
+import { EMAIL_RULE_ERROR_GUIDE, LOGIN_EMPTY_GUIDE, LOGIN_ERROR_GUIDE } from '../../../constants';
 
 export default function LoginFormContainer() {
+  const { renderNavi } = Navi();
   const { logIn } = useAuth();
-
   const [user, setUser] = useState({ email: '', password: '' });
   const { email, password } = user;
   const [errMessage, setErrMessage] = useState('');
@@ -18,20 +20,27 @@ export default function LoginFormContainer() {
   const onSubmitHandler = async (event) => {
     event.preventDefault();
     if (email === '' || password === '') {
-      setErrMessage('아이디 또는 비밀번호를 입력해주세요');
+      setErrMessage(LOGIN_EMPTY_GUIDE);
       return;
     }
     try {
       const response = await logIn(email, password);
-      if (!response) {
-        setErrMessage('아이디 또는 비밀번호를 확인해주세요');
-        return;
-      } else {
-        response && window.location.replace('/');
+      if (response === 'success') {
+        // renderNavi('/');
         alert('로그인 성공');
       }
     } catch (error) {
-      setErrMessage('로그인 실패');
+      console.log(error.code);
+      switch (error.code) {
+        case 'auth/invalid-login-credentials':
+          setErrMessage(LOGIN_ERROR_GUIDE);
+          break;
+        case 'auth/invalid-email':
+          setErrMessage(EMAIL_RULE_ERROR_GUIDE);
+          break;
+        default:
+          setErrMessage('');
+      }
       return;
     }
   };

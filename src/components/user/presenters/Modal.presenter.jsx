@@ -1,7 +1,4 @@
-import EditProfileForm from './EditProfileForm';
-import FollowList from './FollowList';
-
-import { styled } from 'styled-components';
+import styled from 'styled-components';
 import tw from 'twin.macro';
 
 const ModalStyle = styled.div`
@@ -42,20 +39,7 @@ const CloseButton = styled.button`
     `}
 `;
 
-export default function Modal({ setModal, modalId, followerList }) {
-  const modalContentsList = [
-    { id: 0, title: '프로필 수정', view: <EditProfileForm setModal={setModal} /> },
-    {
-      id: 1,
-      title: '팔로워 목록',
-      view: <FollowList followerList={followerList} setModal={setModal} />,
-    },
-    {
-      id: 2,
-      title: '팔로잉 목록',
-      view: <FollowList setModal={setModal} />,
-    },
-  ];
+export default function ModalPresenter({ modalContentsList, modalId, setModal }) {
   return (
     <ModalStyle>
       <Container>

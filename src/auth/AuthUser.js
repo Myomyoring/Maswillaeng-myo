@@ -1,4 +1,4 @@
-import { userService } from '../services/user.service';
+import { userService } from '../services/serverService/user.service.jsx';
 
 export default function AuthUser() {
   const setUser = async (userId) => {

@@ -1,26 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { postService } from '../../services/post.service';
-import { useAuth } from '../../context/ProvideAuthContext';
-import { USER_LIKE_GUIDE, USER_WRITE_GUIDE } from '../../constants';
-import Card from '../board/Card';
+import { USER_LIKE_GUIDE, USER_WRITE_GUIDE } from '../../../constants';
+import UserContentsPresenter from '../presenters/UserContents.presenter';
 
-import { styled } from 'styled-components';
-import tw from 'twin.macro';
-
-const ContentsStyle = styled.div`
-  ${tw`
-    h-screen
-    text-center
-    overflow-hidden
-  `}
-`;
-
-export default function UserContents({ active }) {
+export default function UserContentsContainer({ active }) {
   const { nickname } = useParams();
-  const { getUserToken } = useAuth();
-  const token = getUserToken();
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(0);
   const [guide, setGuide] = useState('');
@@ -50,9 +35,5 @@ export default function UserContents({ active }) {
     }
   };
 
-  return (
-    <ContentsStyle>
-      <Card {...{ posts, guide }} />
-    </ContentsStyle>
-  );
+  return <UserContentsPresenter {...{ posts, guide }} />;
 }

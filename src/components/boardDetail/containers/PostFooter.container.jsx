@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { likeService } from '../../../services/like.service';
-import { postService } from '../../../services/post.service';
 import { useAuth } from '../../../context/ProvideAuthContext';
 import PostFooterPresenter from '../presenters/PostFooter.presenter';
 

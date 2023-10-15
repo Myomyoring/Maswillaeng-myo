@@ -1,14 +1,26 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { emailRule, nicknameRule, passwordRule, phoneNumberRule } from '../../../utils/sign_up_rules.js';
-import { userService } from '../../../services/user.service.jsx';
+import { Navi } from '../../common/Navi.jsx';
 import SignUpFormPresenter from '../presenters/SignUpForm.presenter.jsx';
+
+import {
+  DUPLICATE_GUIDE,
+  EMAIL_RULE_ERROR_GUIDE,
+  NICKNAME_RULE_ERROR_GUIDE,
+  PASSWORD_CONFIRM_ERROR_GUIDE,
+  PASSWORD_EMPTY_GUIDE,
+  PASSWORD_RULE_ERROR_GUIDE,
+  PASS_GUIDE,
+  PHONE_NUMBER_RULE_ERROR_GUIDE,
+} from '../../../constants/index.jsx';
+import { useAuth } from '../../../context/ProvideAuthContext.jsx';
 
 import DefaultUserImage from '../../../statics/images/default_user_image.jpg';
 
 export default function SignUpFormContainer() {
-  const navigate = useNavigate();
+  const { authNavi } = Navi();
+  const { firebaseDuplicateEmail, firebaseDuplicateNickname, signUp } = useAuth();
   const [userImg, setUserImg] = useState(DefaultUserImage);
   const [form, setForm] = useState({
     email: '',
@@ -37,7 +49,7 @@ export default function SignUpFormContainer() {
 
   const emailCheck = () => {
     if (!emailRule(email)) {
-      setErrMessage({ emailErr: '올바른 형식으로 작성해주세요.' });
+      setErrMessage({ emailErr: EMAIL_RULE_ERROR_GUIDE });
       setEmailConfirm(false);
     } else {
       setErrMessage({ emailErr: '' });
@@ -46,10 +58,10 @@ export default function SignUpFormContainer() {
 
   const passwordCheck = () => {
     if (!passwordRule(password)) {
-      setErrMessage({ pwdErr: '영문과 숫자를 포함하여 8~15자를 작성해주세요' });
+      setErrMessage({ pwdErr: PASSWORD_RULE_ERROR_GUIDE });
       setPasswordConfirm(false);
     } else if (password !== confirmPassword) {
-      setErrMessage({ pwdErr: '비밀번호가 일치하지 않습니다.' });
+      setErrMessage({ pwdErr: PASSWORD_CONFIRM_ERROR_GUIDE });
       setPasswordConfirm(false);
     } else {
       setErrMessage({ pwdErr: '' });
@@ -60,7 +72,7 @@ export default function SignUpFormContainer() {
   const nicknameCheck = () => {
     if (!nicknameRule(nickname)) {
       setErrMessage({
-        nickErr: '2~10자리의 한글이나 영문으로 이루어진 닉네임을 작성해주세요.',
+        nickErr: NICKNAME_RULE_ERROR_GUIDE,
       });
       setNicknameConfirm(false);
     } else {
@@ -71,7 +83,7 @@ export default function SignUpFormContainer() {
   const phoneNumberCheck = () => {
     if (!phoneNumberRule(phoneNumber)) {
       setErrMessage({
-        phoneErr: "'-' 를 제외한 10~11자의 올바른 핸드폰 번호를 작성해주세요.",
+        phoneErr: PHONE_NUMBER_RULE_ERROR_GUIDE,
       });
       setPhoneConfirm(false);
     } else {
@@ -85,23 +97,21 @@ export default function SignUpFormContainer() {
   const duplicateEmail = async (event) => {
     event.preventDefault();
     if (!emailRule(email)) {
+      setEmailConfirm(false);
       return;
     } else {
       try {
-        const response = await userService.duplicateEmail({ email });
-        console.log(response);
-        if (response.statusText === 'OK') {
-          setErrMessage({ emailErr: '사용 가능' });
+        const response = await firebaseDuplicateEmail(email);
+        if (response.empty) {
+          setErrMessage({ emailErr: PASS_GUIDE });
           setEmailConfirm(true);
-        }
-      } catch (error) {
-        if (error.response.status === 409) {
-          setErrMessage({ emailErr: '이미 존재하는 이메일' });
-          setEmailConfirm(false);
         } else {
-          console.log(error);
+          setErrMessage({ emailErr: DUPLICATE_GUIDE });
+          setEmailConfirm(false);
           return;
         }
+      } catch (error) {
+        console.log(error.message);
       }
     }
   };
@@ -109,22 +119,22 @@ export default function SignUpFormContainer() {
   const duplicateNickname = async (event) => {
     event.preventDefault();
     if (!nicknameRule(nickname)) {
+      setNicknameConfirm(false);
       return;
     } else {
       try {
-        const response = await userService.duplicateNickName({ nickname });
-        if (response.statusText === 'OK') {
-          setErrMessage({ nickErr: '사용 가능' });
+        const response = await firebaseDuplicateNickname(nickname);
+        if (response.empty) {
+          setErrMessage({ nickErr: PASS_GUIDE });
           setNicknameConfirm(true);
-        }
-      } catch (error) {
-        if (error.response.status === 409) {
-          setErrMessage({ nickErr: '이미 존재하는 닉네임' });
-          setNicknameConfirm(false);
         } else {
-          console.log(error);
+          setErrMessage({ nickErr: DUPLICATE_GUIDE });
+          setNicknameConfirm(false);
           return;
         }
+      } catch (error) {
+        console.log(error);
+        return;
       }
     }
   };
@@ -133,29 +143,30 @@ export default function SignUpFormContainer() {
     event.preventDefault();
     if (emailConfirm && passwordConfirm && nicknameConfirm && phoneConfirm) {
       try {
-        const response = await userService.signUp({
-          userImage: userImg,
-          email,
-          password,
-          nickname,
-          phoneNumber,
-          introduction,
-        });
-        if (response.statusText === 'OK') {
-          navigate(`/logIn`, { replace: true });
+        const response = await signUp({ userImage: userImg, email, password, nickname, phoneNumber, introduction });
+        if (response === 'success') {
+          authNavi('/login');
           alert('회원가입 성공');
-        } else {
-          alert('회원가입 에러');
-          return;
         }
       } catch (error) {
-        if (error.response.status === 409) {
-          alert('작성하신 내용을 다시 확인해주세요');
-          return;
-        } else {
-          console.log(error);
-          return;
+        console.log(error.code);
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            setErrMessage({ emailErr: DUPLICATE_GUIDE });
+            break;
+          case 'auth/invalid-email':
+            setErrMessage({ emailErr: EMAIL_RULE_ERROR_GUIDE });
+            break;
+          case 'auth/weak-password':
+            setErrMessage({ pwdErr: PASSWORD_RULE_ERROR_GUIDE });
+            break;
+          case 'auth/missing-password':
+            setErrMessage({ pwdErr: PASSWORD_EMPTY_GUIDE });
+            break;
+          default:
+            setErrMessage({ emailErr: '' });
         }
+        return;
       }
     } else return;
   };

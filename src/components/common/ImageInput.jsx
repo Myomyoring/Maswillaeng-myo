@@ -1,7 +1,5 @@
 import { useRef, useState } from 'react';
 
-import { uploadService } from '../../services/upload.service';
-
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 import AddFileIcon from '../../statics/svg/add_file_icon';

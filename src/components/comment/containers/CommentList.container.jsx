@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../../context/ProvideAuthContext';
 
-import { commentService } from '../../../services/comment.service';
 import CommentListPresenter from '../presenters/CommentList.presenter';
 
 export default function CommentList({ commentCount, comments, getPost }) {

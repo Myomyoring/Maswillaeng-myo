@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import { commentService } from '../../../services/comment.service';
 import { useAuth } from '../../../context/ProvideAuthContext';
 
 import WriteCommentPresenter from '../presenters/WriteComment.presenter';

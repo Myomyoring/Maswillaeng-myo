@@ -1,5 +1,5 @@
 import UserPostContents from '../components/user/UserBoardContents';
-import UserProfile from '../components/user/UserProfile';
+import UserProfile from '../components/user/containers/UserProfile.container';
 
 import { styled } from 'styled-components';
 import tw from 'twin.macro';

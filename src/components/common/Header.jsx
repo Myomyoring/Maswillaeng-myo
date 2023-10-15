@@ -6,6 +6,7 @@ import Logo from './Logo';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 import SearchIcon from '../../statics/svg/search_icon';
+import { authService } from '../../firebase-config';
 
 const HeaderStyle = styled.header`
   ${tw`h-20
@@ -25,8 +26,9 @@ const Nav = styled.nav`
 `;
 
 export default function Header() {
-  const { currentUser, logOut } = useAuth();
+  const { currentUser } = useAuth();
   const user = currentUser();
+  const { logOut } = useAuth();
 
   const LogOutHandler = () => {
     logOut();

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { userCategories } from '../../constants';
-import UserContents from './UserContents';
+import UserContents from './containers/UserContents.container';
 import UserTab from '../common/CategoryTab';
 
 import tw from 'twin.macro';
