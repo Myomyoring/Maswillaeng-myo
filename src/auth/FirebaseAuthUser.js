@@ -1,13 +1,8 @@
-import {
-  browserLocalPersistence,
-  createUserWithEmailAndPassword,
-  setPersistence,
-  signInWithEmailAndPassword,
-  signOut,
-} from 'firebase/auth';
+import { browserLocalPersistence, createUserWithEmailAndPassword, setPersistence } from 'firebase/auth';
 import { authService, db } from '../firebase-config';
-import { addDoc, collection, doc, getDocs, query, where } from 'firebase/firestore';
+import { addDoc, collection } from 'firebase/firestore';
 import { encodePassword } from '../utils/password_encoder';
+import { userService } from '../services/firebaseService/user.firebase.service';
 
 const EXPIRE_TIME = 1000 * 60 * 60 * 24 * 15; // 15일
 
@@ -33,20 +28,10 @@ export default function FirebaseAuthUser() {
     }
   };
 
-  const firebaseDuplicateEmail = async (email) => {
-    return getDocs(query(collection(db, 'users'), where('email', '==', email)));
-  };
-
-  const firebaseDuplicateNickname = async (nickname) => {
-    return getDocs(query(collection(db, 'users'), where('nickname', '==', nickname)));
-  };
-
   const setUser = async (userId) => {
     if (!userId) return;
     try {
-      const ref = query(collection(db, 'users'), where('id', '==', userId));
-      // const data = await getDocs(query(collection(db, 'users'), where('id', '==', userId)));
-      const userSnap = await getDocs(ref);
+      const userSnap = await userService.getUserById({ userId });
       userSnap.forEach((doc) => {
         const data = doc.data();
         let currentUser = {
@@ -58,10 +43,7 @@ export default function FirebaseAuthUser() {
           introduction: data.introduction,
           userImage: data.userImage,
         };
-
         localStorage.setItem('current_user', JSON.stringify(currentUser));
-
-        return !!data;
       });
     } catch (error) {
       console.log(error.message);
@@ -73,7 +55,7 @@ export default function FirebaseAuthUser() {
     try {
       await setPersistence(authService, browserLocalPersistence);
       try {
-        const response = await signInWithEmailAndPassword(authService, email, password);
+        const response = await userService.logIn({ email, password });
         if (response.user) {
           await setUser(response.user.uid);
           localStorage.setItem('access_token', response.user.accessToken);
@@ -91,7 +73,7 @@ export default function FirebaseAuthUser() {
 
   const logOut = async () => {
     const user = JSON.parse(localStorage.getItem('current_user'));
-    await signOut(authService);
+    await userService.logOut();
 
     if (user) {
       try {
@@ -139,5 +121,5 @@ export default function FirebaseAuthUser() {
     return current ?? false;
   };
 
-  return { firebaseDuplicateEmail, firebaseDuplicateNickname, logIn, logOut, signUp, currentUser };
+  return { logIn, logOut, signUp, currentUser };
 }
