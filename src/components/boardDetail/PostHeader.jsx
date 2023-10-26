@@ -36,16 +36,16 @@ const ProfileBox = styled.div`
   }
 `;
 
-export default function PostHeader({ category, title, userImage, nickname, createdDate }) {
+export default function PostHeader({ post, writer }) {
   return (
     <PostHeaderStyle>
       <Category>
-        <Link to={`/`}>{category}</Link>
+        <Link to={`/`}>{post.category}</Link>
       </Category>
-      <Title>{title}</Title>
+      <Title>{post.title}</Title>
       <ProfileBox>
-        <DisplayMemberProfile {...{ userImage, nickname }} />
-        <span>{DisplayFullDate(createdDate)}</span>
+        <DisplayMemberProfile userImage={post.userImage} nickname={writer} />
+        <span>{DisplayFullDate(post.createDate)}</span>
       </ProfileBox>
     </PostHeaderStyle>
   );

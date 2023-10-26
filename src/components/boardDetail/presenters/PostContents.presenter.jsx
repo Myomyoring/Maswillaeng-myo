@@ -7,14 +7,24 @@ import PostFooter from '../containers/PostFooter.container';
 import PostHeader from '../PostHeader';
 import WriteComment from '../../comment/containers/WriteComment.container';
 
-export default function PostContentsPresenter({ post, postId, getPost, commentCount, comments, nickname }) {
+export default function PostContentsPresenter({
+  id,
+  writer,
+  post,
+  postId,
+  getPost,
+  getComments,
+  nickname,
+  comments,
+  commentCount,
+}) {
   return (
     <>
-      <PostHeader {...post} />
+      <PostHeader {...{ post, writer }} />
       <PostMain value={post.content} readOnly={true} theme={'bubble'} />
-      <PostFooter {...{ post, postId, getPost, nickname }} />
-      <WriteComment {...{ postId, getPost }} />
-      <CommentList {...{ commentCount, comments, getPost }} />
+      <PostFooter {...{ id, post, postId, getPost, nickname, writer }} />
+      <WriteComment {...{ id, postId, getComments }} />
+      <CommentList {...{ postId, getComments, comments, commentCount }} />
       <BoardListButton to={'/'}>목록으로</BoardListButton>
     </>
   );

@@ -1,42 +1,37 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
-import { useAuth } from '../../../context/ProvideAuthContext';
 import PostFooterPresenter from '../presenters/PostFooter.presenter';
+import { Navi } from '../../common/Navi';
+import { postService } from '../../../services/firebaseService/post.firebase.service';
+import { likeService } from '../../../services/firebaseService/like.firebase.service';
 
-export default function PostFooterContainer({ post, postId, getPost, nickname }) {
-  const navigate = useNavigate();
-  const { getUserToken } = useAuth();
-  const token = getUserToken();
+export default function PostFooterContainer({ id, post, postId, getPost, nickname, writer }) {
+  const { authNavi } = Navi();
   const [liked, setLiked] = useState(false);
 
-  const saveLike = async () => {
+  const handleLike = async (likeType) => {
     try {
-      if (!token) return;
-
-      const response = await likeService.saveLike({ postId, token });
-      if (response.statusText === 'OK') {
+      let likeCnt = 0;
+      const response = await likeService.getLikes({ postId });
+      response.forEach((doc) => {
+        let data = doc.data();
+        likeCnt = data['likeUsers'].length;
+      });
+      if (likeType === 'save') {
+        await likeService.saveLike({ postId, userId: id });
+        await likeService.addLike({ postId, likeCnt });
+      } else if (likeType === 'delete') {
+        await likeService.deleteLike({ postId, userId: id });
+        await likeService.removeLike({ postId, likeCnt });
+      }
+      getPost();
+      if (likeType === 'save') {
         setLiked(true);
-        getPost();
-      }
-    } catch (error) {
-      setLiked(true);
-      console.log(error.message);
-    }
-  };
-
-  const deleteLike = async () => {
-    try {
-      if (!token) return;
-
-      const response = await likeService.deleteLike({ postId, token });
-      if (response.statusText === 'OK') {
+      } else {
         setLiked(false);
-        getPost();
       }
     } catch (error) {
-      setLiked(false);
-      console.log(error.message);
+      console.log(error.code);
     }
   };
 
@@ -55,16 +50,16 @@ export default function PostFooterContainer({ post, postId, getPost, nickname })
   const deletePost = async () => {
     if (window.confirm('정말 게시물을 삭제하시겠습니까?')) {
       try {
-        const response = await postService.deletePost({ postId });
-        if (response.statusText === 'OK') {
-          navigate(`/`, { replace: true });
-          alert('삭제 되었습니다.');
-        }
+        await postService.deletePost({ postId });
+        await likeService.deleteAllLikes({ postId });
+        // await commentService.
+        authNavi(`/`);
+        alert('삭제 되었습니다.');
       } catch (error) {
-        console.log(error.message);
+        console.log(error.code);
       }
     } else return;
   };
 
-  return <PostFooterPresenter {...{ nickname, post, postId, liked, deleteLike, saveLike, sharePost, deletePost }} />;
+  return <PostFooterPresenter {...{ nickname, post, postId, handleLike, liked, sharePost, deletePost, writer }} />;
 }

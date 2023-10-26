@@ -24,7 +24,7 @@ const routes = [
         ),
       },
       {
-        path: 'board/:postId',
+        path: 'board/:postId/:writer',
         element: (
           <PrivateRoute>
             <BoardDetailPage />
@@ -32,7 +32,7 @@ const routes = [
         ),
       },
       {
-        path: 'boardModify/:postId',
+        path: 'boardModify/:postId/:writer',
         element: (
           <PrivateRoute>
             <BoardWritePage />

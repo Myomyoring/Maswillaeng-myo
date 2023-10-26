@@ -45,20 +45,20 @@ export default function PostFooterPresenter({
   post,
   postId,
   liked,
-  deleteLike,
-  saveLike,
+  handleLike,
   sharePost,
   deletePost,
+  writer,
 }) {
   return (
     <PostBottomStyle>
       <Likes>
         {liked ? (
-          <span onClick={deleteLike}>
+          <span onClick={() => handleLike('delete')}>
             <FullHeartIcon />
           </span>
         ) : (
-          <span onClick={saveLike}>
+          <span onClick={() => handleLike('save')}>
             <EmptyHeartIcon />
           </span>
         )}
@@ -68,9 +68,9 @@ export default function PostFooterPresenter({
         <button onClick={() => sharePost()}>
           <ShareIcon />
         </button>
-        {nickname === post.nickname ? (
+        {nickname === writer ? (
           <>
-            <Link to={`/boardModify/${postId}`}>
+            <Link to={`/boardModify/${postId}/${writer}`}>
               <EditIcon />
             </Link>
             <button onClick={deletePost}>

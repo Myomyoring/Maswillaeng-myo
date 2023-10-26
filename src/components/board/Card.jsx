@@ -86,16 +86,16 @@ export default function Card({ posts }) {
     <CardStyle>
       <CardLayout>
         {posts?.length !== 0 ? (
-          posts?.map((post) => (
-            <CardContents key={post.id}>
-              <Link to={`/board/${post.id}`}>
+          posts?.map((post, index) => (
+            <CardContents key={index}>
+              <Link to={`/board/${post.id}/${post.nickname}`}>
                 <img src={post.thumbnail ? post.thumbnail : DefaultThumbnail} />
                 <div>{post.title}</div>
                 <span>[{post.commentCount}]</span>
               </Link>
               <Content>
                 <Link to={`/user/${post.nickname}`}>{post.nickname}</Link>
-                <span>{DisplayPostDate(post.createdDate)}</span>
+                <span>{DisplayPostDate(post.createDate)}</span>
                 <span>
                   <LikeIcon />
                   <span> {post.likeCnt}</span>
