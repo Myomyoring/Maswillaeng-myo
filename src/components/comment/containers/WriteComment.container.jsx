@@ -3,10 +3,9 @@ import { useState } from 'react';
 import { useAuth } from '../../../context/ProvideAuthContext';
 
 import WriteCommentPresenter from '../presenters/WriteComment.presenter';
+import { commentService } from '../../../services/firebaseService/comment.firebase.service';
 
-export default function WriteCommentContainer({ postId, getPost }) {
-  const { getUserToken } = useAuth();
-  const token = getUserToken();
+export default function WriteCommentContainer({ id, postId, getComments }) {
   const [comment, setComment] = useState('');
 
   const handleChangeComment = ({ target }) => {
@@ -20,15 +19,11 @@ export default function WriteCommentContainer({ postId, getPost }) {
       return;
     }
     try {
-      if (!token) return;
-
-      const response = await commentService.saveComment({ postId, content: comment, token });
-      if (response.statusText === 'OK') {
-        setComment('');
-        getPost();
-      }
+      await commentService.saveComment({ postId, userId: id, comment });
+      getComments();
+      setComment('');
     } catch (error) {
-      console.log(error.message);
+      console.log(error.code);
     }
   };
   return <WriteCommentPresenter {...{ comment, handleChangeComment, saveComment }} />;

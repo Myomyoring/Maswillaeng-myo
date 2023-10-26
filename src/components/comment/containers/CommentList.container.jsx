@@ -2,55 +2,47 @@ import { useState } from 'react';
 import { useAuth } from '../../../context/ProvideAuthContext';
 
 import CommentListPresenter from '../presenters/CommentList.presenter';
+import { commentService } from '../../../services/firebaseService/comment.firebase.service';
 
-export default function CommentList({ commentCount, comments, getPost }) {
-  const { getUserToken, currentUser } = useAuth();
-  const token = getUserToken();
+export default function CommentList({ postId, getComments, comments, commentCount }) {
+  const { currentUser } = useAuth();
   const { nickname } = currentUser();
 
   const [modifyMode, setModifyMode] = useState(false);
   const [replyMode, setReplyMode] = useState(false);
-  const [modifySelect, setModifySelect] = useState({ modifyCommentId: 0, modifyContent: '' });
+  const [modifySelect, setModifySelect] = useState({ modifyCommentId: 0, modifyComment: '' });
   const [replySelect, setReplySelect] = useState({ mode: '', parentId: 0, replyId: 0, replyComment: '' });
 
-  const modifyCommentHandler = (id, content) => {
+  const modifyCommentHandler = (id, comment) => {
     setModifyMode(true);
-    setModifySelect({ modifyCommentId: id, modifyContent: content });
+    setModifySelect({ modifyCommentId: id, modifyComment: comment });
   };
 
   const createReplyHandler = (parentId) => {
-    setReplyMode(true);
-    setReplySelect({ mode: 'create', parentId: parentId });
+    // setReplyMode(true);
+    // setReplySelect({ mode: 'create', parentId: parentId });
   };
 
   const updateComment = async () => {
     try {
-      if (!token) return;
-
-      const response = await commentService.updateComment({
+      await commentService.updateComment({
         commentId: modifySelect.modifyCommentId,
-        content: modifySelect.modifyContent,
-        token,
+        comment: modifySelect.modifyComment,
       });
-      if (response.statusText === 'OK') {
-        setModifyMode(false);
-        getPost();
-      }
+      setModifyMode(false);
+      getComments();
     } catch (error) {
-      console.log(error.message);
+      console.log(error.code);
     }
   };
 
   const deleteComment = async (commentId) => {
     if (window.confirm('정말 댓글을 삭제하시겠습니까?')) {
       try {
-        if (!token) return;
-        const response = await commentService.deleteComment({ commentId, token });
-        if (response.statusText === 'OK') {
-          getPost();
-        }
+        await commentService.deleteComment({ commentId });
+        getComments();
       } catch (error) {
-        console.log(error.message);
+        console.log(error.code);
       }
     } else return;
   };
@@ -58,18 +50,17 @@ export default function CommentList({ commentCount, comments, getPost }) {
   return (
     <CommentListPresenter
       {...{
-        getPost,
+        getComments,
         nickname,
         comments,
         commentCount,
+        updateComment,
+        deleteComment,
         modifyMode,
         modifySelect,
+        modifyCommentHandler,
         setModifySelect,
         setModifyMode,
-        createReplyHandler,
-        modifyCommentHandler,
-        deleteComment,
-        updateComment,
         replyMode,
         replySelect,
         setReplyMode,

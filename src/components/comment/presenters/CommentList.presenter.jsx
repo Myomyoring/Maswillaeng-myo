@@ -69,7 +69,7 @@ const WriteComment = styled.textarea`
 `;
 
 export default function CommentListPresenter({
-  getPost,
+  getComments,
   nickname,
   comments,
   commentCount,
@@ -99,13 +99,13 @@ export default function CommentListPresenter({
               <span>{comment.nickname}</span>
               <span>{DisplayPostDate(comment.createDate)}</span>
               <WriteComment
-                value={modifySelect.modifyContent}
+                value={modifySelect.modifyComment}
                 onChange={(e) => {
-                  setModifySelect({ ...modifySelect, modifyContent: e.target.value });
+                  setModifySelect({ ...modifySelect, modifyComment: e.target.value });
                 }}
                 placeholder="댓글을 작성해주세요. "
               />
-              <button onClick={updateComment}>수정</button>
+              <button onClick={() => updateComment()}>수정</button>
               <button onClick={() => setModifyMode(false)}>취소</button>
             </CommentContent>
           </Comments>
@@ -118,11 +118,11 @@ export default function CommentListPresenter({
                   <span>{comment.nickname}</span>
                 </Link>
                 <span>{DisplayPostDate(comment.createDate)}</span>
-                <div>{comment.content}</div>
+                <div>{comment.comment}</div>
                 <button onClick={() => createReplyHandler(comment.commentId)}>답글</button>
                 {comment.nickname === nickname ? (
                   <>
-                    <button onClick={() => modifyCommentHandler(comment.commentId, comment.content)}>수정</button>
+                    <button onClick={() => modifyCommentHandler(comment.commentId, comment.comment)}>수정</button>
                     <button onClick={() => deleteComment(comment.commentId)}>삭제</button>
                   </>
                 ) : null}
@@ -135,7 +135,7 @@ export default function CommentListPresenter({
                 setReplyMode,
                 replySelect,
                 setReplySelect,
-                getPost,
+                getComments,
                 createReplyHandler,
               }}
             />
