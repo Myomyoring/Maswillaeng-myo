@@ -6,7 +6,7 @@ import { useAuth } from '../../../context/ProvideAuthContext';
 import { EMAIL_RULE_ERROR_GUIDE, LOGIN_EMPTY_GUIDE, LOGIN_ERROR_GUIDE } from '../../../constants';
 
 export default function LoginFormContainer() {
-  const { renderNavi } = Navi();
+  const { authNavi } = Navi();
   const { logIn } = useAuth();
   const [user, setUser] = useState({ email: '', password: '' });
   const { email, password } = user;
@@ -26,7 +26,7 @@ export default function LoginFormContainer() {
     try {
       const response = await logIn(email, password);
       if (response === 'success') {
-        // renderNavi('/');
+        authNavi('/');
         alert('로그인 성공');
       }
     } catch (error) {

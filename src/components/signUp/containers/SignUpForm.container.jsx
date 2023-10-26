@@ -17,10 +17,11 @@ import {
 import { useAuth } from '../../../context/ProvideAuthContext.jsx';
 
 import DefaultUserImage from '../../../statics/images/default_user_image.jpg';
+import { userService } from '../../../services/firebaseService/user.firebase.service.jsx';
 
 export default function SignUpFormContainer() {
   const { authNavi } = Navi();
-  const { firebaseDuplicateEmail, firebaseDuplicateNickname, signUp } = useAuth();
+  const { signUp } = useAuth();
   const [userImg, setUserImg] = useState(DefaultUserImage);
   const [form, setForm] = useState({
     email: '',
@@ -101,7 +102,7 @@ export default function SignUpFormContainer() {
       return;
     } else {
       try {
-        const response = await firebaseDuplicateEmail(email);
+        const response = await userService.duplicateEmail({ email });
         if (response.empty) {
           setErrMessage({ emailErr: PASS_GUIDE });
           setEmailConfirm(true);
@@ -123,7 +124,7 @@ export default function SignUpFormContainer() {
       return;
     } else {
       try {
-        const response = await firebaseDuplicateNickname(nickname);
+        const response = await userService.duplicateNickName({ nickname });
         if (response.empty) {
           setErrMessage({ nickErr: PASS_GUIDE });
           setNicknameConfirm(true);

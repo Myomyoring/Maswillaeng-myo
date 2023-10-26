@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react';
+import { storage } from '../../firebase-config';
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
@@ -33,32 +35,45 @@ const AddFileLabel = styled.label`
 `;
 
 export default function ImageInput({ defaultImg, currentImg, setImage }) {
-  const [imgFile, setImgFile] = useState(currentImg ?? '');
+  const [imgView, setImgView] = useState(currentImg ?? '');
   const imgRef = useRef();
 
-  const saveImgFile = async () => {
+  const onChangeImage = async () => {
     const file = imgRef.current.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = () => {
-      setImgFile(reader.result);
-    };
 
-    const formData = new FormData();
-    formData.append('photo', file);
+    const storageRef = ref(storage, `profile_images/${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
 
-    try {
-      const response = await uploadService.uploadImage({ formData });
-      setImage(response.data.img);
-    } catch (error) {
-      console.log(error.message);
-    }
+    uploadTask.on(
+      'state_changed',
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+        switch (snapshot.state) {
+          case 'paused':
+            console.log('Upload is paused');
+            break;
+          case 'running':
+            console.log('Upload is running');
+            break;
+        }
+      },
+      (error) => {
+        console.log(error.code);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setImgView(downloadURL);
+          setImage(downloadURL);
+        });
+      },
+    );
   };
 
   return (
     <ImageStyle>
-      <Image src={imgFile ? imgFile : defaultImg} alt="프로필 이미지" />
-      <input hidden type="file" id="preview" accept="image/*" onChange={saveImgFile} ref={imgRef} />
+      <Image src={imgView ? imgView : defaultImg} alt="프로필 이미지" />
+      <input hidden type="file" id="preview" accept="image/*" onChange={onChangeImage} ref={imgRef} />
       <AddFileLabel htmlFor="preview">
         <AddFileIcon />
       </AddFileLabel>
