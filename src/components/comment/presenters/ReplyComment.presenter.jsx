@@ -68,7 +68,7 @@ export default function ReplyCommentPresenter({
   saveReply,
   modifyReplyHandler,
   deleteReply,
-  replyList,
+  replies,
 }) {
   return (
     <>
@@ -89,28 +89,31 @@ export default function ReplyCommentPresenter({
           </ReplyContent>
         </ReComments>
       ) : (
-        replyList.map((reply, index) => (
-          <ReComments key={index}>
-            <ProfileImg src={reply.userImage} />
-            <ReplyContent>
-              <ReplyIcon />
-              <Link to={`/user/${reply.nickname}`}>
-                <span>{reply.nickname}</span>
-              </Link>
-              <span>{DisplayPostDate(reply.createDate)}</span>
-              <p>{reply.content}</p>
-              <button onClick={() => createReplyHandler(comment.commentId)}>답글</button>
-              {reply.nickname === nickname ? (
-                <>
-                  <button onClick={() => modifyReplyHandler(comment.commentId, reply.commentId, reply.content)}>
-                    수정
-                  </button>
-                  <button onClick={() => deleteReply(reply.commentId)}>삭제</button>
-                </>
-              ) : null}
-            </ReplyContent>
-          </ReComments>
-        ))
+        replies.map(
+          (reply, index) =>
+            comment.commentId === reply.parentId && (
+              <ReComments key={index}>
+                <ProfileImg src={reply.userImage} />
+                <ReplyContent>
+                  <ReplyIcon />
+                  <Link to={`/user/${reply.nickname}`}>
+                    <span>{reply.nickname}</span>
+                  </Link>
+                  <span>{DisplayPostDate(reply.createDate)}</span>
+                  <p>{reply.comment}</p>
+                  <button onClick={() => createReplyHandler(comment.commentId)}>답글</button>
+                  {reply.nickname === nickname ? (
+                    <>
+                      <button onClick={() => modifyReplyHandler(reply.parentId, reply.commentId, reply.comment)}>
+                        수정
+                      </button>
+                      <button onClick={() => deleteReply(reply.commentId)}>삭제</button>
+                    </>
+                  ) : null}
+                </ReplyContent>
+              </ReComments>
+            ),
+        )
       )}
       {replyMode && replySelect.parentId === comment.commentId && replySelect.mode === 'create' ? (
         <ReComments>

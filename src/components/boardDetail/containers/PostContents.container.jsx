@@ -16,18 +16,26 @@ export default function PostContentsContainer() {
 
   const [post, setPost] = useState({});
   const [comments, setComments] = useState([]);
+  const [replies, setReplies] = useState([]);
   const [commentCount, setCommentCount] = useState(0);
 
   useEffect(() => {
     getPost();
     getComments();
+    getReplies();
   }, [postId]);
 
   const getPost = async () => {
     try {
       const response = await postService.getPost({ postId });
       if (response.exists()) {
+        let data = response.data();
         setPost(response.data());
+        const getNicknames = await userService.getUserById({ userId: data.userId });
+        getNicknames.forEach((doc) => {
+          let user = doc.data();
+          setPost({ ...data, userImage: user.userImage });
+        });
       }
     } catch (error) {
       console.log(error.code);
@@ -40,7 +48,6 @@ export default function PostContentsContainer() {
       const data = [];
       const response = await commentService.getComments({ postId });
       response.forEach((comment) => {
-        console.log(comment.data());
         data.push({ ...comment.data(), commentId: comment.id });
       });
 
@@ -56,13 +63,41 @@ export default function PostContentsContainer() {
         });
       }
       setComments(updatedData);
-      setCommentCount(comments.length);
+      setCommentCount(updatedData.length);
     } catch (error) {
-      console.log(error.code);
+      console.log(error);
+    }
+  };
+
+  const getReplies = async () => {
+    try {
+      const data = [];
+      const response = await commentService.getReplies({ postId });
+      response.forEach((reply) => {
+        data.push({ ...reply.data(), commentId: reply.id });
+      });
+
+      const updatedData = [];
+
+      for (const item of data) {
+        const getNicknames = await userService.getUserById({ userId: item.userId });
+        getNicknames.forEach((doc) => {
+          let user = doc.data();
+          if (user.id === item.userId) {
+            updatedData.push({ ...item, nickname: user.nickname, userImage: user.userImage });
+          }
+        });
+      }
+      setReplies(updatedData);
+      setCommentCount(updatedData.length + commentCount);
+    } catch (error) {
+      console.log(error);
     }
   };
 
   return (
-    <PostContentsPresenter {...{ id, writer, post, postId, getPost, getComments, nickname, comments, commentCount }} />
+    <PostContentsPresenter
+      {...{ id, writer, post, postId, getPost, getReplies, getComments, nickname, comments, replies, commentCount }}
+    />
   );
 }

@@ -2,85 +2,67 @@ import { useEffect, useState } from 'react';
 
 import { useAuth } from '../../../context/ProvideAuthContext';
 import ReplyCommentPresenter from '../presenters/ReplyComment.presenter';
+import { commentService } from '../../../services/firebaseService/comment.firebase.service';
 
 export default function ReplyCommentContainer({
+  postId,
   comment,
   replyMode,
   setReplyMode,
   replySelect,
   setReplySelect,
-  getComments,
+  getReplies,
+  replies,
   createReplyHandler,
 }) {
   const { currentUser } = useAuth();
-  const { nickname } = currentUser();
-  const [replyList, setReplyList] = useState([]);
-
-  useEffect(() => {
-    // getReply(comment.commentId);
-  }, [comment]);
-
-  const getReply = async (commentId) => {
-    // try {
-    //   const { data } = await commentService.getReply({ commentId });
-    //   setReplyList(data);
-    // } catch (error) {
-    //   console.log(error.message);
-    // }
-  };
+  const { id, nickname } = currentUser();
 
   const saveReply = async () => {
-    // if (replySelect.replyComment === '') return;
-    // try {
-    //   if (!token) return;
-    //   const response = await commentService.saveReply({
-    //     parentId: replySelect.parentId,
-    //     content: replySelect.replyComment,
-    //     token,
-    //   });
-    //   if (response.statusText === 'OK') {
-    //     getPost();
-    //     setReplyMode(false);
-    //   } else return;
-    // } catch (error) {
-    //   console.log(error.message);
-    // }
+    if (replySelect.replyComment === '') return;
+    try {
+      const response = await commentService.saveReply({
+        parentId: replySelect.parentId,
+        postId,
+        userId: id,
+        comment: replySelect.replyComment,
+      });
+      console.log(response);
+      getReplies();
+      setReplySelect({ replyComment: '' });
+      setReplyMode(false);
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   const modifyReplyHandler = async (parentId, replyId, content) => {
-    // setReplyMode(true);
-    // setReplySelect({ mode: 'update', parentId: parentId, replyId: replyId, replyComment: content });
+    setReplyMode(true);
+    setReplySelect({ mode: 'update', parentId: parentId, replyId: replyId, replyComment: content });
   };
 
   const updateReply = async () => {
-    // try {
-    //   const response = await commentService.updateReply({
-    //     replyId: replySelect.replyId,
-    //     content: replySelect.replyComment,
-    //     token,
-    //   });
-    //   if (response.statusText === 'OK') {
-    //     getPost();
-    //     setReplyMode(false);
-    //   } else return;
-    // } catch (error) {
-    //   console.log(error.message);
-    // }
+    try {
+      await commentService.updateReply({
+        commentId: replySelect.replyId,
+        comment: replySelect.replyComment,
+      });
+      setReplyMode(false);
+      getReplies();
+    } catch (error) {
+      console.log(error.code);
+    }
   };
 
   const deleteReply = async (replyId) => {
-    // if (window.confirm('정말 답글을 삭제하시겠습니까?')) {
-    //   try {
-    //     if (!token) return;
-    //     const response = await commentService.deleteReply({ parentId: comment.commentId, replyId, token });
-    //     if (response.statusText === 'OK') {
-    //       getPost();
-    //       console.log(response);
-    //     } else return;
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // } else return;
+    if (window.confirm('정말 답글을 삭제하시겠습니까?')) {
+      try {
+        await commentService.deleteReply({ commentId: replyId });
+        getReplies();
+      } catch (error) {
+        console.log(error.code);
+      }
+    } else return;
   };
 
   return (
@@ -97,7 +79,7 @@ export default function ReplyCommentContainer({
         saveReply,
         modifyReplyHandler,
         deleteReply,
-        replyList,
+        replies,
       }}
     />
   );

@@ -1,33 +1,18 @@
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  orderBy,
-  query,
-  setDoc,
-  updateDoc,
-  where,
-} from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore';
 import { db } from '../../firebase-config';
 
 export const commentService = {
   deleteComment({ commentId }) {
     return deleteDoc(doc(db, 'comments', commentId));
   },
-  //   deleteReply({ parentId, replyId, token }) {
-  //     return axios.delete(`/api/comment/reply/${parentId}/${replyId}`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-  //   },
-  //   getReply({ commentId }) {
-  //     return axios.get(`/api/comment/reply/${commentId}`);
-  //   },
+  deleteReply({ commentId }) {
+    return deleteDoc(doc(db, 'replies', commentId));
+  },
   getComments({ postId }) {
-    return getDocs(query(collection(db, 'comments'), where('postId', '==', postId)));
+    return getDocs(query(collection(db, 'comments'), where('postId', '==', postId), orderBy('createDate', 'desc')));
+  },
+  getReplies({ postId }) {
+    return getDocs(query(collection(db, 'replies'), where('postId', '==', postId), orderBy('createDate', 'desc')));
   },
   saveComment({ postId, userId, comment }) {
     return addDoc(collection(db, 'comments'), { postId, userId, comment, createDate: Date() });
@@ -35,32 +20,13 @@ export const commentService = {
   // deleteAllComments({ postId }) {
   //   return deleteDoc(query(collection(db, 'comments'), where('postId', '==', postId)));
   // },
-  //   saveReply({ parentId, content, token }) {
-  //     return axios.post(
-  //       `/api/comment/reply`,
-  //       {
-  //         parentId,
-  //         content,
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       },
-  //     );
-  //   },
+  saveReply({ parentId, postId, userId, comment }) {
+    return addDoc(collection(db, 'replies'), { parentId, postId, userId, comment, createDate: Date() });
+  },
   updateComment({ commentId, comment }) {
     return updateDoc(doc(db, 'comments', commentId), { comment });
   },
-  //   updateReply({ replyId, content, token }) {
-  //     return axios.put(
-  //       `/api/comment/reply`,
-  //       { replyId, content },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       },
-  //     );
-  //   },
+  updateReply({ commentId, comment }) {
+    return updateDoc(doc(db, 'replies', commentId), { comment });
+  },
 };

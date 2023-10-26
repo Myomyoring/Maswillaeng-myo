@@ -4,14 +4,14 @@ import { useAuth } from '../../../context/ProvideAuthContext';
 import CommentListPresenter from '../presenters/CommentList.presenter';
 import { commentService } from '../../../services/firebaseService/comment.firebase.service';
 
-export default function CommentList({ postId, getComments, comments, commentCount }) {
+export default function CommentList({ postId, getComments, getReplies, comments, replies, commentCount }) {
   const { currentUser } = useAuth();
   const { nickname } = currentUser();
 
   const [modifyMode, setModifyMode] = useState(false);
   const [replyMode, setReplyMode] = useState(false);
-  const [modifySelect, setModifySelect] = useState({ modifyCommentId: 0, modifyComment: '' });
-  const [replySelect, setReplySelect] = useState({ mode: '', parentId: 0, replyId: 0, replyComment: '' });
+  const [modifySelect, setModifySelect] = useState({ modifyCommentId: '', modifyComment: '' });
+  const [replySelect, setReplySelect] = useState({ mode: '', parentId: '', replyId: '', replyComment: '' });
 
   const modifyCommentHandler = (id, comment) => {
     setModifyMode(true);
@@ -19,8 +19,8 @@ export default function CommentList({ postId, getComments, comments, commentCoun
   };
 
   const createReplyHandler = (parentId) => {
-    // setReplyMode(true);
-    // setReplySelect({ mode: 'create', parentId: parentId });
+    setReplyMode(true);
+    setReplySelect({ mode: 'create', parentId: parentId });
   };
 
   const updateComment = async () => {
@@ -50,15 +50,19 @@ export default function CommentList({ postId, getComments, comments, commentCoun
   return (
     <CommentListPresenter
       {...{
+        postId,
         getComments,
+        getReplies,
         nickname,
         comments,
+        replies,
         commentCount,
         updateComment,
         deleteComment,
         modifyMode,
         modifySelect,
         modifyCommentHandler,
+        createReplyHandler,
         setModifySelect,
         setModifyMode,
         replyMode,

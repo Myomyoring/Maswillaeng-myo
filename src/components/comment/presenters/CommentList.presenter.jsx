@@ -69,9 +69,12 @@ const WriteComment = styled.textarea`
 `;
 
 export default function CommentListPresenter({
+  postId,
   getComments,
+  getReplies,
   nickname,
   comments,
+  replies,
   commentCount,
   modifyMode,
   modifySelect,
@@ -130,6 +133,9 @@ export default function CommentListPresenter({
             </Comments>
             <ReplyComment
               {...{
+                postId,
+                getReplies,
+                replies,
                 comment,
                 replyMode,
                 setReplyMode,

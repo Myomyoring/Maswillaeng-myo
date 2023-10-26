@@ -14,8 +14,10 @@ export default function PostContentsPresenter({
   postId,
   getPost,
   getComments,
+  getReplies,
   nickname,
   comments,
+  replies,
   commentCount,
 }) {
   return (
@@ -24,7 +26,7 @@ export default function PostContentsPresenter({
       <PostMain value={post.content} readOnly={true} theme={'bubble'} />
       <PostFooter {...{ id, post, postId, getPost, nickname, writer }} />
       <WriteComment {...{ id, postId, getComments }} />
-      <CommentList {...{ postId, getComments, comments, commentCount }} />
+      <CommentList {...{ postId, getComments, getReplies, comments, replies, commentCount }} />
       <BoardListButton to={'/'}>목록으로</BoardListButton>
     </>
   );
