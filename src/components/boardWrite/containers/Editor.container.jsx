@@ -1,12 +1,14 @@
 import { useMemo, useRef } from 'react';
-
+import { storage } from '../../../firebase-config.js';
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import EditorPresenter from '../presenters/Editor.presenter';
 
-export default function EditorContainer({ editorValue, setEditorValue, imageList, setThumbnail, token }) {
+export default function EditorContainer({ editorValue, setEditorValue, imageList, setThumbnail }) {
   const quillRef = useRef(null);
   const changeEditorValue = (quillValue) => {
     setEditorValue(quillValue);
   };
+
   const imageHandler = () => {
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
@@ -14,20 +16,40 @@ export default function EditorContainer({ editorValue, setEditorValue, imageList
 
     input.onchange = async () => {
       const file = input.files[0];
-      const formData = new FormData();
-      formData.append('photo', file);
 
       try {
-        if (!token) return;
-        const response = await uploadService.setImage({ formData, token });
-        imageList.push(response.data.img);
-        setThumbnail(imageList);
+        const storageRef = ref(storage, `post_images/${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
 
-        const range = quillRef.current.getEditor().getSelection();
-        quillRef.current.getEditor().insertEmbed(range.index, 'image', response.data.img);
-        input.value = '';
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('Upload is ' + progress + '% done');
+            switch (snapshot.state) {
+              case 'paused':
+                console.log('Upload is paused');
+                break;
+              case 'running':
+                console.log('Upload is running');
+                break;
+            }
+          },
+          (error) => {
+            console.log(error.code);
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              imageList.push(downloadURL);
+              setThumbnail(imageList);
+              const range = quillRef.current.getEditor().getSelection();
+              quillRef.current.getEditor().insertEmbed(range.index, 'image', downloadURL);
+              input.value = '';
+            });
+          },
+        );
       } catch (error) {
-        console.log(error);
+        console.log(error.code);
       }
     };
 
