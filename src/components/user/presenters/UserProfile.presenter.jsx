@@ -121,12 +121,15 @@ export default function UserProfilePresenter({
             <DeleteUserBtn onClick={deleteUserHandler}>회원 탈퇴</DeleteUserBtn>
           </Buttons>
         ) : (
-          <FollowBtn className={followState ? 'following' : ''} onClick={followHandler}>
+          <FollowBtn
+            className={followState ? 'following' : ''}
+            onClick={() => followHandler(followState ? '팔로잉' : '팔로우')}
+          >
             {followState ? '팔로잉' : '팔로우'}
           </FollowBtn>
         )}
       </ProfileStyle>
-      {modal ? <Modal setModal={setModal} modalId={modalId} followerList={followerList} /> : null}
+      {modal ? <Modal member={member} setModal={setModal} modalId={modalId} followerList={followerList} /> : null}
     </>
   );
 }

@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import { useAuth } from '../../../context/ProvideAuthContext';
 import UserProfilePresenter from '../presenters/UserProfile.presenter';
+import { userService } from '../../../services/firebaseService/user.firebase.service';
+import { followService } from '../../../services/firebaseService/follow.firebase.service';
 
 export default function UserProfileContainer() {
   const { nickname } = useParams();
-  const navigate = useNavigate();
-  const { getUserToken, currentUser, logOut } = useAuth();
-  const token = getUserToken();
+  const { currentUser, logOut } = useAuth();
   const user = currentUser();
   const [member, setMember] = useState({});
   const [modal, setModal] = useState(false);
@@ -23,71 +23,111 @@ export default function UserProfileContainer() {
 
   const getMember = async () => {
     try {
-      const { data } = await userService.getUserByNickname({ nickname });
-      setMember(data);
+      const memberSnap = await userService.getUserByNickname({ nickname });
+      if (!memberSnap.empty) {
+        memberSnap.forEach((doc) => setMember(doc.data()));
+      }
     } catch (error) {
-      if (error.response.status === 500) {
-        navigate('500', { replace: true });
-      } else console.log(error.message);
-    }
-  };
-  const getFollowerList = async () => {
-    try {
-      const { data } = await followService.getFollower({ nickname });
-      setFollowerList(data);
-      data.find((follower) => follower.nickname === user.nickname) ? setFollowState(true) : setFollowState(false);
-    } catch (error) {
-      console.log(error.message);
+      console.log(error.code);
     }
   };
 
-  /* 탈퇴 할 사용자가 작성한 게시물이 있을 시, 탈퇴되지 않음 */
+  // invalid-argument -> member 굴러가는 중
+  const getFollowerList = async () => {
+    try {
+      const followerSnap = await followService.getFollowers({ userId: member.id });
+      followerSnap.forEach((doc) => {
+        let data = doc.data();
+        data.followerUsers.find((follower) => follower === user.id) ? setFollowState(true) : setFollowState(false);
+        setFollowerList(data.followerUsers);
+      });
+    } catch (error) {
+      console.log(error.code);
+    }
+  };
+
   const deleteUserHandler = async () => {
     if (window.confirm('정말 탈퇴하시겠습니까?')) {
       try {
-        if (!token) return;
-        const response = await userService.deleteUser({ token });
-        if (response.statusText === 'OK') {
-          logOut();
-          alert('이용해주셔서 감사합니다.');
-        }
+        await userService.deleteAccount();
       } catch (error) {
         alert('탈퇴를 처리하는 중 문제가 생겼습니다.');
-        console.log(error);
+        console.log(error.code);
+        return;
       }
+      await userService.deleteUser({ userId: user.id });
+      await logOut();
+      alert('이용해주셔서 감사합니다.');
     } else {
       return;
     }
   };
 
-  const followHandler = async ({ target }) => {
-    const { innerText } = target;
+  const followHandler = async (reqType) => {
+    if (reqType === '팔로우') {
+      await saveFollow();
+    } else if (reqType === '팔로잉') {
+      await removeFollow();
+    }
+  };
 
-    if (innerText === '팔로우') {
-      try {
-        if (!token) return;
-        const response = await followService.saveFollow({ nickname, token });
-        if (response.statusText === 'OK') {
-          getMember();
-          getFollowerList();
-        }
-      } catch (error) {
-        console.log(error.message);
-        return;
+  const saveFollow = async () => {
+    await getFollowerList();
+    try {
+      await followService.saveFollower({ memberId: member.id, userId: user.id });
+    } catch (error) {
+      console.log(error.code);
+      switch (error.code) {
+        case 'not-found':
+          await followService.createFollowerDoc({ memberId: member.id });
+          saveFollow();
+          return;
       }
-    } else if (innerText === '팔로잉') {
-      try {
-        if (!token) return;
-        const response = await followService.deleteFollow({ nickname, token });
-        if (response.statusText === 'OK') {
-          getMember();
-          getFollowerList();
-        }
-      } catch (error) {
-        console.log(error.message);
-        return;
+    }
+    try {
+      await followService.saveFollowing({ memberId: member.id, userId: user.id });
+    } catch (error) {
+      console.log(error.code);
+      switch (error.code) {
+        case 'not-found':
+          await followService.createFollowingDoc({ userId: user.id });
+          saveFollow();
+          return;
       }
-    } else return;
+    }
+    try {
+      await followService.updateFollowerAddCount({ memberId: member.id, count: followerList.length });
+      const followingSnap = await followService.getFollowings({ userId: user.id });
+      followingSnap.forEach((doc) => {
+        let data = doc.data();
+        console.log(data.followingUsers);
+        followService.updateFollowingAddCount({ userId: user.id, count: data.followingUsers.length });
+      });
+      await getMember();
+      await getFollowerList();
+    } catch (error) {
+      console.log(error.code);
+    }
+  };
+
+  const removeFollow = async () => {
+    await getMember();
+    try {
+      await followService.removeFollower({ memberId: member.id, userId: user.id });
+      await followService.removeFollowing({ memberId: member.id, userId: user.id });
+      await followService.updateFollowerDeleteCount({ memberId: member.id, count: followerList.length });
+      const followingSnap = await followService.getFollowings({ userId: user.id });
+      followingSnap.forEach((doc) => {
+        let data = doc.data();
+        followService.updateFollowingDeleteCount({ userId: user.id, count: data.followingUsers.length });
+      });
+
+      await getMember();
+      await getFollowerList();
+    } catch (error) {
+      console.log(error.code);
+      return;
+    }
   };
 
   const modalHandler = async (id) => {
