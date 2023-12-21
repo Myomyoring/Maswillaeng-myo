@@ -1,7 +1,5 @@
 import { useState } from 'react';
 
-import { useAuth } from '../../../context/ProvideAuthContext';
-
 import WriteCommentPresenter from '../presenters/WriteComment.presenter';
 import { commentService } from '../../../services/firebaseService/comment.firebase.service';
 

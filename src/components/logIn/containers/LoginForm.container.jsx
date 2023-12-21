@@ -30,7 +30,6 @@ export default function LoginFormContainer() {
         alert('로그인 성공');
       }
     } catch (error) {
-      console.log(error.code);
       switch (error.code) {
         case 'auth/invalid-login-credentials':
           setErrMessage(LOGIN_ERROR_GUIDE);

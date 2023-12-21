@@ -134,7 +134,7 @@ export default function SignUpFormContainer() {
           return;
         }
       } catch (error) {
-        console.log(error);
+        console.log(error.code);
         return;
       }
     }
