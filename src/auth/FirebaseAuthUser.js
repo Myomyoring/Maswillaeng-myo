@@ -1,6 +1,6 @@
-import { browserLocalPersistence, createUserWithEmailAndPassword, setPersistence } from 'firebase/auth';
 import { authService, db } from '../firebase-config';
-import { addDoc, collection } from 'firebase/firestore';
+import { browserLocalPersistence, createUserWithEmailAndPassword, setPersistence } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import { encodePassword } from '../utils/password_encoder';
 import { userService } from '../services/firebaseService/user.firebase.service';
 
@@ -12,7 +12,7 @@ export default function FirebaseAuthUser() {
       const response = await createUserWithEmailAndPassword(authService, email, password);
       if (response.user) {
         const pwd = encodePassword(password);
-        await addDoc(collection(db, 'users'), {
+        await setDoc(doc(db, 'users', response.user.uid), {
           id: response.user.uid,
           userImage,
           email,
@@ -20,6 +20,8 @@ export default function FirebaseAuthUser() {
           nickname,
           phoneNumber,
           introduction,
+          followerCnt: 0,
+          followingCnt: 0,
         });
         return 'success';
       }
@@ -52,22 +54,14 @@ export default function FirebaseAuthUser() {
   };
 
   const logIn = async (email, password) => {
-    try {
-      await setPersistence(authService, browserLocalPersistence);
-      try {
-        const response = await userService.logIn({ email, password });
-        if (response.user) {
-          await setUser(response.user.uid);
-          localStorage.setItem('access_token', response.user.accessToken);
-          localStorage.setItem('refresh_token', response.user.refreshToken);
-          setExpire(EXPIRE_TIME);
-          return 'success';
-        }
-      } catch (error) {
-        console.log(error.code);
-      }
-    } catch (error) {
-      console.log(error.code);
+    await setPersistence(authService, browserLocalPersistence);
+    const response = await userService.logIn({ email, password });
+    if (response.user) {
+      await setUser(response.user.uid);
+      localStorage.setItem('access_token', response.user.accessToken);
+      localStorage.setItem('refresh_token', response.user.refreshToken);
+      setExpire(EXPIRE_TIME);
+      return 'success';
     }
   };
 
@@ -77,7 +71,7 @@ export default function FirebaseAuthUser() {
 
     if (user) {
       try {
-        window.location.replace('/');
+        window.location.replace('/login');
       } catch (error) {
         console.log(error.message);
       }
