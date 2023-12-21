@@ -6,7 +6,6 @@ import Logo from './Logo';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 import SearchIcon from '../../statics/svg/search_icon';
-import { authService } from '../../firebase-config';
 
 const HeaderStyle = styled.header`
   ${tw`h-20
