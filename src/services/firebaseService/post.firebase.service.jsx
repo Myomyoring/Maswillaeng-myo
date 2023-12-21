@@ -9,6 +9,7 @@ import {
   orderBy,
   query,
   updateDoc,
+  where,
 } from 'firebase/firestore';
 import { db } from '../../firebase-config';
 
@@ -19,19 +20,19 @@ export const postService = {
   getAllPost() {
     return getDocs(query(collection(db, 'posts'), orderBy('createDate', 'desc'), limit(8)));
   },
-  //   getSelectedTabPost({ tabName, page }) {
-  //     return axios.get(`api/post/posts/category/${tabName}/${page}`);
-  //   },
+  getSelectedTabPost({ tabName }) {
+    return getDocs(
+      query(collection(db, 'posts'), where('category', '==', tabName), orderBy('createDate', 'desc'), limit(8)),
+    );
+  },
   getPost({ postId }) {
     return getDoc(doc(db, 'posts', postId));
   },
-  //   getUserWritePost({ nickname, page, token }) {
-  //     return axios.get(`/api/post/posts/nickname/${nickname}/${page}`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-  //   },
+  getUserWritePost({ userId }) {
+    return getDocs(
+      query(collection(db, 'posts'), where('userId', '==', userId), orderBy('createDate', 'desc'), limit(8)),
+    );
+  },
   savePost({ userId, category, title, thumbnail, content }) {
     return addDoc(collection(db, 'posts'), {
       userId,
