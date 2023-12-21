@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react';
-import { storage } from '../../firebase-config';
-import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { getDownloadURL } from 'firebase/storage';
 
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 import AddFileIcon from '../../statics/svg/add_file_icon';
+import { imageService } from '../../services/firebaseService/image.firebase.service';
 
 const ImageStyle = styled.div`
   ${tw`
@@ -40,9 +40,7 @@ export default function ImageInput({ defaultImg, currentImg, setImage }) {
 
   const onChangeImage = async () => {
     const file = imgRef.current.files[0];
-
-    const storageRef = ref(storage, `profile_images/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    const uploadTask = imageService.uploadImage({ type: 'profile_images', filename: file.name, file });
 
     uploadTask.on(
       'state_changed',
@@ -63,6 +61,7 @@ export default function ImageInput({ defaultImg, currentImg, setImage }) {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          imageService.setImage({ filename: file.name, url: downloadURL });
           setImgView(downloadURL);
           setImage(downloadURL);
         });
