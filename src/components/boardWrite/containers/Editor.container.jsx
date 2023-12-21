@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
-import { storage } from '../../../firebase-config.js';
-import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { getDownloadURL } from 'firebase/storage';
 import EditorPresenter from '../presenters/Editor.presenter';
+import { imageService } from '../../../services/firebaseService/image.firebase.service.jsx';
 
 export default function EditorContainer({ editorValue, setEditorValue, imageList, setThumbnail }) {
   const quillRef = useRef(null);
@@ -18,8 +18,7 @@ export default function EditorContainer({ editorValue, setEditorValue, imageList
       const file = input.files[0];
 
       try {
-        const storageRef = ref(storage, `post_images/${file.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, file);
+        const uploadTask = await imageService.uploadImage({ type: 'post_images', filename: file.name, file });
 
         uploadTask.on(
           'state_changed',
