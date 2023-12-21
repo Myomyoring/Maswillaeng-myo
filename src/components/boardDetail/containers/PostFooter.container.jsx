@@ -31,7 +31,11 @@ export default function PostFooterContainer({ id, post, postId, getPost, nicknam
         setLiked(false);
       }
     } catch (error) {
-      console.log(error.code);
+      switch (error.code) {
+        case 'not-found':
+          await likeService.createLikeDoc({ postId });
+          handleLike('save');
+      }
     }
   };
 
