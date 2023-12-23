@@ -7,9 +7,9 @@ import tw from 'twin.macro';
 const TabStyle = styled.div`
   ${tw`
       w-full h-12
-      desktop:visible
-      tablet:visible
-      mobile:collapse
+      desktop:block
+      tablet:block
+      mobile:hidden
     `}
 `;
 
