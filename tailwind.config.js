@@ -26,7 +26,13 @@ export default {
       '4xl': '2.441rem',
       '5xl': '3.052rem',
     },
-    extend: {},
+    extend: {
+      screens: {
+        mobile: '360px',
+        tablet: '768px',
+        desktop: '1440px',
+      },
+    },
   },
   plugins: [],
 };

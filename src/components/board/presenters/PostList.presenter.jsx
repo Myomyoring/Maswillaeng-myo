@@ -1,5 +1,5 @@
 import BoardHeader from '../BoardHeader';
-import Card from '../Card';
+import Card from '../../common/Card';
 import CategoryTab from '../../common/CategoryTab';
 import Pagination from '../../common/Pagination';
 
