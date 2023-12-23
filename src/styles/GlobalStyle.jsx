@@ -12,6 +12,7 @@ const GlobalStyle = createGlobalStyle`
     html {
         background: #FBF9EC; // main color
         font-family: sans-serif;
+        min-width: 360px;
     }
 
     a {
