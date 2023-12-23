@@ -1,4 +1,4 @@
-import Card from '../../board/Card';
+import Card from '../../common/Card';
 
 import styled from 'styled-components';
 import tw from 'twin.macro';
