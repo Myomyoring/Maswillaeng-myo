@@ -6,6 +6,7 @@ import Logo from './Logo';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 import SearchIcon from '../../statics/svg/search_icon';
+import preparing from '../../utils/preparing';
 
 const HeaderStyle = styled.header`
   ${tw`h-20
@@ -23,6 +24,14 @@ const Nav = styled.nav`
     ${tw`flex`}
   }
 `;
+const Ul = styled.ul`
+  ${tw``}
+`;
+const Li = styled.li`
+  ${tw`
+    cursor-pointer
+  `}
+`;
 
 export default function Header() {
   const { currentUser } = useAuth();
@@ -38,28 +47,28 @@ export default function Header() {
     <HeaderStyle>
       <Logo />
       <Nav>
-        <ul>
-          <li>
+        <Ul>
+          <Li onClick={() => preparing()}>
             <SearchIcon />
-          </li>
-          <li>
+          </Li>
+          <Li>
             <Link to={`/`}>Board</Link>
-          </li>
+          </Li>
           {user ? (
             <>
-              <li>
+              <Li>
                 <Link to={`/user/${user.nickname}`}>My Page</Link>
-              </li>
-              <li>
+              </Li>
+              <Li>
                 <button onClick={LogOutHandler}>Log Out</button>
-              </li>
+              </Li>
             </>
           ) : (
-            <li>
+            <Li>
               <Link to={`/logIn`}>Log In</Link>
-            </li>
+            </Li>
           )}
-        </ul>
+        </Ul>
       </Nav>
     </HeaderStyle>
   );
