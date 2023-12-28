@@ -31,7 +31,7 @@ const Box = styled.div`
 export default function LogInPage() {
   return (
     <LogInPageStyle>
-      <Logo />
+      <Logo color="white" size="big" />
       <Box>
         <LoginForm />
       </Box>
