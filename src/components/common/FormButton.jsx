@@ -9,7 +9,8 @@ const Button = styled.button`
         cursor-pointer
     `}
   ${(props) => (props.disabled ? tw`bg-gray cursor-not-allowed` : tw`bg-point`)}
+  ${(props) => (props.width === 'full' ? tw`w-full` : tw``)}
 `;
-export default function EventButton({ children, ...rest }) {
+export default function FormButton({ children, ...rest }) {
   return <Button {...rest}>{children}</Button>;
 }
