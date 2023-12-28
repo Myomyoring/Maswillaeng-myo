@@ -8,15 +8,19 @@ const LogoStyle = styled.div`
 `;
 const Text = styled.span`
   ${tw`
-        font-bold text-3xl text-white
+        font-bold text-black
     `}
+  ${(props) => (props.color === 'white' ? tw`text-white` : tw``)}
+  ${(props) => (props.size === 'big' ? tw`text-5xl` : tw`text-3xl`)}
 `;
 
-export default function Logo() {
+export default function Logo({ color, size }) {
   return (
     <LogoStyle>
       <Link to={'/'}>
-        <Text>Mashillaeng</Text>
+        <Text color={color} size={size}>
+          Mashillaeng
+        </Text>
       </Link>
     </LogoStyle>
   );
