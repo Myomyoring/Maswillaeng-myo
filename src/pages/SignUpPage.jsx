@@ -4,25 +4,19 @@ import SignUpForm from '../components/signUp/containers/SignUpForm.container';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 
-const SignUpStyle = styled.div`
+const SignUpPageStyle = styled.div`
   ${tw`
-      w-96
+      w-[500px]
       mx-auto p-10
       text-center
     `}
-  h1 {
-    ${tw`
-        text-4xl
-        text-point
-      `}
-  }
 `;
 
 export default function SignUpPage() {
   return (
-    <SignUpStyle>
-      <Logo />
+    <SignUpPageStyle>
+      <Logo size="big" />
       <SignUpForm />
-    </SignUpStyle>
+    </SignUpPageStyle>
   );
 }

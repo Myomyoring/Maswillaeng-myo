@@ -1,5 +1,5 @@
-import DuplicateButton from '../../common/EventButton';
-import FormButton from '../../common/FormButton.jsx';
+import DuplicateCheckButton from '../../common/EventButton';
+import SubmitButton from '../../common/FormButton.jsx';
 import ImageInput from '../../common/ImageInput.jsx';
 
 import styled from 'styled-components';
@@ -12,6 +12,10 @@ import {
   SIGN_UP_PASSWORD_GUIDE,
   SIGN_UP_PHONE_NUMBER_GUIDE,
 } from '../../../constants/index';
+
+const SignUpFormStyle = styled.div`
+  ${tw``}
+`;
 
 const Form = styled.form`
   ${tw``}
@@ -32,7 +36,7 @@ const InputBox = styled.div`
 
   input[name="email"], input[name="nickname"] {
     ${tw`
-       w-4/6 mr-7
+         max-w-[318px] mr-7
     `}
   }
 
@@ -43,7 +47,7 @@ const InputBox = styled.div`
   }
 `;
 
-const Guide = styled.span`
+const SignUpGuideText = styled.span`
   ${tw`
       text-xs text-darkgray px-2
   `}
@@ -62,11 +66,14 @@ const Input = styled.input`
   &:focus {
     ${tw`outline-point`}
   }
+  &:last-child {
+    ${tw`mb-10`}
+  }
 
   ${(props) => (props.type === 'file' ? tw`hidden` : tw``)}
 `;
 
-const Error = styled.div`
+const ErrorBox = styled.div`
   ${tw`
       pb-1
       text-xs text-point
@@ -92,97 +99,99 @@ export default function SignUpFormPresenter({
   DefaultUserImage,
 }) {
   return (
-    <Form onSubmit={onSubmitHandler}>
-      <ImageInput defaultImg={DefaultUserImage} setImage={setUserImg} />
-      <InputBox>
-        <InputName>* 이메일</InputName>
-        <Input
-          type="text"
-          name="email"
-          value={form.email}
-          onChange={handleChange}
-          onBlur={emailCheck}
-          placeholder="이메일 입력"
-        />
-        <DuplicateButton onClick={(event) => duplicateEmail(event)}>중복확인</DuplicateButton>
-        <Error>{errMessage.emailErr}</Error>
-      </InputBox>
-      <InputBox>
-        <InputName>
-          * 비밀번호
-          <Guide>{SIGN_UP_PASSWORD_GUIDE}</Guide>
-        </InputName>
-        <Input
-          type="password"
-          name="password"
-          value={form.password}
-          onChange={handleChange}
-          onBlur={passwordCheck}
-          placeholder="비밀번호 입력"
-        />
-        {passwordConfirm ? <PwdCheckIcon /> : <PwdLockIcon />}
-      </InputBox>
-      <InputBox>
-        <InputName>* 비밀번호 재확인</InputName>
-        <Input
-          type="password"
-          name="confirmPassword"
-          value={form.confirmPassword}
-          onChange={handleChange}
-          onBlur={passwordCheck}
-          placeholder="비밀번호 재입력"
-        />
-        <Error>{errMessage.pwdErr}</Error>
-        {passwordConfirm ? <PwdCheckIcon /> : <PwdLockIcon />}
-      </InputBox>
-      <InputBox>
-        <InputName>
-          * 닉네임
-          <Guide>{SIGN_UP_NICKNAME_GUIDE}</Guide>
-        </InputName>
-        <Input
-          type="text"
-          name="nickname"
-          value={form.nickname}
-          onChange={handleChange}
-          onBlur={nicknameCheck}
-          placeholder="닉네임 입력"
-        />
-        <DuplicateButton onClick={(event) => duplicateNickname(event)}>중복확인</DuplicateButton>
-        <Error>{errMessage.nickErr}</Error>
-      </InputBox>
-      <InputBox>
-        <InputName>
-          * 휴대전화
-          <Guide>{SIGN_UP_PHONE_NUMBER_GUIDE}</Guide>
-        </InputName>
-        <Input
-          type="text"
-          name="phoneNumber"
-          value={form.phoneNumber}
-          onChange={handleChange}
-          onBlur={phoneNumberCheck}
-          placeholder="전화번호 입력"
-        />
-        <Error>{errMessage.phoneErr}</Error>
-      </InputBox>
-      <InputBox>
-        <InputName>
-          자기소개
-          <Guide>{SIGN_UP_INTRODUCTION_GUIDE}</Guide>
-        </InputName>
-        <Input
-          type="text"
-          name="introduction"
-          value={form.introduction}
-          onChange={handleChange}
-          placeholder="소개글을 작성해주세요"
-          maxLength="30"
-        />
-      </InputBox>
-      <FormButton disabled={!emailConfirm || !passwordConfirm || !nicknameConfirm || !phoneConfirm}>
-        가입하기
-      </FormButton>
-    </Form>
+    <SignUpFormStyle>
+      <Form onSubmit={onSubmitHandler}>
+        <ImageInput defaultImg={DefaultUserImage} setImage={setUserImg} />
+        <InputBox>
+          <InputName>* 이메일</InputName>
+          <Input
+            type="text"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            onBlur={emailCheck}
+            placeholder="이메일 입력"
+          />
+          <DuplicateCheckButton onClick={(event) => duplicateEmail(event)}>중복확인</DuplicateCheckButton>
+          <ErrorBox>{errMessage.emailErr}</ErrorBox>
+        </InputBox>
+        <InputBox>
+          <InputName>
+            * 비밀번호
+            <SignUpGuideText>{SIGN_UP_PASSWORD_GUIDE}</SignUpGuideText>
+          </InputName>
+          <Input
+            type="password"
+            name="password"
+            value={form.password}
+            onChange={handleChange}
+            onBlur={passwordCheck}
+            placeholder="비밀번호 입력"
+          />
+          {passwordConfirm ? <PwdCheckIcon /> : <PwdLockIcon />}
+        </InputBox>
+        <InputBox>
+          <InputName>* 비밀번호 재확인</InputName>
+          <Input
+            type="password"
+            name="confirmPassword"
+            value={form.confirmPassword}
+            onChange={handleChange}
+            onBlur={passwordCheck}
+            placeholder="비밀번호 재입력"
+          />
+          <ErrorBox>{errMessage.pwdErr}</ErrorBox>
+          {passwordConfirm ? <PwdCheckIcon /> : <PwdLockIcon />}
+        </InputBox>
+        <InputBox>
+          <InputName>
+            * 닉네임
+            <SignUpGuideText>{SIGN_UP_NICKNAME_GUIDE}</SignUpGuideText>
+          </InputName>
+          <Input
+            type="text"
+            name="nickname"
+            value={form.nickname}
+            onChange={handleChange}
+            onBlur={nicknameCheck}
+            placeholder="닉네임 입력"
+          />
+          <DuplicateCheckButton onClick={(event) => duplicateNickname(event)}>중복확인</DuplicateCheckButton>
+          <ErrorBox>{errMessage.nickErr}</ErrorBox>
+        </InputBox>
+        <InputBox>
+          <InputName>
+            * 휴대전화
+            <SignUpGuideText>{SIGN_UP_PHONE_NUMBER_GUIDE}</SignUpGuideText>
+          </InputName>
+          <Input
+            type="text"
+            name="phoneNumber"
+            value={form.phoneNumber}
+            onChange={handleChange}
+            onBlur={phoneNumberCheck}
+            placeholder="전화번호 입력"
+          />
+          <ErrorBox>{errMessage.phoneErr}</ErrorBox>
+        </InputBox>
+        <InputBox>
+          <InputName>
+            자기소개
+            <SignUpGuideText>{SIGN_UP_INTRODUCTION_GUIDE}</SignUpGuideText>
+          </InputName>
+          <Input
+            type="text"
+            name="introduction"
+            value={form.introduction}
+            onChange={handleChange}
+            placeholder="소개글을 작성해주세요"
+            maxLength="30"
+          />
+        </InputBox>
+        <SubmitButton width="full" disabled={!emailConfirm || !passwordConfirm || !nicknameConfirm || !phoneConfirm}>
+          가입하기
+        </SubmitButton>
+      </Form>
+    </SignUpFormStyle>
   );
 }
