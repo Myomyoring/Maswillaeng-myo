@@ -3,60 +3,74 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 
+const LoginFormStyle = styled.div`
+  ${tw``}
+`;
+
 const Form = styled.form`
   ${tw``}
-  a {
-    ${tw`
-        text-xs
-        px-3
-    `}
-  }
 `;
 
 const Input = styled.input`
   ${tw`
-        w-full
-        my-2 px-6 py-2
-        block
+        px-4 py-4
         bg-white
-        rounded-3xl
+        text-lg
+        rounded-md
         border-none
         outline-none
+
+        desktop:w-3/4
+        tablet:w-3/4
+        mobile:w-5/6 my-2
     `}
   &:focus {
-    ${tw`outline-point`}
+    ${tw`
+      outline-point
+    `}
   }
 `;
 
-const ErrorMessage = styled.div`
+const ErrorBox = styled.div`
   ${tw`
-        my-1
-        text-sm 
+        my-2
+        text-md
         font-bold text-point
     `}
 `;
 
-const Button = styled.button`
+const LoginButton = styled.button`
   ${tw`
-        w-full
-        my-2 px-24 py-2
-        flex
+        my-2 py-4
         bg-point
-        text-lg text-white
-        rounded-3xl
-    `}
+        text-xl text-white
+        rounded-md
 
+        desktop:w-3/4
+        tablet:w-3/4
+        mobile:w-5/6
+    `}
   ${(props) => (props.disabled ? tw`bg-gray cursor-not-allowed` : tw`bg-point`)}
+`;
+
+const SignUpLink = styled(Link)`
+  ${tw`
+        block
+        text-md text-white
+        my-6
+  `}
 `;
 export default function LoginFormPresenter({ email, password, handleChange, errMessage, onSubmitHandler }) {
   return (
-    <Form onSubmit={onSubmitHandler}>
-      <Input type="text" name="email" value={email} onChange={handleChange} placeholder="아이디" />
-      <Input type="password" name="password" value={password} onChange={handleChange} placeholder="비밀번호" />
-      <ErrorMessage>{errMessage}</ErrorMessage>
-      <Button disabled={!email || !password}>로그인</Button>
-      <Link to={`/signUp`}>회원가입</Link>
-      {/* <Link to={`/`}>아이디 / 비밀번호 찾기</Link> */}
-    </Form>
+    <LoginFormStyle>
+      <Form onSubmit={onSubmitHandler}>
+        <Input type="text" name="email" value={email} onChange={handleChange} placeholder="아이디" />
+        <Input type="password" name="password" value={password} onChange={handleChange} placeholder="비밀번호" />
+        <ErrorBox>{errMessage}</ErrorBox>
+        <LoginButton disabled={!email || !password}>로그인</LoginButton>
+        <SignUpLink to={`/signUp`}>회원가입</SignUpLink>
+        {/* <Link to={`/`}>아이디 / 비밀번호 찾기</Link> */}
+      </Form>
+    </LoginFormStyle>
   );
 }
