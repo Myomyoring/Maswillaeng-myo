@@ -4,7 +4,7 @@ import PostList from '../components/board/containers/PostList.container';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 
-const BoardStyle = styled.div`
+const BoardPageStyle = styled.div`
   ${tw`
         w-full h-full
         desktop:p-16
@@ -17,9 +17,9 @@ export default function BoardPage() {
   return (
     <>
       <ImageLabel />
-      <BoardStyle>
+      <BoardPageStyle>
         <PostList />
-      </BoardStyle>
+      </BoardPageStyle>
     </>
   );
 }
