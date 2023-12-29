@@ -9,14 +9,21 @@ import SearchIcon from '../../statics/svg/search_icon';
 import preparing from '../../utils/preparing';
 
 const HeaderStyle = styled.header`
-  ${tw`h-20
-       px-3
-       flex justify-between items-center
-       border-solid border-t-4 border-b-[1px]
+  ${tw`
+      w-full h-20
+      flex justify-between items-center
+      border-solid border-t-[6px] border-b-[1px]
+
+      mobile:px-2
     `}
   a,
   button {
-    ${tw`px-4 font-extrabold`}
+    ${tw`
+      font-extrabold
+      desktop:text-md
+      tablet:px-3
+      mobile:px-1 text-xs
+    `}
   }
 `;
 const Nav = styled.nav`
@@ -31,6 +38,15 @@ const Li = styled.li`
   ${tw`
     cursor-pointer
   `}
+`;
+const LoginLink = styled(Link)`
+  ${tw``}
+`;
+const MyPageLink = styled(Link)`
+  ${tw``}
+`;
+const LogOutButton = styled.button`
+  ${tw``}
 `;
 
 export default function Header() {
@@ -57,15 +73,15 @@ export default function Header() {
           {user ? (
             <>
               <Li>
-                <Link to={`/user/${user.nickname}`}>My Page</Link>
+                <MyPageLink to={`/user/${user.nickname}`}>My Page</MyPageLink>
               </Li>
               <Li>
-                <button onClick={LogOutHandler}>Log Out</button>
+                <LogOutButton onClick={LogOutHandler}>Log Out</LogOutButton>
               </Li>
             </>
           ) : (
             <Li>
-              <Link to={`/logIn`}>Log In</Link>
+              <LoginLink to={`/logIn`}>Log In</LoginLink>
             </Li>
           )}
         </Ul>
