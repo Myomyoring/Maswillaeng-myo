@@ -1,11 +1,29 @@
-import PostMain from 'react-quill';
+import Post from 'react-quill';
 import 'react-quill/dist/quill.bubble.css';
 
-import BoardListButton from '../../common/LinkButton';
+import BoardListLink from '../../common/LinkButton';
 import CommentList from '../../comment/containers/CommentList.container';
+import CommentWriter from '../../comment/containers/CommentWriter.container';
 import PostFooter from '../containers/PostFooter.container';
 import PostHeader from '../PostHeader';
-import WriteComment from '../../comment/containers/WriteComment.container';
+
+import styled from 'styled-components';
+import tw from 'twin.macro';
+
+const PostContentsStyle = styled.div`
+  ${tw`
+      flex flex-col gap-4
+  `}
+
+  .ql-editor {
+    ${tw`
+          border-solid border-gray border-2
+        bg-white
+
+        desktop:min-h-[300px]
+    `}
+  }
+`;
 
 export default function PostContentsPresenter({
   id,
@@ -21,13 +39,13 @@ export default function PostContentsPresenter({
   commentCount,
 }) {
   return (
-    <>
+    <PostContentsStyle>
       <PostHeader {...{ post, writer }} />
-      <PostMain value={post.content} readOnly={true} theme={'bubble'} />
+      <Post value={post.content} readOnly={true} theme={'bubble'} />
       <PostFooter {...{ id, post, postId, getPost, nickname, writer }} />
-      <WriteComment {...{ id, postId, getComments }} />
+      <CommentWriter {...{ id, postId, getComments }} />
       <CommentList {...{ postId, getComments, getReplies, comments, replies, commentCount }} />
-      <BoardListButton to={'/'}>목록으로</BoardListButton>
-    </>
+      <BoardListLink to={'/'}>목록으로</BoardListLink>
+    </PostContentsStyle>
   );
 }

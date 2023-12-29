@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
-import WriteCommentPresenter from '../presenters/WriteComment.presenter';
+import CommentWriterPresenter from '../presenters/CommentWriter.presenter';
 import { commentService } from '../../../services/firebaseService/comment.firebase.service';
 
-export default function WriteCommentContainer({ id, postId, getComments }) {
+export default function CommentWriterContainer({ id, postId, getComments }) {
   const [comment, setComment] = useState('');
 
   const handleChangeComment = ({ target }) => {
@@ -24,5 +24,5 @@ export default function WriteCommentContainer({ id, postId, getComments }) {
       console.log(error.code);
     }
   };
-  return <WriteCommentPresenter {...{ comment, handleChangeComment, saveComment }} />;
+  return <CommentWriterPresenter {...{ comment, handleChangeComment, saveComment }} />;
 }
