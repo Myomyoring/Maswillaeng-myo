@@ -3,17 +3,19 @@ import WriteContents from '../components/boardWrite/containers/WriteContents.con
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 
-const BoardWriteStyle = styled.div`
+const BoardWritePageStyle = styled.div`
   ${tw`
-        w-2/3 h-full
+        h-full
         m-auto py-20
+        desktop:w-2/3
+        mobile:w-5/6
     `}
 `;
 
 export default function BoardWritePage() {
   return (
-    <BoardWriteStyle>
+    <BoardWritePageStyle>
       <WriteContents />
-    </BoardWriteStyle>
+    </BoardWritePageStyle>
   );
 }

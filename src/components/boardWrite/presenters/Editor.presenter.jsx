@@ -10,7 +10,11 @@ const EditorStyle = styled.div`
   `}
 
   .ql-editor {
-    ${tw`h-96`}
+    ${tw`
+        desktop:h-96
+        tablet:h-[600px]
+        mobile:h-[340px]
+      `}
   }
 `;
 

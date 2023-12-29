@@ -1,7 +1,7 @@
 import { categories } from '../../../constants';
 import ButtonBox from '../ButtonBox';
+import EditorBox from '../containers/Editor.container';
 import TitleBox from '../TitleBox';
-import Editor from '../containers/Editor.container';
 
 export default function WriteContentsPresenter({
   handleSubmit,
@@ -16,7 +16,7 @@ export default function WriteContentsPresenter({
   return (
     <>
       <TitleBox categories={categories} onChange={handleChange} category={category} title={title} />
-      <Editor
+      <EditorBox
         editorValue={editorValue}
         setEditorValue={setEditorValue}
         imageList={imageList}
