@@ -6,7 +6,7 @@ import { DisplayPostDate } from '../../utils/display_date';
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 import DefaultThumbnail from '../../statics/images/default_thumbnail.png';
-import LikeIcon from '../../statics/svg/full_heart_icon';
+import LikeIcon from '../../statics/svg/small_full_heart_icon';
 
 const CardStyle = styled.div`
   ${tw``}
