@@ -4,70 +4,40 @@ import styled from 'styled-components';
 import tw from 'twin.macro';
 import DeleteIcon from '../../../statics/svg/delete_icon';
 import EditIcon from '../../../statics/svg/edit_icon';
-import EmptyHeartIcon from '../../../statics/svg/empty_heart_icon';
-import FullHeartIcon from '../../../statics/svg/full_heart_icon';
+import KebabIcon from '../../../statics/svg/kebab_icon';
 import ShareIcon from '../../../statics/svg/share_icon';
 
-const PostBottomStyle = styled.div`
+const PostFooterStyle = styled.div`
   ${tw`
-      flex justify-between
+      flex justify-end
   `}
 `;
-
-const Likes = styled.span`
+const PostToolsBox = styled.div`
   ${tw`
-     flex items-center
-  `}
-`;
-
-const Buttons = styled.span`
-  ${tw`
-        m-3 p-2 
-        flex
-        border-solid border-point rounded-full
+        p-2
+        flex gap-3
+        border-solid border-2 border-point rounded-full
     `}
-
-  button, a {
+  svg {
     ${tw`
-        px-2
-        `}
-
-    svg {
-      ${tw`
         fill-point
-        `}
-    }
+      `}
   }
 `;
 
-export default function PostFooterPresenter({
-  nickname,
-  post,
-  postId,
-  liked,
-  handleLike,
-  sharePost,
-  deletePost,
-  writer,
-}) {
+const ShareButton = styled.button`
+  ${tw``}
+`;
+
+export default function PostFooterPresenter({ nickname, postId, sharePost, deletePost, writer }) {
   return (
-    <PostBottomStyle>
-      <Likes>
-        {liked ? (
-          <span onClick={() => handleLike('delete')}>
-            <FullHeartIcon />
-          </span>
-        ) : (
-          <span onClick={() => handleLike('save')}>
-            <EmptyHeartIcon />
-          </span>
-        )}
-        {post.likeCnt}
-      </Likes>
-      <Buttons>
-        <button onClick={() => sharePost()}>
+    <PostFooterStyle>
+      <PostToolsBox>
+        <ShareButton onClick={() => sharePost()}>
           <ShareIcon />
-        </button>
+        </ShareButton>
+        {/* 케밥 아이콘 클릭 -> 수정, 삭제 버튼 툴팁 레이어로 수정하기 */}
+        <KebabIcon />
         {nickname === writer ? (
           <>
             <Link to={`/boardModify/${postId}/${writer}`}>
@@ -78,7 +48,7 @@ export default function PostFooterPresenter({
             </button>
           </>
         ) : null}
-      </Buttons>
-    </PostBottomStyle>
+      </PostToolsBox>
+    </PostFooterStyle>
   );
 }

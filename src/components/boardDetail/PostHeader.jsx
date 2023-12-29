@@ -5,47 +5,75 @@ import DisplayMemberProfile from '../common/DisplayMemberProfile';
 
 import styled from 'styled-components';
 import tw from 'twin.macro';
+import EmptyHeartIcon from '../../statics/svg/empty_heart_icon';
 
 const PostHeaderStyle = styled.div`
   ${tw`
-      mt-10 mb-2
+    flex flex-col gap-3
   `}
 `;
-const Category = styled.h3`
-  a {
-    ${tw`
-        my-3
-        font-bold text-point
+const CategoryNameBox = styled.div`
+  ${tw` 
+      font-bold text-point
     `}
+`;
+const CategoryLink = styled(Link)`
+  ${tw``}
+`;
+const PostTitleBox = styled.div`
+  ${tw`
+    flex justify-between items-center
+  `}
+`;
+const PostTitleText = styled.span`
+  ${tw`
+      text-2xl font-black
+  `}
+`;
+const LikeBox = styled.div`
+  ${tw` 
+      flex items-center
+    `}
+  svg {
+    ${tw` mx-1 fill-point `}
   }
 `;
-const Title = styled.div`
+const LikeCountText = styled.span`
   ${tw`
-      mb-5 text-2xl font-black
+      text-xl text-point
     `}
 `;
 
 const ProfileBox = styled.div`
   ${tw`
       flex items-center
+      font-bold text-xs text-darkgray
     `}
-  span {
-    ${tw`
-        font-bold text-xs text-darkgray
-      `}
-  }
+`;
+
+const DateText = styled.span`
+  ${tw`
+    before:content-['|'] 
+    before:mx-2
+  `}
 `;
 
 export default function PostHeader({ post, writer }) {
   return (
     <PostHeaderStyle>
-      <Category>
-        <Link to={`/`}>{post.category}</Link>
-      </Category>
-      <Title>{post.title}</Title>
+      <CategoryNameBox>
+        <CategoryLink to={`/`}>{post.category}</CategoryLink>
+      </CategoryNameBox>
+      <PostTitleBox>
+        <PostTitleText>{post.title}</PostTitleText>
+        <LikeBox>
+          <EmptyHeartIcon />
+          <LikeCountText>{post.likeCnt}</LikeCountText>
+        </LikeBox>
+      </PostTitleBox>
       <ProfileBox>
         <DisplayMemberProfile userImage={post.userImage} nickname={writer} />
-        <span>{DisplayFullDate(post.createDate)}</span>
+        <DateText>{DisplayFullDate(post.createDate)}</DateText>
       </ProfileBox>
     </PostHeaderStyle>
   );
