@@ -5,8 +5,11 @@ import tw from 'twin.macro';
 
 const BoardDetailPageStyle = styled.div`
   ${tw`
-        w-2/3 h-full
+        h-full
         mx-auto py-20
+
+        desktop:w-2/3
+        mobile:px-3
     `}
 `;
 
