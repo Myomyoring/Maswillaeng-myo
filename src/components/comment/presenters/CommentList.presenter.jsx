@@ -6,6 +6,12 @@ import ReplyComment from '../containers/ReplyComment.container';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 
+const CommentListStyle = styled.div`
+  ${tw`
+      mb-3
+    `}
+`;
+
 const Count = styled.div`
   ${tw`
       py-5 
@@ -13,11 +19,16 @@ const Count = styled.div`
     `}
 `;
 
+const CountHighlight = styled.span`
+  ${tw`text-point`}
+`;
+
 const Comments = styled.div`
   ${tw`
-      p-3
+      p-6
       flex items-center
     bg-white
+      border-t-[0.7px] border-solid
   `}
 
   * {
@@ -90,9 +101,9 @@ export default function CommentListPresenter({
   setReplySelect,
 }) {
   return (
-    <>
+    <CommentListStyle>
       <Count>
-        댓글 <span>{commentCount}</span>
+        댓글 <CountHighlight>{commentCount}</CountHighlight>
       </Count>
       {comments?.map((comment, index) =>
         modifyMode && comment.commentId === modifySelect.modifyCommentId ? (
@@ -148,6 +159,6 @@ export default function CommentListPresenter({
           </div>
         ),
       )}
-    </>
+    </CommentListStyle>
   );
 }

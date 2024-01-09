@@ -5,15 +5,29 @@ import tw from 'twin.macro';
 
 const CommentWriterStyle = styled.div`
   ${tw`
-      grid grid-cols-[5fr_1fr] gap-3
+      p-5
+      flex flex-col gap-3
+      bg-lightgray
+      border-solid border-gray border-t-[1px] border-b-[1px]
   `}
+
+  button {
+    ${tw`
+        px-6 self-end
+        font-[300]
+    `}
+  }
 `;
 
 const CommentArea = styled.textarea`
   ${tw`
-      p-3
+      w-full
+      m-auto p-3
     bg-white
       border-solid border-gray
+
+      desktop:pb-11
+      mobile:pb-20
   `}
 `;
 

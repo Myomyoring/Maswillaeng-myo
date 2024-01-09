@@ -13,10 +13,14 @@ const PostFooterStyle = styled.div`
   `}
 `;
 const PostToolsBox = styled.div`
-  ${tw`
-        p-2
-        flex gap-3
+  ${tw` 
+        flex gap-4
         border-solid border-2 border-point rounded-full
+
+        tablet:px-5
+        tablet:py-2
+        mobile:px-2
+        mobile:py-1
     `}
   svg {
     ${tw`
@@ -26,7 +30,7 @@ const PostToolsBox = styled.div`
 `;
 
 const ShareButton = styled.button`
-  ${tw``}
+  ${tw`p-0`}
 `;
 
 export default function PostFooterPresenter({ nickname, postId, sharePost, deletePost, writer }) {
