@@ -6,10 +6,9 @@ import tw from 'twin.macro';
 
 const UserPageStyle = styled.div`
   ${tw`
-      w-full h-screen
-      px-2.5 py-10
-      flex justify-center items-center
-      overflow-hidden
+        grid grid-cols-[1fr_2fr]
+        mx-auto p-10
+        text-center
   `}
 `;
 
