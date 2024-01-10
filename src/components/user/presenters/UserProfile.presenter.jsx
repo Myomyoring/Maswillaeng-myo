@@ -5,80 +5,74 @@ import tw from 'twin.macro';
 
 const ProfileStyle = styled.div`
   ${tw`
-    w-1/3 h-screen
-    m-auto mx-2.5
-    text-center
-  `}
+      flex flex-col gap-8 items-center
+
+      desktop:mt-20
+    `}
 `;
 
 const ProfileImage = styled.div`
-  ${tw`
-      w-full h-auto
-      flex justify-center
-      overflow-hidden
-  `}
+  ${tw``}
+`;
 
-  img {
-    ${tw`
+const Image = styled.img`
+  ${tw`
       w-40 h-40
       rounded-full
       outline
       object-cover
     `}
-  }
 `;
 
-const Nickname = styled.div`
+const NicknameBox = styled.div`
   ${tw`
-    p-7
-    text-3xl font-bold
+      text-3xl font-bold
   `}
 `;
 
 const FollowContents = styled.div`
   ${tw`
+      flex justify-center gap-4
   `}
-  span {
-    ${tw`
-      px-5
-      font-semibold
+`;
+
+const Button = styled.button`
+  ${tw``}
+`;
+
+const FollowText = styled.span`
+  ${tw`
+      font-semibold text-lg
+  `}
+`;
+
+const FollowCountText = styled.span`
+  ${tw`
+      pl-6 text-lg
+  `}
+`;
+
+const IntroductionBox = styled.div`
+  ${tw`text-lg`}
+`;
+
+const ButtonBox = styled.div`
+  ${tw`
+      flex flex-col gap-4
     `}
-  }
-`;
 
-const Introduction = styled.div`
-  ${tw`
-    p-10
-  `}
-`;
-
-const Buttons = styled.div`
-  ${tw`
-  `}
   button {
     ${tw`
-      px-5
-      text-sm
+        text-md font-semibold text-darkgray
     `}
   }
 `;
 
-const ProfileEditBtn = styled.button`
+const FollowButton = styled.button`
   ${tw`
-    
-  `}
-`;
-const DeleteUserBtn = styled.button`
-  ${tw`
-    text-darkgray
-  `}
-`;
-
-const FollowBtn = styled.button`
-  ${tw`
-      w-1/2 h-10
-      my-7
+      w-[260px] h-10
       font-bold text-white text-sm
+      rounded-md
       cursor-pointer
   `}
   ${(props) => (props.className ? tw`bg-gray` : tw`bg-point`)}
@@ -101,32 +95,32 @@ export default function UserProfilePresenter({
     <>
       <ProfileStyle>
         <ProfileImage>
-          <img src={member.userImage} />
+          <Image src={member.userImage} />
         </ProfileImage>
-        <Nickname>{nickname}</Nickname>
+        <NicknameBox>{nickname}</NicknameBox>
         <FollowContents>
-          <button onClick={() => modalHandler(1)}>
-            <span>팔로워</span>
-            <span>{member.followerCnt ? member.followerCnt : 0}</span>
-          </button>
-          <button onClick={() => modalHandler(2)}>
-            <span>팔로잉</span>
-            <span>{member.followingCnt ? member.followingCnt : 0}</span>
-          </button>
+          <Button onClick={() => modalHandler(1)}>
+            <FollowText>팔로워</FollowText>
+            <FollowCountText>{member.followerCnt ? member.followerCnt : 0}</FollowCountText>
+          </Button>
+          <Button onClick={() => modalHandler(2)}>
+            <FollowText>팔로잉</FollowText>
+            <FollowCountText>{member.followingCnt ? member.followingCnt : 0}</FollowCountText>
+          </Button>
         </FollowContents>
-        <Introduction>{member.introduction}</Introduction>
+        <IntroductionBox>{member.introduction}</IntroductionBox>
         {nickname === user.nickname ? (
-          <Buttons>
-            <ProfileEditBtn onClick={() => modalHandler(0)}>프로필 수정</ProfileEditBtn>
-            <DeleteUserBtn onClick={deleteUserHandler}>회원 탈퇴</DeleteUserBtn>
-          </Buttons>
+          <ButtonBox>
+            <Button onClick={() => modalHandler(0)}>프로필 수정</Button>
+            <Button onClick={deleteUserHandler}>회원 탈퇴</Button>
+          </ButtonBox>
         ) : (
-          <FollowBtn
+          <FollowButton
             className={followState ? 'following' : ''}
             onClick={() => followHandler(followState ? '팔로잉' : '팔로우')}
           >
             {followState ? '팔로잉' : '팔로우'}
-          </FollowBtn>
+          </FollowButton>
         )}
       </ProfileStyle>
       {modal ? <Modal member={member} setModal={setModal} modalId={modalId} followerList={followerList} /> : null}
