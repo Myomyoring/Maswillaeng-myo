@@ -1,26 +1,26 @@
 import { useState } from 'react';
 
 import { userCategories } from '../../constants';
-import UserContents from './containers/UserContents.container';
+import CategorySelector from '../common/CategorySelector';
+import UserPosts from './containers/UserPosts.container';
 import UserTab from '../common/CategoryTab';
 
 import tw from 'twin.macro';
 import { styled } from 'styled-components';
 
-const ContentsStyle = styled.div`
+const UserBoardContentsStyle = styled.div`
   ${tw`
-        w-2/3 h-screen
-        // mx-2.5
-        // flex justify-center items-center
-`}
+      flex flex-col gap-11
+  `}
 `;
 
 export default function UserBoardContents() {
   const [tab, setTab] = useState(0);
   return (
-    <ContentsStyle>
+    <UserBoardContentsStyle>
+      <CategorySelector active={tab} categories={userCategories} setTab={setTab} />
       <UserTab active={tab} categories={userCategories} setTab={setTab} />
-      <UserContents active={tab} />
-    </ContentsStyle>
+      <UserPosts active={tab} />
+    </UserBoardContentsStyle>
   );
 }
