@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 
-import { BOARD_GUIDE } from '../../constants';
 import { DisplayPostDate } from '../../utils/display_date';
 
 import { styled } from 'styled-components';
@@ -15,10 +14,20 @@ const CardStyle = styled.div`
 const CardLayout = styled.span`
   ${tw`
       grid text-center
+      
       desktop:grid-cols-4
       tablet:grid-cols-3
       mobile:grid-cols-2
   `}
+  ${(props) =>
+    props.className === 'small'
+      ? tw`desktop:grid-cols-3
+      tablet:grid-cols-2
+      mobile:grid-cols-1
+      `
+      : tw`desktop:grid-cols-4
+      tablet:grid-cols-3
+      mobile:grid-cols-2`}
 `;
 
 const CardContents = styled.div`
@@ -91,12 +100,13 @@ const Nickname = styled(Link)`
 const Date = styled.span`
   ${tw`
       col-span-3
+      
   `}
 `;
 const Like = styled.span`
   ${tw`
     flex justify-center items-center
-    gap-2
+    gap-1
   `}
 `;
 const LikeCount = styled.span`
@@ -111,10 +121,10 @@ const NothingMessage = styled.div`
     `}
 `;
 
-export default function Card({ posts }) {
+export default function Card({ posts, guide, small }) {
   return (
     <CardStyle>
-      <CardLayout>
+      <CardLayout className={small ? 'small' : ''}>
         {posts?.length !== 0 ? (
           posts?.map((post, index) => (
             <CardContents key={index}>
@@ -128,13 +138,13 @@ export default function Card({ posts }) {
                 <Date>{DisplayPostDate(post.createDate)}</Date>
                 <Like>
                   <LikeIcon />
-                  <LikeCount> {post.likeCnt}</LikeCount>
+                  <LikeCount>{post.likeCnt}</LikeCount>
                 </Like>
               </Footer>
             </CardContents>
           ))
         ) : (
-          <NothingMessage>{BOARD_GUIDE}</NothingMessage>
+          <NothingMessage>{guide}</NothingMessage>
         )}
       </CardLayout>
     </CardStyle>
