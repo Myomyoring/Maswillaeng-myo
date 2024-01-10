@@ -3,15 +3,13 @@ import tw from 'twin.macro';
 
 const Li = styled.li`
   ${tw`
-        w-1/4
         p-5
         text-center
         cursor-pointer
-        border-point
-        border-solid
+        border-point border-solid
     `}
   ${(props) =>
-    props.className === 'active' ? tw`font-bold border-x-2 border-t-2 border-b-0 rounded-md` : tw`border-0 border-b-2`}
+    props.className === 'active' ? tw`font-bold border-x-[3px] border-t-[3px] border-b-0` : tw`border-0 border-b-[3px]`}
 `;
 
 export default function CategoryTabItem({ categories, active, setTab }) {
