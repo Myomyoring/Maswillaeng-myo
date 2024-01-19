@@ -6,8 +6,8 @@ export const imageService = {
   deleteImage({ type, filename }) {
     return deleteObject(ref(storage, `${type}/${filename}`));
   },
-  uploadImage({ type, filename, file }) {
-    return uploadBytesResumable(ref(storage, `${type}/${filename}`), file);
+  uploadImage({ type, fileName, file }) {
+    return uploadBytesResumable(ref(storage, `${type}/${fileName}`), file);
   },
   setImage({ filename, url }) {
     return addDoc(collection(db, 'images'), { filename, url });

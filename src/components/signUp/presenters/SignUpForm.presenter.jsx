@@ -1,6 +1,6 @@
 import DuplicateCheckButton from '../../common/EventButton';
 import SubmitButton from '../../common/FormButton.jsx';
-import ImageInput from '../../common/ImageInput.jsx';
+import ProfileImageInput from '../../common/ProfileImageInput.jsx';
 
 import { SIGN_UP_GUIDE } from '../../../constants/index.jsx';
 import PwdCheckIcon from '../../../statics/svg/password_check_icon.jsx';
@@ -29,7 +29,7 @@ export default function SignUpFormPresenter({
   return (
     <S.SignUpFormStyle>
       <S.Form onSubmit={onSubmit}>
-        <ImageInput defaultImg={defaultUserImage} setImage={setUserImage} />
+        <ProfileImageInput defaultImage={defaultUserImage} setImage={setUserImage} />
         <S.InputBox>
           <S.InputTitle>* 이메일</S.InputTitle>
           <S.Input

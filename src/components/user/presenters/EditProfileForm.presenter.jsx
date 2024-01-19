@@ -1,4 +1,4 @@
-import ImageInput from '../../common/ImageInput';
+import ProfileImageInput from '../../common/ProfileImageInput';
 import DefaultUserImage from '../../../statics/images/default_user_image.jpg';
 import DuplicateButton from '../../common/EventButton';
 import SubmitButton from '../../common/FormButton';
@@ -92,7 +92,7 @@ export default function EditProfileFormPresenter({
   return (
     <Form onSubmit={onSubmitHandler}>
       <ProfileImage>
-        <ImageInput defaultImg={DefaultUserImage} currentImg={profileImg} setImage={setProfileImg} />
+        <ProfileImageInput defaultImage={DefaultUserImage} currentImage={profileImg} setImage={setProfileImg} />
       </ProfileImage>
 
       <Div>
