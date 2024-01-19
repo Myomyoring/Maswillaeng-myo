@@ -22,8 +22,7 @@ const Box = styled.div`
         rounded-xl 
         bg-main bg-opacity-60
 
-        desktop:w-1/2
-        tablet:w-3/4
+        tablet:w-1/2
         mobile:w-[320px] px-6 py-14 min-h-[400px] 
     `}
 `;
