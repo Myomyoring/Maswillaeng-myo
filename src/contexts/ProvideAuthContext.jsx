@@ -3,7 +3,7 @@ import FirebaseAuthUser from '../auth/FirebaseAuthUser';
 
 const authContext = createContext();
 
-export function FireAuthProvider({ children }) {
+function FirebaseAuthProvider({ children }) {
   const auth = FirebaseAuthUser();
   return <authContext.Provider value={auth}>{children}</authContext.Provider>;
 }
@@ -11,3 +11,5 @@ export function FireAuthProvider({ children }) {
 export function useAuth() {
   return useContext(authContext);
 }
+
+export default FirebaseAuthProvider;

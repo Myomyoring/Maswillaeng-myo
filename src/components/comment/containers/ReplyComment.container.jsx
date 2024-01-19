@@ -1,4 +1,4 @@
-import { useAuth } from '../../../context/ProvideAuthContext';
+import { useAuth } from '../../../contexts/ProvideAuthContext';
 import ReplyCommentPresenter from '../presenters/ReplyComment.presenter';
 import { commentService } from '../../../services/firebaseService/comment.firebase.service';
 

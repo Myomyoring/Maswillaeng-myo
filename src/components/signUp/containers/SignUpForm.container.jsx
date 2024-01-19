@@ -1,28 +1,17 @@
 import { useState } from 'react';
-
-import { emailRule, nicknameRule, passwordRule, phoneNumberRule } from '../../../utils/sign_up_rules.js';
-import { Navi } from '../../common/Navi.jsx';
 import SignUpFormPresenter from '../presenters/SignUpForm.presenter.jsx';
 
-import {
-  DUPLICATE_GUIDE,
-  EMAIL_RULE_ERROR_GUIDE,
-  NICKNAME_RULE_ERROR_GUIDE,
-  PASSWORD_CONFIRM_ERROR_GUIDE,
-  PASSWORD_EMPTY_GUIDE,
-  PASSWORD_RULE_ERROR_GUIDE,
-  PASS_GUIDE,
-  PHONE_NUMBER_RULE_ERROR_GUIDE,
-} from '../../../constants/index.jsx';
-import { useAuth } from '../../../context/ProvideAuthContext.jsx';
-
-import DefaultUserImage from '../../../statics/images/default_user_image.jpg';
+import { emailRule, nicknameRule, passwordRule, phoneNumberRule } from '../../../utils/sign_up_rules.js';
+import { useAuth } from '../../../contexts/ProvideAuthContext.jsx';
+import { useRouter } from '../../../hooks/useRouter.jsx';
 import { userService } from '../../../services/firebaseService/user.firebase.service.jsx';
+import { CONFIRM_MESSAGE } from '../../../constants/index.jsx';
 
 export default function SignUpFormContainer() {
-  const { authNavi } = Navi();
+  const [isLoading, setLoading] = useState(false);
+  const { authRouteTo } = useRouter();
   const { signUp } = useAuth();
-  const [userImg, setUserImg] = useState(DefaultUserImage);
+  const [userImage, setUserImage] = useState('');
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -32,67 +21,67 @@ export default function SignUpFormContainer() {
     introduction: '',
   });
   const { email, password, confirmPassword, nickname, phoneNumber, introduction } = form;
-  const [errMessage, setErrMessage] = useState({
-    emailErr: '',
-    pwdErr: '',
-    nickErr: '',
-    phoneErr: '',
+  const [error, setError] = useState({
+    email: '',
+    password: '',
+    nickname: '',
+    phoneNumber: '',
   });
-  const handleChange = ({ target }) => {
-    const { name, value } = target;
+
+  const onChange = (event) => {
+    const { name, value } = event.target;
     setForm({ ...form, [name]: value });
   };
 
   const [emailConfirm, setEmailConfirm] = useState(false);
   const [passwordConfirm, setPasswordConfirm] = useState(false);
   const [nicknameConfirm, setNicknameConfirm] = useState(false);
-  const [phoneConfirm, setPhoneConfirm] = useState(false);
+  const [phoneNumberConfirm, setPhoneNumberConfirm] = useState(false);
 
   const emailCheck = () => {
     if (!emailRule(email)) {
-      setErrMessage({ emailErr: EMAIL_RULE_ERROR_GUIDE });
+      setError({ email: CONFIRM_MESSAGE.EMAIL_RULE_ERROR });
       setEmailConfirm(false);
-    } else {
-      setErrMessage({ emailErr: '' });
+      return;
     }
+    setError({ email: '' });
   };
 
   const passwordCheck = () => {
     if (!passwordRule(password)) {
-      setErrMessage({ pwdErr: PASSWORD_RULE_ERROR_GUIDE });
+      setError({ password: CONFIRM_MESSAGE.PASSWORD_RULE_ERROR });
       setPasswordConfirm(false);
+      return;
     } else if (password !== confirmPassword) {
-      setErrMessage({ pwdErr: PASSWORD_CONFIRM_ERROR_GUIDE });
+      setError({ password: CONFIRM_MESSAGE.PASSWORD_CONFIRM_ERROR });
       setPasswordConfirm(false);
-    } else {
-      setErrMessage({ pwdErr: '' });
-      setPasswordConfirm(true);
+      return;
     }
+    setError({ password: '' });
+    setPasswordConfirm(true);
   };
 
   const nicknameCheck = () => {
     if (!nicknameRule(nickname)) {
-      setErrMessage({
-        nickErr: NICKNAME_RULE_ERROR_GUIDE,
+      setError({
+        nickname: CONFIRM_MESSAGE.NICKNAME_RULE_ERROR,
       });
       setNicknameConfirm(false);
-    } else {
-      setErrMessage({ nickErr: '' });
+      return;
     }
+    setError({ nickname: '' });
   };
 
   const phoneNumberCheck = () => {
     if (!phoneNumberRule(phoneNumber)) {
-      setErrMessage({
-        phoneErr: PHONE_NUMBER_RULE_ERROR_GUIDE,
+      setError({
+        phoneNumber: CONFIRM_MESSAGE.PHONE_NUMBER_RULE_ERROR,
       });
-      setPhoneConfirm(false);
-    } else {
-      setErrMessage({
-        phoneErr: '',
-      }),
-        setPhoneConfirm(true);
+      setPhoneNumberConfirm(false);
+      return;
     }
+    setError({ phoneNumber: '' });
+    setPhoneNumberConfirm(true);
   };
 
   const duplicateEmail = async (event) => {
@@ -100,20 +89,19 @@ export default function SignUpFormContainer() {
     if (!emailRule(email)) {
       setEmailConfirm(false);
       return;
-    } else {
-      try {
-        const response = await userService.duplicateEmail({ email });
-        if (response.empty) {
-          setErrMessage({ emailErr: PASS_GUIDE });
-          setEmailConfirm(true);
-        } else {
-          setErrMessage({ emailErr: DUPLICATE_GUIDE });
-          setEmailConfirm(false);
-          return;
-        }
-      } catch (error) {
-        console.log(error.message);
+    }
+
+    try {
+      const response = await userService.duplicateEmail({ email });
+      if (!response.empty) {
+        setError({ email: CONFIRM_MESSAGE.DUPLICATE_ERROR });
+        setEmailConfirm(false);
+        return;
       }
+      setError({ email: CONFIRM_MESSAGE.PASS_MESSAGE });
+      setEmailConfirm(true);
+    } catch (error) {
+      console.log(error.message);
     }
   };
 
@@ -122,64 +110,65 @@ export default function SignUpFormContainer() {
     if (!nicknameRule(nickname)) {
       setNicknameConfirm(false);
       return;
-    } else {
-      try {
-        const response = await userService.duplicateNickName({ nickname });
-        if (response.empty) {
-          setErrMessage({ nickErr: PASS_GUIDE });
-          setNicknameConfirm(true);
-        } else {
-          setErrMessage({ nickErr: DUPLICATE_GUIDE });
-          setNicknameConfirm(false);
-          return;
-        }
-      } catch (error) {
-        console.log(error.code);
+    }
+
+    try {
+      const response = await userService.duplicateNickName({ nickname });
+      if (!response.empty) {
+        setError({ nickname: CONFIRM_MESSAGE.DUPLICATE_ERROR });
+        setNicknameConfirm(false);
         return;
       }
+      setError({ nickname: CONFIRM_MESSAGE.PASS_MESSAGE });
+      setNicknameConfirm(true);
+    } catch (error) {
+      console.log(error.message);
     }
   };
 
-  const onSubmitHandler = async (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
-    if (emailConfirm && passwordConfirm && nicknameConfirm && phoneConfirm) {
-      try {
-        const response = await signUp({ userImage: userImg, email, password, nickname, phoneNumber, introduction });
-        if (response === 'success') {
-          authNavi('/login');
-          alert('회원가입 성공');
-        }
-      } catch (error) {
-        console.log(error.code);
-        switch (error.code) {
-          case 'auth/email-already-in-use':
-            setErrMessage({ emailErr: DUPLICATE_GUIDE });
-            break;
-          case 'auth/invalid-email':
-            setErrMessage({ emailErr: EMAIL_RULE_ERROR_GUIDE });
-            break;
-          case 'auth/weak-password':
-            setErrMessage({ pwdErr: PASSWORD_RULE_ERROR_GUIDE });
-            break;
-          case 'auth/missing-password':
-            setErrMessage({ pwdErr: PASSWORD_EMPTY_GUIDE });
-            break;
-          default:
-            setErrMessage({ emailErr: '' });
-        }
-        return;
+    if (!emailConfirm || !passwordConfirm || !nicknameConfirm || !phoneNumberConfirm) return;
+
+    try {
+      setLoading(true);
+      const response = await signUp({ userImage, email, password, nickname, phoneNumber, introduction });
+      if (response === 'success') {
+        authRouteTo('/login');
+        alert(CONFIRM_MESSAGE.SUCCESS_MESSAGE);
       }
-    } else return;
+    } catch (error) {
+      console.log(error.message);
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          setError({ email: CONFIRM_MESSAGE.DUPLICATE_ERROR });
+          break;
+        case 'auth/invalid-email':
+          setError({ email: CONFIRM_MESSAGE.EMAIL_RULE_ERROR });
+          break;
+        case 'auth/weak-password':
+          setError({ password: CONFIRM_MESSAGE.PASSWORD_RULE_ERROR });
+          break;
+        case 'auth/missing-password':
+          setError({ password: CONFIRM_MESSAGE.PASSWORD_EMPTY_ERROR });
+          break;
+        default:
+          setError({ email: '' });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <SignUpFormPresenter
       {...{
+        isLoading,
         form,
-        errMessage,
-        handleChange,
-        onSubmitHandler,
-        setUserImg,
+        error,
+        onChange,
+        onSubmit,
+        setUserImage,
         emailCheck,
         passwordCheck,
         nicknameCheck,
@@ -187,10 +176,9 @@ export default function SignUpFormContainer() {
         emailConfirm,
         passwordConfirm,
         nicknameConfirm,
-        phoneConfirm,
+        phoneNumberConfirm,
         duplicateEmail,
         duplicateNickname,
-        DefaultUserImage,
       }}
     />
   );

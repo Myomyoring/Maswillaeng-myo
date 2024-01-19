@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-import { useAuth } from '../../context/ProvideAuthContext';
+import { useAuth } from '../../contexts/ProvideAuthContext';
 import Logo from './Logo';
 
 import { styled } from 'styled-components';

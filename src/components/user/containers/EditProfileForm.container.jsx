@@ -1,19 +1,11 @@
 import { useState } from 'react';
 
 import { nicknameRule, passwordRule, phoneNumberRule } from '../../../utils/sign_up_rules';
-import { useAuth } from '../../../context/ProvideAuthContext';
+import { useAuth } from '../../../contexts/ProvideAuthContext';
 import EditProfileFormPresenter from '../presenters/EditProfileForm.presenter';
 import { userService } from '../../../services/firebaseService/user.firebase.service';
-import {
-  DUPLICATE_GUIDE,
-  NICKNAME_RULE_ERROR_GUIDE,
-  PASSWORD_CONFIRM_ERROR_GUIDE,
-  PASSWORD_EMPTY_GUIDE,
-  PASSWORD_RULE_ERROR_GUIDE,
-  PASS_GUIDE,
-  PHONE_NUMBER_RULE_ERROR_GUIDE,
-} from '../../../constants';
-import { encodePassword } from '../../../utils/password_encoder';
+import { encryptPassword } from '../../../utils/password_encoder';
+import { CONFIRM_MESSAGE } from '../../../constants';
 
 export default function EditProfileFormContainer({ setModal }) {
   const { currentUser, logout } = useAuth();
@@ -57,7 +49,7 @@ export default function EditProfileFormContainer({ setModal }) {
     event.preventDefault();
     if (!nicknameRule(nickname)) {
       setErrMessage({
-        nickErr: NICKNAME_RULE_ERROR_GUIDE,
+        nickErr: CONFIRM_MESSAGE.NICKNAME_RULE_ERROR,
       });
       setNicknameConfirm(false);
       return;
@@ -65,13 +57,13 @@ export default function EditProfileFormContainer({ setModal }) {
       try {
         const response = await userService.duplicateNickName({ nickname });
         if (response.empty) {
-          setErrMessage({ nickErr: PASS_GUIDE });
+          setErrMessage({ nickErr: CONFIRM_MESSAGE.PASS_MESSAGE });
           setNicknameConfirm(true);
         } else if (nickname === user.nickname) {
           setErrMessage({ nickErr: '현재 닉네임 입니다.' });
           setNicknameConfirm(true);
         } else {
-          setErrMessage({ nickErr: DUPLICATE_GUIDE });
+          setErrMessage({ nickErr: CONFIRM_MESSAGE.DUPLICATE_ERROR });
           setNicknameConfirm(false);
         }
       } catch (error) {
@@ -82,20 +74,20 @@ export default function EditProfileFormContainer({ setModal }) {
 
   const passwordCheck = async () => {
     if (password === '') {
-      setErrMessage({ passwordErr: PASSWORD_EMPTY_GUIDE });
+      setErrMessage({ passwordErr: CONFIRM_MESSAGE.PASSWORD_EMPTY_ERROR });
       setPasswordConfirm(false);
       return;
     }
     try {
-      const pwd = encodePassword(password);
+      const pwd = encryptPassword(password);
       const response = await userService.getUserById({ userId: user.id });
       response.forEach((doc) => {
         let data = doc.data();
         if (data.password === pwd) {
-          setErrMessage({ passwordErr: '비밀번호가 일치합니다' });
+          setErrMessage({ passwordErr: CONFIRM_MESSAGE.PASSWORD_PASS });
           setPasswordConfirm(true);
         } else {
-          setErrMessage({ passwordErr: '비밀번호가 일치하지 않습니다' });
+          setErrMessage({ passwordErr: CONFIRM_MESSAGE.PASSWORD_CONFIRM_ERROR });
           setPasswordConfirm(false);
           return;
         }
@@ -109,7 +101,7 @@ export default function EditProfileFormContainer({ setModal }) {
   const phoneNumberCheck = () => {
     if (phoneNumber === '' || !phoneNumberRule(phoneNumber)) {
       setErrMessage({
-        phoneNumberErr: PHONE_NUMBER_RULE_ERROR_GUIDE,
+        phoneNumberErr: CONFIRM_MESSAGE.PHONE_NUMBER_RULE_ERROR,
       });
       setPhoneConfirm(false);
       return;
@@ -130,15 +122,15 @@ export default function EditProfileFormContainer({ setModal }) {
 
     if (newPwd === newConfirmPwd) {
       if (passwordRule(newPwd)) {
-        setErrMessage({ newPwdErr: PASS_GUIDE });
+        setErrMessage({ newPwdErr: CONFIRM_MESSAGE.PASS_MESSAGE });
         setNewPasswordConfirm(true);
       } else {
-        setErrMessage({ newPwdErr: PASSWORD_RULE_ERROR_GUIDE });
+        setErrMessage({ newPwdErr: CONFIRM_MESSAGE.PASSWORD_RULE_ERROR });
         setNewPasswordConfirm(false);
         return;
       }
     } else {
-      setErrMessage({ newPwdErr: PASSWORD_CONFIRM_ERROR_GUIDE });
+      setErrMessage({ newPwdErr: CONFIRM_MESSAGE.PASSWORD_CONFIRM_ERROR });
       setNewPasswordConfirm(false);
       return;
     }

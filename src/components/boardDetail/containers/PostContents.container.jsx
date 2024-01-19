@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { useAuth } from '../../../context/ProvideAuthContext';
+import { useAuth } from '../../../contexts/ProvideAuthContext';
 import PostContentsPresenter from '../presenters/PostContents.presenter';
-import { Navi } from '../../common/Navi';
 import { commentService } from '../../../services/firebaseService/comment.firebase.service';
 import { postService } from '../../../services/firebaseService/post.firebase.service';
 import { userService } from '../../../services/firebaseService/user.firebase.service';
+import { useRouter } from '../../../hooks/useRouter';
 
 export default function PostContentsContainer() {
   const { postId, writer } = useParams();
-  const { authNavi } = Navi();
+  const { authRouteTo } = useRouter();
   const { currentUser } = useAuth();
   const { id, nickname } = currentUser();
 
@@ -39,7 +39,7 @@ export default function PostContentsContainer() {
       }
     } catch (error) {
       console.log(error.code);
-      authNavi(`/`);
+      authRouteTo(`/`);
     }
   };
 

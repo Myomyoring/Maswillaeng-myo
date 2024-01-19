@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { useAuth } from '../../../context/ProvideAuthContext';
+import { useAuth } from '../../../contexts/ProvideAuthContext';
 import UserProfilePresenter from '../presenters/UserProfile.presenter';
 import { userService } from '../../../services/firebaseService/user.firebase.service';
 import { followService } from '../../../services/firebaseService/follow.firebase.service';

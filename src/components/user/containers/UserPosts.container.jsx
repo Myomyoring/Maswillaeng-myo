@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { USER_LIKE_GUIDE, USER_WRITE_GUIDE } from '../../../constants';
+import { ETC_GUIDE } from '../../../constants';
 import UserContentsPresenter from '../presenters/UserPosts.presenter';
 import { postService } from '../../../services/firebaseService/post.firebase.service';
 import { likeService } from '../../../services/firebaseService/like.firebase.service';
@@ -18,10 +18,10 @@ export default function UserPostsContainer({ active }) {
     getMember();
     if (active === 0) {
       getLikeList();
-      setGuide(USER_LIKE_GUIDE);
+      setGuide(ETC_GUIDE.PREPARING);
     } else if (active === 1) {
       getWriteList();
-      setGuide(USER_WRITE_GUIDE);
+      setGuide(ETC_GUIDE.BOARD_EMPTY);
     }
   }, [active]);
 

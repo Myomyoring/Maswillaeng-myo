@@ -1,7 +1,7 @@
 import { authService, db } from '../firebase-config';
 import { browserLocalPersistence, createUserWithEmailAndPassword, setPersistence } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { encodePassword } from '../utils/password_encoder';
+import { encryptPassword } from '../utils/password_encoder';
 import { userService } from '../services/firebaseService/user.firebase.service';
 
 const EXPIRE_TIME = 1000 * 60 * 60 * 24 * 15; // 15일
@@ -11,12 +11,12 @@ export default function FirebaseAuthUser() {
     try {
       const response = await createUserWithEmailAndPassword(authService, email, password);
       if (response.user) {
-        const pwd = encodePassword(password);
+        const encryptPw = encryptPassword(password);
         await setDoc(doc(db, 'users', response.user.uid), {
           id: response.user.uid,
           userImage,
           email,
-          password: pwd,
+          password: encryptPw,
           nickname,
           phoneNumber,
           introduction,

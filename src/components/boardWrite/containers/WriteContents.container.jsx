@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Navi } from '../../common/Navi';
-import { useAuth } from '../../../context/ProvideAuthContext';
+import { useAuth } from '../../../contexts/ProvideAuthContext';
+import { useRouter } from '../../../hooks/useRouter';
 import { postService } from '../../../services/firebaseService/post.firebase.service';
 import WriteContentsPresenter from '../presenters/WriteContents.presenter';
 
 export default function WriteContentsContainer() {
   const { postId, writer } = useParams();
-  const { authNavi } = Navi();
+  const { authRouteTo } = useRouter();
   const { currentUser } = useAuth();
   const { id, nickname } = currentUser();
 
@@ -31,7 +31,7 @@ export default function WriteContentsContainer() {
       const response = await postService.getPost({ postId });
       if (response.exists()) {
         if (writer !== nickname) {
-          authNavi(`/`);
+          authRouteTo(`/`);
           alert('작성자가 아닙니다.');
           return;
         }

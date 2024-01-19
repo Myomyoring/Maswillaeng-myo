@@ -1,12 +1,12 @@
 import { useState } from 'react';
 
 import LoginFormPresenter from '../presenters/LoginForm.presenter';
-import { Navi } from '../../common/Navi';
-import { useAuth } from '../../../context/ProvideAuthContext';
-import { EMAIL_RULE_ERROR_GUIDE, LOGIN_EMPTY_GUIDE, LOGIN_ERROR_GUIDE } from '../../../constants';
+import { useAuth } from '../../../contexts/ProvideAuthContext';
+import { CONFIRM_MESSAGE, LOGIN_MESSAGE } from '../../../constants';
+import { useRouter } from '../../../hooks/useRouter';
 
 export default function LoginFormContainer() {
-  const { authNavi } = Navi();
+  const { authRouteTo } = useRouter();
   const { logIn } = useAuth();
   const [user, setUser] = useState({ email: '', password: '' });
   const { email, password } = user;
@@ -20,22 +20,22 @@ export default function LoginFormContainer() {
   const onSubmitHandler = async (event) => {
     event.preventDefault();
     if (email === '' || password === '') {
-      setErrMessage(LOGIN_EMPTY_GUIDE);
+      setErrMessage(LOGIN_MESSAGE.EMPTY);
       return;
     }
     try {
       const response = await logIn(email, password);
       if (response === 'success') {
-        authNavi('/');
-        alert('로그인 성공');
+        authRouteTo('/');
+        alert(LOGIN_MESSAGE.SUCCESS);
       }
     } catch (error) {
       switch (error.code) {
         case 'auth/invalid-login-credentials':
-          setErrMessage(LOGIN_ERROR_GUIDE);
+          setErrMessage(LOGIN_MESSAGE.DISCORDANCE);
           break;
         case 'auth/invalid-email':
-          setErrMessage(EMAIL_RULE_ERROR_GUIDE);
+          setErrMessage(CONFIRM_MESSAGE.EMAIL_RULE_ERROR);
           break;
         default:
           setErrMessage('');

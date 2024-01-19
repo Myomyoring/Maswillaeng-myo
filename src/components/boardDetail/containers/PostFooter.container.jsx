@@ -1,12 +1,12 @@
 import { useState } from 'react';
 
 import PostFooterPresenter from '../presenters/PostFooter.presenter';
-import { Navi } from '../../common/Navi';
 import { postService } from '../../../services/firebaseService/post.firebase.service';
 import { likeService } from '../../../services/firebaseService/like.firebase.service';
+import { useRouter } from '../../../hooks/useRouter';
 
 export default function PostFooterContainer({ id, post, postId, getPost, nickname, writer }) {
-  const { authNavi } = Navi();
+  const { authRouteTo } = useRouter();
   const [liked, setLiked] = useState(false);
 
   const handleLike = async (likeType) => {
@@ -57,7 +57,7 @@ export default function PostFooterContainer({ id, post, postId, getPost, nicknam
         await postService.deletePost({ postId });
         await likeService.deleteAllLikes({ postId });
         // await commentService.
-        authNavi(`/`);
+        authRouteTo(`/`);
         alert('삭제 되었습니다.');
       } catch (error) {
         console.log(error.code);
