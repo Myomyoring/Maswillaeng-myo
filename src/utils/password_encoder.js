@@ -1,5 +1,5 @@
 import CryptoJS from 'crypto-js';
 
-export function encodePassword(password) {
+export function encryptPassword(password) {
   return CryptoJS.SHA256(password).toString();
 }
