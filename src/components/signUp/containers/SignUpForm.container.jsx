@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import SignUpFormPresenter from '../presenters/SignUpForm.presenter.jsx';
 
+import { CONFIRM_MESSAGE } from '../../../constants/index.jsx';
 import { emailRule, nicknameRule, passwordRule, phoneNumberRule } from '../../../utils/sign_up_rules.js';
 import { useAuth } from '../../../contexts/ProvideAuthContext.jsx';
 import { useRouter } from '../../../hooks/useRouter.jsx';
 import { userService } from '../../../services/firebaseService/user.firebase.service.jsx';
-import { CONFIRM_MESSAGE } from '../../../constants/index.jsx';
+
+import SignUpFormPresenter from '../presenters/SignUpForm.presenter.jsx';
 
 export default function SignUpFormContainer() {
   const [isLoading, setLoading] = useState(false);
