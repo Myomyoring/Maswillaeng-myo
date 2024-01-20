@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { getDownloadURL } from 'firebase/storage';
 
 import { imageService } from '../../services/firebaseService/image.firebase.service';
