@@ -36,7 +36,7 @@ export default function FirebaseAuthUser() {
       const userSnap = await userService.getUserById({ userId });
       userSnap.forEach((doc) => {
         const data = doc.data();
-        let currentUser = {
+        const currentUser = {
           email: data.email,
           id: userId,
           nickname: data.nickname,
@@ -48,8 +48,7 @@ export default function FirebaseAuthUser() {
         localStorage.setItem('current_user', JSON.stringify(currentUser));
       });
     } catch (error) {
-      console.log(error.message);
-      return false;
+      console.log(error.code);
     }
   };
 
