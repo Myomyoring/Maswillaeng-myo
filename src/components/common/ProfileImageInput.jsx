@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getDownloadURL } from 'firebase/storage';
 
 import { imageService } from '../../services/firebaseService/image.firebase.service';
@@ -12,7 +12,7 @@ export default function ProfileImageInput({ defaultImage, currentImage, setImage
 
   const onChange = async () => {
     const file = imageRef.current.files[0];
-    const uploadTask = await imageService.uploadImage({ type: 'profile_images', fileName: userId, file });
+    const uploadTask = await imageService.uploadImage({ type: 'profile_images', fileName: userId ?? 'null', file });
 
     uploadTask.on(
       'state_changed',
