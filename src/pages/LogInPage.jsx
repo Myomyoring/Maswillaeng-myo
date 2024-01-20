@@ -1,4 +1,4 @@
-import LoginForm from '../components/logIn/containers/LoginForm.container';
+import LoginForm from '../components/logIn/containers/LogInForm.container';
 import Logo from '../components/common/Logo';
 
 import * as S from './styles/index';

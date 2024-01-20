@@ -1,76 +1,16 @@
-import { Link } from 'react-router-dom';
+import * as S from '../styles/LogInForm.style';
 
-import styled from 'styled-components';
-import tw from 'twin.macro';
-
-const LoginFormStyle = styled.div`
-  ${tw``}
-`;
-
-const Form = styled.form`
-  ${tw``}
-`;
-
-const Input = styled.input`
-  ${tw`
-        px-4 py-4
-        bg-white
-        text-lg
-        rounded-md
-        border-none
-        outline-none
-
-        desktop:w-3/4
-        tablet:w-3/4
-        mobile:w-5/6 my-2
-    `}
-  &:focus {
-    ${tw`
-      outline-point
-    `}
-  }
-`;
-
-const ErrorBox = styled.div`
-  ${tw`
-        my-2
-        text-md
-        font-bold text-point
-    `}
-`;
-
-const LoginButton = styled.button`
-  ${tw`
-        my-2 py-4
-        bg-point
-        text-xl text-white
-        rounded-md
-
-        desktop:w-3/4
-        tablet:w-3/4
-        mobile:w-5/6
-    `}
-  ${(props) => (props.disabled ? tw`bg-gray cursor-not-allowed` : tw`bg-point`)}
-`;
-
-const SignUpLink = styled(Link)`
-  ${tw`
-        block
-        text-md text-white
-        my-6
-  `}
-`;
-export default function LoginFormPresenter({ email, password, handleChange, errMessage, onSubmitHandler }) {
+export default function LogInFormPresenter({ email, password, onChange, error, onSubmit, isLoading }) {
   return (
-    <LoginFormStyle>
-      <Form onSubmit={onSubmitHandler}>
-        <Input type="text" name="email" value={email} onChange={handleChange} placeholder="아이디" />
-        <Input type="password" name="password" value={password} onChange={handleChange} placeholder="비밀번호" />
-        <ErrorBox>{errMessage}</ErrorBox>
-        <LoginButton disabled={!email || !password}>로그인</LoginButton>
-        <SignUpLink to={`/signUp`}>회원가입</SignUpLink>
+    <S.LoginFormStyle>
+      <S.Form onSubmit={onSubmit}>
+        <S.Input type="text" name="email" value={email} onChange={onChange} placeholder="아이디" />
+        <S.Input type="password" name="password" value={password} onChange={onChange} placeholder="비밀번호" />
+        <S.ErrorBox>{error}</S.ErrorBox>
+        <S.LogInButton disabled={!email || !password || isLoading}>{isLoading ? '로딩 중...' : '로그인'}</S.LogInButton>
+        <S.SignUpLink to={`/signUp`}>회원가입</S.SignUpLink>
         {/* <Link to={`/`}>아이디 / 비밀번호 찾기</Link> */}
-      </Form>
-    </LoginFormStyle>
+      </S.Form>
+    </S.LoginFormStyle>
   );
 }
