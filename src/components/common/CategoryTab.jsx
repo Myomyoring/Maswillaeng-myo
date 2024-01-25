@@ -17,7 +17,7 @@ const TabStyle = styled.div`
 export default function CategoryTab({ active, categories, setTab }) {
   return (
     <TabStyle>
-      <CategoryTabBody length={categories.length}>
+      <CategoryTabBody size={categories.length}>
         <CategoryTabItem categories={categories} active={active} setTab={setTab} />
       </CategoryTabBody>
     </TabStyle>

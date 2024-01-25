@@ -8,6 +8,6 @@ const Ul = styled.ul`
     `}
   ${(props) => (props.className === 'user_page' ? tw`grid-cols-2` : tw`grid-cols-4`)}
 `;
-export default function CategoryTabBody({ length, children }) {
-  return <Ul className={length === 2 ? 'user_page' : 'board_page'}>{children ? children : null}</Ul>;
+export default function CategoryTabBody({ size, children }) {
+  return <Ul className={size === 2 ? 'user_page' : 'board_page'}>{children ? children : null}</Ul>;
 }
