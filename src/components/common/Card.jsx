@@ -6,6 +6,7 @@ import { styled } from 'styled-components';
 import tw from 'twin.macro';
 import DefaultThumbnail from '../../statics/images/default_thumbnail.png';
 import LikeIcon from '../../statics/svg/small_full_heart_icon';
+import { ETC_GUIDE } from '../../constants';
 
 const CardStyle = styled.div`
   ${tw``}
@@ -121,7 +122,7 @@ const NothingMessage = styled.div`
     `}
 `;
 
-export default function Card({ posts, guide, small }) {
+export default function Card({ posts, small }) {
   return (
     <CardStyle>
       <CardLayout className={small ? 'small' : ''}>
@@ -144,7 +145,7 @@ export default function Card({ posts, guide, small }) {
             </CardContents>
           ))
         ) : (
-          <NothingMessage>{guide}</NothingMessage>
+          <NothingMessage>{ETC_GUIDE.FIRST_POST}</NothingMessage>
         )}
       </CardLayout>
     </CardStyle>
