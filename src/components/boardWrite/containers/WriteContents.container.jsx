@@ -82,7 +82,7 @@ export default function WriteContentsContainer() {
           content: editorValue,
           createDate: postForm.createDate,
         });
-        authNavi(`/board/${postId}/${writer}`);
+        authRouteTo(`/board/${postId}/${writer}`);
         alert('게시글 수정 완료');
       } catch (error) {
         console.log(error);
@@ -96,7 +96,7 @@ export default function WriteContentsContainer() {
           thumbnail,
           content: editorValue,
         });
-        authNavi(`/`);
+        authRouteTo(`/`);
         alert('게시글 작성 완료');
       } catch (error) {
         console.log(error.code);
