@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { CONFIRM_MESSAGE } from '../../../constants/index.jsx';
+import { CONFIRM_MESSAGE, ETC_GUIDE } from '../../../constants/index.jsx';
 import { emailRule, nicknameRule, passwordRule, phoneNumberRule } from '../../../utils/sign_up_rules.js';
 import { useAuth } from '../../../contexts/ProvideAuthContext.jsx';
 import { useRouter } from '../../../hooks/useRouter.jsx';
@@ -28,7 +28,6 @@ export default function SignUpFormContainer() {
     nickname: '',
     phoneNumber: '',
   });
-
   const onChange = (event) => {
     const { name, value } = event.target;
     setForm({ ...form, [name]: value });
@@ -45,6 +44,7 @@ export default function SignUpFormContainer() {
       setEmailConfirm(false);
       return;
     }
+    setEmailConfirm(true);
     setError({ email: '' });
   };
 
@@ -70,6 +70,7 @@ export default function SignUpFormContainer() {
       setNicknameConfirm(false);
       return;
     }
+    setNicknameConfirm(true);
     setError({ nickname: '' });
   };
 
@@ -81,8 +82,8 @@ export default function SignUpFormContainer() {
       setPhoneNumberConfirm(false);
       return;
     }
-    setError({ phoneNumber: '' });
     setPhoneNumberConfirm(true);
+    setError({ phoneNumber: '' });
   };
 
   const duplicateEmail = async (event) => {
@@ -136,7 +137,7 @@ export default function SignUpFormContainer() {
       const response = await signUp({ userImage, email, password, nickname, phoneNumber, introduction });
       if (response === 'success') {
         authRouteTo('/login');
-        alert(CONFIRM_MESSAGE.SUCCESS_MESSAGE);
+        alert(ETC_GUIDE.SIGN_UP_SUCCESS_MESSAGE);
       }
     } catch (error) {
       console.log(error.message);

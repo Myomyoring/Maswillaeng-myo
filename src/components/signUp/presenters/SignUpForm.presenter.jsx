@@ -22,7 +22,7 @@ export default function SignUpFormPresenter({
   emailConfirm,
   passwordConfirm,
   nicknameConfirm,
-  phoneConfirm,
+  phoneNumberConfirm,
   duplicateEmail,
   duplicateNickname,
 }) {
@@ -118,7 +118,7 @@ export default function SignUpFormPresenter({
         </S.InputBox>
         <SubmitButton
           width="full"
-          disabled={isLoading || !emailConfirm || !passwordConfirm || !nicknameConfirm || !phoneConfirm}
+          disabled={isLoading || !emailConfirm || !passwordConfirm || !nicknameConfirm || !phoneNumberConfirm}
         >
           {isLoading ? '로딩 중' : '가입하기'}
         </SubmitButton>
