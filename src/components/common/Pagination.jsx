@@ -35,25 +35,18 @@ const PageButton = styled.button`
   }
 `;
 
-export default function Pagination({ page, count, hidePrevButton, hideNextButton, onChange }) {
+export default function Pagination({ lastPage, hidePrevButton, hideNextButton, onChange }) {
   const [numbers, setNumbers] = useState([]);
 
   useEffect(() => {
-    if (count !== 0) {
-      getPageNumbers();
+    if (lastPage !== 0) {
+      getPageNumber();
     }
-  }, [count]);
+  }, [lastPage]);
 
-  const getPageNumbers = () => {
-    const newNumbers = [];
-    for (let i = 1; i <= count; i++) {
-      newNumbers.push(i);
-    }
+  const getPageNumber = () => {
+    const newNumbers = Array.from({ length: lastPage }, (_, i) => i + 1);
     setNumbers(newNumbers);
-  };
-
-  const handlePageClick = (pageNumber) => {
-    onChange(pageNumber);
   };
 
   return (
@@ -62,7 +55,7 @@ export default function Pagination({ page, count, hidePrevButton, hideNextButton
         <>
           <PrevButton hidden={hidePrevButton}>이전</PrevButton>
           {numbers.map((number) => (
-            <PageButton key={number} onClick={() => handlePageClick(number)}>
+            <PageButton key={number} onClick={() => onChange(number)}>
               <span>{number}</span>
             </PageButton>
           ))}

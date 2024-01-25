@@ -5,7 +5,6 @@ import {
   doc,
   getDoc,
   getDocs,
-  limit,
   orderBy,
   query,
   updateDoc,
@@ -18,20 +17,16 @@ export const postService = {
     return deleteDoc(doc(db, 'posts', postId));
   },
   getAllPost() {
-    return getDocs(query(collection(db, 'posts'), orderBy('createDate', 'desc'), limit(8)));
+    return getDocs(query(collection(db, 'posts'), orderBy('createDate', 'desc')));
   },
   getSelectedTabPost({ tabName }) {
-    return getDocs(
-      query(collection(db, 'posts'), where('category', '==', tabName), orderBy('createDate', 'desc'), limit(8)),
-    );
+    return getDocs(query(collection(db, 'posts'), where('category', '==', tabName), orderBy('createDate', 'desc')));
   },
   getPost({ postId }) {
     return getDoc(doc(db, 'posts', postId));
   },
   getUserWritePost({ userId }) {
-    return getDocs(
-      query(collection(db, 'posts'), where('userId', '==', userId), orderBy('createDate', 'desc'), limit(8)),
-    );
+    return getDocs(query(collection(db, 'posts'), where('userId', '==', userId), orderBy('createDate', 'desc')));
   },
   savePost({ userId, category, title, thumbnail, content }) {
     return addDoc(collection(db, 'posts'), {

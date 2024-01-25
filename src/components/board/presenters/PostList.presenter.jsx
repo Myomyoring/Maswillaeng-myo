@@ -4,20 +4,36 @@ import CategoryTab from '../../common/CategoryTab';
 import Pagination from '../../common/Pagination';
 import CategorySelector from '../../common/CategorySelector';
 
-export default function PostListPresenter({ categories, tab, setTab, list, page, currentPage, lastPage }) {
+import { PostListStyle } from '../style/PostList.style';
+
+export default function PostListPresenter({
+  categories,
+  tab,
+  setTab,
+  posts,
+  currentPage,
+  onPageChange,
+  lastPage,
+  isLoading,
+}) {
   return (
-    <>
+    <PostListStyle>
       <CategoryTab categories={categories} active={tab} setTab={setTab} />
       <CategorySelector categories={categories} active={tab} setTab={setTab} />
       <BoardHeader />
-      <Card posts={list} />
-      <Pagination
-        page={page}
-        count={lastPage}
-        hidePrevButton={page < 10}
-        hideNextButton={(page + 1) / 10 < 1}
-        onChange={currentPage}
-      />
-    </>
+      {isLoading ? (
+        '로딩 중...'
+      ) : (
+        <>
+          <Card posts={posts} />
+          <Pagination
+            lastPage={lastPage}
+            hidePrevButton={currentPage < 10}
+            hideNextButton={(currentPage + 1) / 10 < 1}
+            onChange={onPageChange}
+          />
+        </>
+      )}
+    </PostListStyle>
   );
 }

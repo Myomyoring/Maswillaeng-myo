@@ -2,69 +2,114 @@ import { useEffect, useState } from 'react';
 
 import { categories } from '../../../constants/index';
 import PostListPresenter from '../presenters/PostList.presenter';
-import { collection, getDoc, getDocs, limit, orderBy, query, startAfter } from 'firebase/firestore';
-import { db } from '../../../firebase-config';
 import { postService } from '../../../services/firebaseService/post.firebase.service';
 import { userService } from '../../../services/firebaseService/user.firebase.service';
 
 export default function PostListContainer() {
-  const [lastPage, setLastPage] = useState(0);
-  const [list, setList] = useState([]);
-  const [page, setPage] = useState(1);
+  const [posts, setPosts] = useState([]);
   const [tab, setTab] = useState(0);
-  const [perPage] = useState(8);
+  const [isLoading, setLoading] = useState(false);
+
+  const [pagingData, setPagingData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState(0);
+  const perPage = 8;
+  const lastIndex = currentPage * perPage;
+  const firstIndex = lastIndex - perPage;
+
+  const paging = async (data) => {
+    setLastPage(Math.ceil(data.length / perPage));
+    setPosts(data.slice(firstIndex, lastIndex));
+  };
 
   const getAllList = async () => {
     try {
-      const data = [];
-      const posts = await postService.getAllPost();
-      const lastVisible = posts.docs[posts.docs.length - 1];
-      posts.forEach((post) => {
-        data.push({ ...post.data(), id: post.id });
+      setLoading(true);
+      const initialData = [];
+      const postDoc = await postService.getAllPost();
+      postDoc.forEach((doc) => {
+        const { thumbnail, createDate, title, likeCnt, userId } = doc.data();
+        initialData.push({
+          thumbnail,
+          createDate,
+          title,
+          likeCnt,
+          userId,
+          id: doc.id,
+        });
       });
-
       const updatedData = [];
-
-      for (const item of data) {
-        const getNicknames = await userService.getUserById({ userId: item.userId });
-        getNicknames.forEach((doc) => {
-          let user = doc.data();
-          if (user.id === item.userId) {
-            updatedData.push({ ...item, nickname: user.nickname });
+      for (const post of initialData) {
+        const userDoc = await userService.getUserById({ userId: post.userId });
+        userDoc.forEach((doc) => {
+          const user = doc.data();
+          if (user.id === post.userId) {
+            updatedData.push({ ...post, nickname: user.nickname });
           }
         });
+        paging(updatedData);
+        setPagingData(updatedData);
       }
-
-      setList(updatedData);
-      console.log(list);
-      // setLastPage(response.data.totalPages);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const getSelectedList = async (tabName) => {
     try {
-      // const response = await postService.getSelectedTabPost({ tabName, page });
-      // setList(response.data.content);
-      // setLastPage(response.data.totalPages);
+      setLoading(true);
+      const initialData = [];
+      const postDoc = await postService.getSelectedTabPost({ tabName });
+      postDoc.forEach((doc) => {
+        const { thumbnail, createDate, title, likeCnt, userId } = doc.data();
+        initialData.push({
+          thumbnail,
+          createDate,
+          title,
+          likeCnt,
+          userId,
+          id: doc.id,
+        });
+      });
+      const updatedData = [];
+      for (const post of initialData) {
+        const userDoc = await userService.getUserById({ userId: post.userId });
+        userDoc.forEach((doc) => {
+          const user = doc.data();
+          if (user.id === post.userId) {
+            updatedData.push({ ...post, nickname: user.nickname });
+          }
+        });
+        paging(updatedData);
+        setPagingData(updatedData);
+      }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const currentPage = (value) => {
-    setPage(value - 1);
+  const onPageChange = (value) => {
+    setCurrentPage(value);
   };
 
   useEffect(() => {
     if (tab === 0) {
       getAllList();
+      setCurrentPage(1);
     } else if (tab !== 0) {
       const selectTab = categories.find((category) => category.id === tab);
       getSelectedList(selectTab.name);
+      setCurrentPage(1);
     } else return;
-  }, [tab, page]);
+  }, [tab]);
 
-  return <PostListPresenter {...{ categories, tab, setTab, list, page, currentPage, lastPage }} />;
+  useEffect(() => {
+    paging(pagingData);
+  }, [pagingData, currentPage]);
+
+  return <PostListPresenter {...{ categories, tab, setTab, posts, currentPage, onPageChange, lastPage, isLoading }} />;
 }
