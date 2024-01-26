@@ -18,8 +18,8 @@ export default function UserBoardContents() {
   const [tab, setTab] = useState(0);
   return (
     <UserBoardContentsStyle>
-      <CategorySelector active={tab} categories={userCategories} setTab={setTab} />
-      <UserTab active={tab} categories={userCategories} setTab={setTab} />
+      <CategorySelector activeTabId={tab} categories={userCategories} setTab={setTab} />
+      <UserTab activeTabId={tab} categories={userCategories} setTab={setTab} />
       <UserPosts active={tab} />
     </UserBoardContentsStyle>
   );
