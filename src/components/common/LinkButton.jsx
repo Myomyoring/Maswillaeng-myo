@@ -5,7 +5,7 @@ import tw from 'twin.macro';
 
 const Anchor = styled(Link)`
   ${tw`
-    px-3 py-3
+    p-3
     bg-point
     text-white
   `}
