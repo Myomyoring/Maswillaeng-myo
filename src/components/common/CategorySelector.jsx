@@ -6,16 +6,17 @@ const CategorySelectorStyle = styled.select`
       p-3 
       font-semibold text-center text-white bg-point
       border-none
+
       desktop:hidden
       tablet:hidden
       mobile:block
     `}
 `;
 
-export default function CategorySelector({ categories, setTab, active }) {
+export default function CategorySelector({ categories, setTab, activeTabId }) {
   return (
     <CategorySelectorStyle
-      value={active}
+      value={activeTabId}
       onChange={(e) => {
         setTab(+e.target.value);
       }}

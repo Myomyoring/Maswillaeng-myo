@@ -3,7 +3,7 @@ import tw from 'twin.macro';
 
 const Ul = styled.ul`
   ${tw`
-        h-12
+        h-14
         grid
     `}
   ${(props) => (props.className === 'user_page' ? tw`grid-cols-2` : tw`grid-cols-4`)}

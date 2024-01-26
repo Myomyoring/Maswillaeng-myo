@@ -3,8 +3,9 @@ import Card from '../../common/Card';
 import CategoryTab from '../../common/CategoryTab';
 import Pagination from '../../common/Pagination';
 import CategorySelector from '../../common/CategorySelector';
+import LoadingScreen from '../../common/LoadingScreen';
 
-import { PostListStyle } from '../style/PostList.style';
+import * as S from '../style/PostList.style';
 
 export default function PostListPresenter({
   categories,
@@ -14,26 +15,31 @@ export default function PostListPresenter({
   currentPage,
   onPageChange,
   lastPage,
+  hidePrevButton,
+  hideNextButton,
   isLoading,
 }) {
   return (
-    <PostListStyle>
-      <CategoryTab categories={categories} active={tab} setTab={setTab} />
-      <CategorySelector categories={categories} active={tab} setTab={setTab} />
-      <BoardHeader />
+    <S.PostListStyle>
+      <CategoryTab categories={categories} activeTabId={tab} setTab={setTab} />
+      <S.Div>
+        <CategorySelector categories={categories} activeTabId={tab} setTab={setTab} />
+        <BoardHeader />
+      </S.Div>
       {isLoading ? (
-        '로딩 중...'
+        <LoadingScreen />
       ) : (
         <>
           <Card posts={posts} />
           <Pagination
+            currentPage={currentPage}
             lastPage={lastPage}
-            hidePrevButton={currentPage < 10}
-            hideNextButton={(currentPage + 1) / 10 < 1}
+            hidePrevButton={hidePrevButton}
+            hideNextButton={hideNextButton}
             onChange={onPageChange}
           />
         </>
       )}
-    </PostListStyle>
+    </S.PostListStyle>
   );
 }

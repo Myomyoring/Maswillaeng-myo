@@ -16,40 +16,52 @@ export default function PostListContainer() {
   const perPage = 8;
   const lastIndex = currentPage * perPage;
   const firstIndex = lastIndex - perPage;
+  const hidePrevButton = currentPage < 5;
+  const hideNextButton = (currentPage + 1) / 5 < 1;
 
-  const paging = async (data) => {
+  // client limit offset pagination
+  const setPostData = (data) => {
+    setPagingData(data);
     setLastPage(Math.ceil(data.length / perPage));
     setPosts(data.slice(firstIndex, lastIndex));
   };
 
-  const getAllList = async () => {
+  const getInitialData = async (postDoc) => {
+    const initialData = [];
+    await postDoc.forEach((doc) => {
+      const { thumbnail, createDate, title, likeCnt, userId } = doc.data();
+      initialData.push({
+        thumbnail,
+        createDate,
+        title,
+        likeCnt,
+        userId,
+        id: doc.id,
+      });
+    });
+    return initialData;
+  };
+
+  const getUpdateData = async (initialData) => {
+    const updateData = [];
+    for (const data of initialData) {
+      const userDoc = await userService.getUserById({ userId: data.userId });
+      userDoc.forEach((doc) => {
+        const user = doc.data();
+        if (user.id === data.userId) {
+          updateData.push({ ...data, nickname: user.nickname });
+        }
+      });
+    }
+    return updateData;
+  };
+
+  const getAllPosts = async () => {
     try {
       setLoading(true);
-      const initialData = [];
       const postDoc = await postService.getAllPost();
-      postDoc.forEach((doc) => {
-        const { thumbnail, createDate, title, likeCnt, userId } = doc.data();
-        initialData.push({
-          thumbnail,
-          createDate,
-          title,
-          likeCnt,
-          userId,
-          id: doc.id,
-        });
-      });
-      const updatedData = [];
-      for (const post of initialData) {
-        const userDoc = await userService.getUserById({ userId: post.userId });
-        userDoc.forEach((doc) => {
-          const user = doc.data();
-          if (user.id === post.userId) {
-            updatedData.push({ ...post, nickname: user.nickname });
-          }
-        });
-        paging(updatedData);
-        setPagingData(updatedData);
-      }
+      const initialData = await getInitialData(postDoc);
+      return await getUpdateData(initialData);
     } catch (error) {
       console.log(error);
     } finally {
@@ -57,39 +69,27 @@ export default function PostListContainer() {
     }
   };
 
-  const getSelectedList = async (tabName) => {
+  const getSelectedPosts = async (tabName) => {
     try {
       setLoading(true);
-      const initialData = [];
       const postDoc = await postService.getSelectedTabPost({ tabName });
-      postDoc.forEach((doc) => {
-        const { thumbnail, createDate, title, likeCnt, userId } = doc.data();
-        initialData.push({
-          thumbnail,
-          createDate,
-          title,
-          likeCnt,
-          userId,
-          id: doc.id,
-        });
-      });
-      const updatedData = [];
-      for (const post of initialData) {
-        const userDoc = await userService.getUserById({ userId: post.userId });
-        userDoc.forEach((doc) => {
-          const user = doc.data();
-          if (user.id === post.userId) {
-            updatedData.push({ ...post, nickname: user.nickname });
-          }
-        });
-        paging(updatedData);
-        setPagingData(updatedData);
-      }
+      const initialData = await getInitialData(postDoc);
+      return await getUpdateData(initialData);
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const setAllPosts = async () => {
+    const posts = await getAllPosts();
+    setPostData(posts);
+  };
+
+  const setSelectedPosts = async (tabName) => {
+    const posts = await getSelectedPosts(tabName);
+    setPostData(posts);
   };
 
   const onPageChange = (value) => {
@@ -98,18 +98,33 @@ export default function PostListContainer() {
 
   useEffect(() => {
     if (tab === 0) {
-      getAllList();
+      setAllPosts();
       setCurrentPage(1);
     } else if (tab !== 0) {
-      const selectTab = categories.find((category) => category.id === tab);
-      getSelectedList(selectTab.name);
+      const currentTab = categories.find((category) => category.id === tab);
+      setSelectedPosts(currentTab.name);
       setCurrentPage(1);
     } else return;
   }, [tab]);
 
   useEffect(() => {
-    paging(pagingData);
+    setPostData(pagingData);
   }, [pagingData, currentPage]);
 
-  return <PostListPresenter {...{ categories, tab, setTab, posts, currentPage, onPageChange, lastPage, isLoading }} />;
+  return (
+    <PostListPresenter
+      {...{
+        categories,
+        tab,
+        setTab,
+        posts,
+        currentPage,
+        onPageChange,
+        lastPage,
+        hidePrevButton,
+        hideNextButton,
+        isLoading,
+      }}
+    />
+  );
 }

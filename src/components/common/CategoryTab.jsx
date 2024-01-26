@@ -6,7 +6,7 @@ import tw from 'twin.macro';
 
 const TabStyle = styled.div`
   ${tw`
-      w-full h-12
+      w-full h-14
       
       desktop:block
       tablet:block
@@ -14,11 +14,11 @@ const TabStyle = styled.div`
     `}
 `;
 
-export default function CategoryTab({ active, categories, setTab }) {
+export default function CategoryTab({ activeTabId, categories, setTab }) {
   return (
     <TabStyle>
       <CategoryTabBody size={categories.length}>
-        <CategoryTabItem categories={categories} active={active} setTab={setTab} />
+        <CategoryTabItem categories={categories} activeTabId={activeTabId} setTab={setTab} />
       </CategoryTabBody>
     </TabStyle>
   );
