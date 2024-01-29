@@ -10,6 +10,7 @@ export default function PostListContainer() {
   const [tab, setTab] = useState(0);
   const [isLoading, setLoading] = useState(false);
 
+  // client limit offset pagination
   const [pagingData, setPagingData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(0);
@@ -19,7 +20,6 @@ export default function PostListContainer() {
   const hidePrevButton = currentPage < 5;
   const hideNextButton = (currentPage + 1) / 5 < 1;
 
-  // client limit offset pagination
   const setPostData = (data) => {
     setPagingData(data);
     setLastPage(Math.ceil(data.length / perPage));
@@ -27,33 +27,41 @@ export default function PostListContainer() {
   };
 
   const getInitialData = async (postDoc) => {
-    const initialData = [];
-    await postDoc.forEach((doc) => {
-      const { thumbnail, createDate, title, likeCnt, userId } = doc.data();
-      initialData.push({
-        thumbnail,
-        createDate,
-        title,
-        likeCnt,
-        userId,
-        id: doc.id,
+    try {
+      const initialData = [];
+      await postDoc.forEach((doc) => {
+        const { thumbnail, createDate, title, likeCnt, userId } = doc.data();
+        initialData.push({
+          thumbnail,
+          createDate,
+          title,
+          likeCnt,
+          userId,
+          id: doc.id,
+        });
       });
-    });
-    return initialData;
+      return initialData;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const getUpdateData = async (initialData) => {
-    const updateData = [];
-    for (const data of initialData) {
-      const userDoc = await userService.getUserById({ userId: data.userId });
-      userDoc.forEach((doc) => {
-        const user = doc.data();
-        if (user.id === data.userId) {
-          updateData.push({ ...data, nickname: user.nickname });
-        }
-      });
+    try {
+      const updateData = [];
+      for (const data of initialData) {
+        const userDoc = await userService.getUserById({ userId: data.userId });
+        userDoc.forEach((doc) => {
+          const user = doc.data();
+          if (user.id === data.userId) {
+            updateData.push({ ...data, nickname: user.nickname });
+          }
+        });
+      }
+      return updateData;
+    } catch (error) {
+      console.log(error);
     }
-    return updateData;
   };
 
   const getAllPosts = async () => {
