@@ -13,7 +13,7 @@ export default function FirebaseAuthUser() {
       if (response.user) {
         const encryptPw = encryptPassword(password);
         await setDoc(doc(db, 'users', response.user.uid), {
-          id: response.user.uid,
+          userId: response.user.uid,
           userImage,
           email,
           password: encryptPw,
@@ -38,7 +38,7 @@ export default function FirebaseAuthUser() {
         const data = doc.data();
         const currentUser = {
           email: data.email,
-          id: userId,
+          userId: userId,
           nickname: data.nickname,
           follower: data.followerCnt,
           following: data.followingCnt,
@@ -111,7 +111,7 @@ export default function FirebaseAuthUser() {
 
   const currentUser = () => {
     const current = JSON.parse(localStorage.getItem('current_user'));
-    return current ?? false;
+    return current ?? null;
   };
 
   return { logIn, logOut, signUp, currentUser };

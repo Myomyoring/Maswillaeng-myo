@@ -22,7 +22,7 @@ export const userService = {
     return getDocs(query(collection(db, 'users'), where('nickname', '==', nickname)));
   },
   getUserById({ userId }) {
-    return getDocs(query(collection(db, 'users'), where('id', '==', userId)));
+    return getDocs(query(collection(db, 'users'), where('userId', '==', userId)));
   },
   getUserByNickname({ nickname }) {
     return getDocs(query(collection(db, 'users'), where('nickname', '==', nickname)));
