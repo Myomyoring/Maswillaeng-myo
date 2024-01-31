@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { CONFIRM_MESSAGE, ETC_GUIDE } from '../../../constants/index.jsx';
+import { CONFIRM_MESSAGE, SIGN_UP_GUIDE } from '../../../constants/index.jsx';
 import { emailRule, nicknameRule, passwordRule, phoneNumberRule } from '../../../utils/sign_up_rules.js';
 import { useAuth } from '../../../contexts/ProvideAuthContext.jsx';
 import { useRouter } from '../../../hooks/useRouter.jsx';
@@ -137,7 +137,7 @@ export default function SignUpFormContainer() {
       const response = await signUp({ userImage, email, password, nickname, phoneNumber, introduction });
       if (response === 'success') {
         authRouteTo('/login');
-        alert(ETC_GUIDE.SIGN_UP_SUCCESS_MESSAGE);
+        alert(SIGN_UP_GUIDE.SIGN_UP_SUCCESS_MESSAGE);
       }
     } catch (error) {
       console.log(error.message);

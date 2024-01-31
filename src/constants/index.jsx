@@ -21,13 +21,20 @@ export const SIGN_UP_GUIDE = {
   NICKNAME: '* 한글, 영문 2~10자 입력',
   PASSWORD: '* 영문, 숫자 포함 8~16자 입력',
   PHONE_NUMBER: 'ex) 01012345678',
+  SIGN_UP_SUCCESS_MESSAGE: '회원가입 성공',
 };
 
-export const ETC_GUIDE = {
+export const WRITE_MESSAGE = {
+  WRITER_ERROR: '작성자가 아닙니다',
+  EMPTY_MESSAGE: '카테고리 또는 제목을 설정해주세요.',
+  WRITE_SUCCESS_MESSAGE: '게시글 작성 완료',
+  UPDATE_SUCCESS_MESSAGE: '게시글 수정 완료',
+};
+
+export const ETC_MESSAGE = {
   BOARD_EMPTY: '작성한 게시물이 없습니다',
   FIRST_POST: '첫 게시물을 작성해주세요 🍹',
   PREPARING: '준비 중 입니다',
-  SIGN_UP_SUCCESS_MESSAGE: '회원가입 성공',
 };
 
 export const categories = [

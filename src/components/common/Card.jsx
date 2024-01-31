@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 
 import { DisplayPostDate } from '../../utils/display_date';
+import { ETC_MESSAGE } from '../../constants';
 
 import { styled } from 'styled-components';
 import tw from 'twin.macro';
 import DefaultThumbnail from '../../statics/images/default_thumbnail.png';
 import LikeIcon from '../../statics/svg/small_full_heart_icon';
-import { ETC_GUIDE } from '../../constants';
 
 const CardStyle = styled.div`
   ${tw``}
@@ -145,7 +145,7 @@ export default function Card({ posts, small }) {
             </CardContents>
           ))
         ) : (
-          <NothingMessage>{ETC_GUIDE.FIRST_POST}</NothingMessage>
+          <NothingMessage>{ETC_MESSAGE.FIRST_POST}</NothingMessage>
         )}
       </CardLayout>
     </CardStyle>
