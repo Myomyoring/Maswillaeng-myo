@@ -5,12 +5,13 @@ import { useAuth } from '../../../contexts/ProvideAuthContext';
 import { useRouter } from '../../../hooks/useRouter';
 import { postService } from '../../../services/firebaseService/post.firebase.service';
 import WriteContentsPresenter from '../presenters/WriteContents.presenter';
+import { WRITE_MESSAGE } from '../../../constants';
 
 export default function WriteContentsContainer() {
   const { postId, writer } = useParams();
   const { authRouteTo } = useRouter();
   const { currentUser } = useAuth();
-  const { id, nickname } = currentUser();
+  const { userId, nickname } = currentUser();
 
   const [postForm, setPostForm] = useState({
     category: '',
@@ -20,10 +21,11 @@ export default function WriteContentsContainer() {
   const { category, title } = postForm;
   const [editorValue, setEditorValue] = useState('');
   const [thumbnail, setThumbnail] = useState('');
+  const imageList = useState([]);
 
   useEffect(() => {
     if (!postId) return;
-    getPost();
+    setPostData();
   }, [postId]);
 
   const getPost = async () => {
@@ -32,24 +34,26 @@ export default function WriteContentsContainer() {
       if (response.exists()) {
         if (writer !== nickname) {
           authRouteTo(`/`);
-          alert('작성자가 아닙니다.');
+          alert(WRITE_MESSAGE.WRITER_ERROR);
           return;
         }
-        const data = response.data();
-        setPostForm({
-          category: data.category,
-          title: data.title,
-          createDate: data.createDate,
-        });
-        setEditorValue(data.content);
-        setThumbnail(data.thumbnail);
+        return response.data();
       }
     } catch (error) {
       console.log(error.code);
     }
   };
 
-  const [imageList] = useState([]);
+  const setPostData = async () => {
+    const { category, title, createDate, content, thumbnail } = await getPost();
+    setPostForm({
+      category: category,
+      title: title,
+      createDate: createDate,
+    });
+    setEditorValue(content);
+    setThumbnail(thumbnail);
+  };
 
   const setThumbnailImage = (imgList) => {
     if (imgList.length > 0) {
@@ -57,57 +61,59 @@ export default function WriteContentsContainer() {
     }
   };
 
-  const handleChange = ({ target }) => {
-    const { name, value } = target;
+  const onChange = (event) => {
+    const { name, value } = event.target;
     setPostForm({ ...postForm, [name]: value });
-    console.log(postForm);
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const onUpdate = async () => {
+    try {
+      await postService.updatePost({
+        postId,
+        userId,
+        title,
+        category,
+        thumbnail,
+        content: editorValue,
+        createDate: postForm.createDate,
+      });
+      authRouteTo(`/board/${postId}/${writer}`);
+      alert(WRITE_MESSAGE.UPDATE_SUCCESS_MESSAGE);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
+  const onSave = async () => {
+    try {
+      await postService.savePost({
+        userId,
+        category,
+        title,
+        thumbnail,
+        content: editorValue,
+      });
+      authRouteTo(`/`);
+      alert(WRITE_MESSAGE.WRITE_SUCCESS_MESSAGE);
+    } catch (error) {
+      console.log(error.code);
+    }
+  };
+
+  const onSubmit = (event) => {
+    event.preventDefault();
     if (category === '' || title === '') {
-      alert('카테고리 또는 제목을 설정해주세요.');
+      alert(WRITE_MESSAGE.EMPTY_MESSAGE);
       return;
     }
-
-    if (postId) {
-      try {
-        await postService.updatePost({
-          postId,
-          userId: id,
-          title,
-          category,
-          thumbnail,
-          content: editorValue,
-          createDate: postForm.createDate,
-        });
-        authRouteTo(`/board/${postId}/${writer}`);
-        alert('게시글 수정 완료');
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      try {
-        await postService.savePost({
-          userId: id,
-          category,
-          title,
-          thumbnail,
-          content: editorValue,
-        });
-        authRouteTo(`/`);
-        alert('게시글 작성 완료');
-      } catch (error) {
-        console.log(error.code);
-      }
-    }
+    postId ? onUpdate() : onSave();
   };
+
   return (
     <WriteContentsPresenter
       {...{
-        handleSubmit,
-        handleChange,
+        onSubmit,
+        onChange,
         category,
         title,
         editorValue,

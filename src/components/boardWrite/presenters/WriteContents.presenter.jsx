@@ -4,8 +4,8 @@ import EditorBox from '../containers/Editor.container';
 import TitleBox from '../TitleBox';
 
 export default function WriteContentsPresenter({
-  handleSubmit,
-  handleChange,
+  onSubmit,
+  onChange,
   category,
   title,
   editorValue,
@@ -15,14 +15,14 @@ export default function WriteContentsPresenter({
 }) {
   return (
     <>
-      <TitleBox categories={categories} onChange={handleChange} category={category} title={title} />
+      <TitleBox categories={categories} onChange={onChange} category={category} title={title} />
       <EditorBox
         editorValue={editorValue}
         setEditorValue={setEditorValue}
         imageList={imageList}
         setThumbnail={setThumbnailImage}
       />
-      <ButtonBox onPostSubmit={handleSubmit} />
+      <ButtonBox onSubmit={onSubmit} />
     </>
   );
 }

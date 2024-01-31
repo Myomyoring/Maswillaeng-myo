@@ -1,34 +1,19 @@
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
-import styled from 'styled-components';
-import tw from 'twin.macro';
+import * as S from '../styles/Editor.style';
 
-const EditorStyle = styled.div`
-  ${tw`
-     py-3
-  `}
-
-  .ql-editor {
-    ${tw`
-        desktop:h-96
-        tablet:h-[600px]
-        mobile:h-[340px]
-      `}
-  }
-`;
-
-export default function EditorPresenter({ modules, quillRef, editorValue, changeEditorValue }) {
+export default function EditorPresenter({ modules, quillRef, editorValue, onChange }) {
   return (
-    <EditorStyle>
+    <S.EditorStyle>
       <ReactQuill
         theme="snow"
         modules={modules}
         ref={quillRef}
         value={editorValue}
-        onChange={changeEditorValue}
+        onChange={onChange}
         placeholder="글을 입력해주세요 ."
       />
-    </EditorStyle>
+    </S.EditorStyle>
   );
 }

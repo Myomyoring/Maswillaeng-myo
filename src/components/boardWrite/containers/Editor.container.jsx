@@ -2,10 +2,13 @@ import { useMemo, useRef } from 'react';
 import { getDownloadURL } from 'firebase/storage';
 import EditorPresenter from '../presenters/Editor.presenter';
 import { imageService } from '../../../services/firebaseService/image.firebase.service.jsx';
+import { useParams } from 'react-router-dom';
 
 export default function EditorContainer({ editorValue, setEditorValue, imageList, setThumbnail }) {
+  const { postId } = useParams();
   const quillRef = useRef(null);
-  const changeEditorValue = (quillValue) => {
+
+  const onChange = (quillValue) => {
     setEditorValue(quillValue);
   };
 
@@ -18,7 +21,7 @@ export default function EditorContainer({ editorValue, setEditorValue, imageList
       const file = input.files[0];
 
       try {
-        const uploadTask = await imageService.uploadImage({ type: 'post_images', filename: file.name, file });
+        const uploadTask = await imageService.uploadImage({ type: 'post_images', filename: postId ?? 'null', file });
 
         uploadTask.on(
           'state_changed',
@@ -113,5 +116,5 @@ export default function EditorContainer({ editorValue, setEditorValue, imageList
     }),
     [],
   );
-  return <EditorPresenter {...{ modules, quillRef, editorValue, changeEditorValue }} />;
+  return <EditorPresenter {...{ modules, quillRef, editorValue, onChange }} />;
 }

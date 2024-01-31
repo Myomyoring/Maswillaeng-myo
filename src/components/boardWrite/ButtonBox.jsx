@@ -1,19 +1,11 @@
 import Button from '../common/EventButton';
 
-import styled from 'styled-components';
-import tw from 'twin.macro';
+import * as S from './styles/ButtonBox.style';
 
-const Buttons = styled.div`
-  ${tw`
-      p-2
-      flex justify-center items-center
-  `}
-`;
-
-export default function ButtonBox({ onPostSubmit }) {
+export default function ButtonBox({ onSubmit }) {
   return (
-    <Buttons>
-      <Button onClick={onPostSubmit}>글 게시</Button>
-    </Buttons>
+    <S.ButtonBoxStyle>
+      <Button onClick={onSubmit}>글 게시</Button>
+    </S.ButtonBoxStyle>
   );
 }
