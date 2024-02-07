@@ -7,12 +7,14 @@ import { useRouter } from '../../../hooks/useRouter.jsx';
 import { userService } from '../../../services/firebaseService/user.firebase.service.jsx';
 
 import SignUpFormPresenter from '../presenters/SignUpForm.presenter.jsx';
+import { imageService } from '../../../services/firebaseService/image.firebase.service.jsx';
+import { getDownloadURL } from 'firebase/storage';
 
 export default function SignUpFormContainer() {
   const [isLoading, setLoading] = useState(false);
   const { authRouteTo } = useRouter();
-  const { signUp } = useAuth();
-  const [userImage, setUserImage] = useState('');
+  const { signUp, setUserInfo } = useAuth();
+  const [userImage, setUserImage] = useState(null);
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -128,14 +130,36 @@ export default function SignUpFormContainer() {
     }
   };
 
+  const setImage = async ({ userId }) => {
+    await imageService.deleteImage({ type: 'profile_images', fileName: 'null' });
+    const uploadTask = await imageService.uploadImage({ type: 'profile_images', fileName: userId, userImage });
+    const url = await getDownloadURL(uploadTask.ref);
+
+    imageService.setImage({ filename: userId, url });
+    return url;
+  };
+
   const onSubmit = async (event) => {
     event.preventDefault();
     if (!emailConfirm || !passwordConfirm || !nicknameConfirm || !phoneNumberConfirm) return;
 
     try {
       setLoading(true);
-      const response = await signUp({ userImage, email, password, nickname, phoneNumber, introduction });
-      if (response === 'success') {
+      const response = await signUp({ email, password });
+      if (response.ok) {
+        let url = null;
+        if (userImage) {
+          url = await setImage({ userId: response.id });
+        }
+        await setUserInfo({
+          userId: response.id,
+          userImage: url ?? userImage,
+          email,
+          password,
+          nickname,
+          phoneNumber,
+          introduction,
+        });
         authRouteTo('/login');
         alert(SIGN_UP_GUIDE.SIGN_UP_SUCCESS_MESSAGE);
       }
