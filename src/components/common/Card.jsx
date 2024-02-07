@@ -122,7 +122,7 @@ const NothingMessage = styled.div`
     `}
 `;
 
-export default function Card({ posts, small }) {
+export default function Card({ posts, guide, small }) {
   return (
     <CardStyle>
       <CardLayout className={small ? 'small' : ''}>
@@ -145,7 +145,7 @@ export default function Card({ posts, small }) {
             </CardContents>
           ))
         ) : (
-          <NothingMessage>{ETC_MESSAGE.FIRST_POST}</NothingMessage>
+          <NothingMessage>{guide ?? ETC_MESSAGE.FIRST_POST}</NothingMessage>
         )}
       </CardLayout>
     </CardStyle>
