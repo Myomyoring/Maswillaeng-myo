@@ -1,60 +1,21 @@
-import styled from 'styled-components';
-import tw from 'twin.macro';
+import * as S from '../styles/index';
 
-const ModalStyle = styled.div`
-  ${tw`
-        w-full h-screen
-        absolute
-        flex justify-center items-center
-        bg-darkgray bg-opacity-70
-        text-sm
-    `}
-`;
-
-const Container = styled.div`
-  ${tw`
-        w-1/2
-        bg-main
-    `}
-`;
-
-const Cap = styled.div`
-  ${tw`
-        flex
-        justify-between items-center
-        border-solid border-t-4
-        
-    `}
-`;
-
-const Title = styled.span`
-  ${tw`
-    mx-5
-    `}
-`;
-
-const CloseButton = styled.button`
-  ${tw`
-        w-10 h-10
-    `}
-`;
-
-export default function ModalPresenter({ modalContentsList, modalId, setModal }) {
+export default function ModalPresenter({ modalContentsList, modalRef, modalId, setModal }) {
   return (
-    <ModalStyle>
-      <Container>
+    <S.ModalStyle>
+      <S.ContentsBox>
         {modalContentsList.map((content) =>
           content.id === modalId ? (
             <div key={content.id}>
-              <Cap>
-                <Title>{content.title}</Title>
-                <CloseButton onClick={() => setModal(false)}>X</CloseButton>
-              </Cap>
+              <S.Cap ref={modalRef}>
+                <S.Title>{content.title}</S.Title>
+                <S.CloseButton onClick={() => setModal(false)}>X</S.CloseButton>
+              </S.Cap>
               {content.view}
             </div>
           ) : null,
         )}
-      </Container>
-    </ModalStyle>
+      </S.ContentsBox>
+    </S.ModalStyle>
   );
 }

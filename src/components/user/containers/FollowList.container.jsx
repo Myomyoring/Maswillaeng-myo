@@ -1,35 +1,19 @@
 import { useEffect, useState } from 'react';
 
 import FollowListPresenter from '../presenters/FollowList.presenter';
-import { followService } from '../../../services/firebaseService/follow.firebase.service';
 import { userService } from '../../../services/firebaseService/user.firebase.service';
 
-export default function FollowerListContainer({ member, followerList, setModal }) {
+export default function FollowerListContainer({ followerList, followingList, setModal }) {
   const [followList, setFollowList] = useState([]);
-  const [guide, setGuide] = useState('');
+  const [modalTitle, setModalTitle] = useState('');
 
-  const getFollowingList = async () => {
-    try {
-      const response = await followService.getFollowings({ userId: member.id });
-      response.forEach((doc) => {
-        let data = doc.data();
-        getUserData(data.followingUsers);
-      });
-    } catch (error) {
-      console.log(error.code);
-    }
-  };
-
-  const getUserData = async (userList) => {
-    let list = [];
-    for (let userId of userList) {
+  const setFollowData = async (followUserList) => {
+    const list = [];
+    for (let userId of followUserList) {
       const response = await userService.getUserById({ userId });
       response.forEach((doc) => {
-        let data = doc.data();
-        list.push({
-          nickname: data.nickname,
-          userImage: data.userImage,
-        });
+        const { nickname, userImage } = doc.data();
+        list.push({ nickname, userImage });
       });
     }
     setFollowList(list);
@@ -37,13 +21,13 @@ export default function FollowerListContainer({ member, followerList, setModal }
 
   useEffect(() => {
     if (followerList) {
-      getUserData(followerList);
-      setGuide('팔로워');
-    } else if (!followerList) {
-      getFollowingList();
-      setGuide('팔로잉');
+      setFollowData(followerList);
+      setModalTitle('팔로워');
+    } else if (followingList) {
+      setFollowData(followingList);
+      setModalTitle('팔로잉');
     }
   }, [setModal]);
 
-  return <FollowListPresenter {...{ followList, guide, setModal }} />;
+  return <FollowListPresenter {...{ followList, modalTitle, setModal }} />;
 }

@@ -1,33 +1,20 @@
-import styled from 'styled-components';
-import tw from 'twin.macro';
 import DisplayMemberProfile from '../../common/DisplayMemberProfile';
 
-const FollowerUsers = styled.div`
-  ${tw`
-      h-auto max-h-[500px]
-      p-5
-      text-xs
-      border-solid
-      overflow-scroll
-      grid grid-cols-3
-    `}
-  span {
-    ${tw`m-1`}
-  }
-`;
+import * as S from '../styles/index.js';
+import DefaultImage from '../../../statics/images/default_user_image.jpg';
 
-export default function FollowListPresenter({ followList, guide, setModal }) {
+export default function FollowListPresenter({ followList, modalTitle, setModal }) {
   return (
-    <FollowerUsers>
+    <S.FollowListStyle>
       {followList.length !== 0 ? (
         followList.map((follow, index) => (
           <span key={index} onClick={() => setModal(false)}>
-            <DisplayMemberProfile nickname={follow.nickname} userImage={follow.userImage} />
+            <DisplayMemberProfile nickname={follow.nickname} userImage={follow.userImage ?? DefaultImage} />
           </span>
         ))
       ) : (
-        <>{`현재 ${guide} 중인 회원이 없습니다.`}</>
+        <>{`현재 ${modalTitle} 중인 회원이 없습니다.`}</>
       )}
-    </FollowerUsers>
+    </S.FollowListStyle>
   );
 }

@@ -17,9 +17,12 @@ export const commentService = {
   saveComment({ postId, userId, comment }) {
     return addDoc(collection(db, 'comments'), { postId, userId, comment, createDate: Date() });
   },
-  // deleteAllComments({ postId }) {
-  //   return deleteDoc(query(collection(db, 'comments'), where('postId', '==', postId)));
-  // },
+  getAllUserComments({ userId }) {
+    return getDocs(query(collection(db, 'comments'), where('userId', '==', userId), orderBy('createDate', 'desc')));
+  },
+  getAllUserReplies({ userId }) {
+    return getDocs(query(collection(db, 'replies'), where('userId', '==', userId), orderBy('createDate', 'desc')));
+  },
   saveReply({ parentId, postId, userId, comment }) {
     return addDoc(collection(db, 'replies'), { parentId, postId, userId, comment, createDate: Date() });
   },

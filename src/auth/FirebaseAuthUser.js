@@ -3,28 +3,38 @@ import { browserLocalPersistence, createUserWithEmailAndPassword, setPersistence
 import { doc, setDoc } from 'firebase/firestore';
 import { encryptPassword } from '../utils/password_encoder';
 import { userService } from '../services/firebaseService/user.firebase.service';
+import { followService } from '../services/firebaseService/follow.firebase.service';
 
 const EXPIRE_TIME = 1000 * 60 * 60 * 24 * 15; // 15일
 
 export default function FirebaseAuthUser() {
-  const signUp = async ({ userImage, email, password, nickname, phoneNumber, introduction }) => {
+  const signUp = async ({ email, password }) => {
     try {
       const response = await createUserWithEmailAndPassword(authService, email, password);
       if (response.user) {
-        const encryptPw = encryptPassword(password);
-        await setDoc(doc(db, 'users', response.user.uid), {
-          userId: response.user.uid,
-          userImage,
-          email,
-          password: encryptPw,
-          nickname,
-          phoneNumber,
-          introduction,
-          followerCnt: 0,
-          followingCnt: 0,
-        });
-        return 'success';
+        return { ok: true, id: response.user.uid };
       }
+    } catch (error) {
+      console.log(error.code);
+    }
+  };
+
+  const setUserInfo = async ({ userId, userImage, email, password, nickname, phoneNumber, introduction }) => {
+    const encryptPw = encryptPassword(password);
+    try {
+      await setDoc(doc(db, 'users', userId), {
+        userId: userId,
+        userImage: userImage,
+        email,
+        password: encryptPw,
+        nickname,
+        phoneNumber,
+        introduction,
+        followerCnt: 0,
+        followingCnt: 0,
+      });
+      await followService.createFollowerDoc({ memberId: userId });
+      await followService.createFollowingDoc({ userId: userId });
     } catch (error) {
       console.log(error.code);
     }
@@ -114,5 +124,5 @@ export default function FirebaseAuthUser() {
     return current ?? null;
   };
 
-  return { logIn, logOut, signUp, currentUser };
+  return { logIn, logOut, signUp, currentUser, setUserInfo };
 }

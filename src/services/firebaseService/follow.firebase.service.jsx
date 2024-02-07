@@ -20,22 +20,16 @@ export const followService = {
   saveFollowing({ memberId, userId }) {
     return updateDoc(doc(db, 'followings', userId), { userId, followingUsers: arrayUnion(memberId) });
   },
-  updateFollowingAddCount({ userId, count }) {
+  updateFollowingCount({ userId, count }) {
     return updateDoc(doc(db, 'users', userId), { followingCnt: count });
   },
-  updateFollowerAddCount({ memberId, count }) {
-    return updateDoc(doc(db, 'users', memberId), { followerCnt: count + 1 });
+  updateFollowerCount({ memberId, count }) {
+    return updateDoc(doc(db, 'users', memberId), { followerCnt: count });
   },
   removeFollower({ memberId, userId }) {
     return updateDoc(doc(db, 'followers', memberId), { userId: memberId, followerUsers: arrayRemove(userId) });
   },
   removeFollowing({ memberId, userId }) {
     return updateDoc(doc(db, 'followings', userId), { userId, followingUsers: arrayRemove(memberId) });
-  },
-  updateFollowingDeleteCount({ userId, count }) {
-    return updateDoc(doc(db, 'users', userId), { followingCnt: count });
-  },
-  updateFollowerDeleteCount({ memberId, count }) {
-    return updateDoc(doc(db, 'users', memberId), { followerCnt: count - 1 });
   },
 };

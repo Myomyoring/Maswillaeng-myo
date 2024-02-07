@@ -1,183 +1,130 @@
-import ProfileImageInput from '../../common/ProfileImageInput';
-import DefaultUserImage from '../../../statics/images/default_user_image.jpg';
 import DuplicateButton from '../../common/EventButton';
+import ProfileImageInput from '../../common/ProfileImageInput';
 import SubmitButton from '../../common/FormButton';
 
-import styled from 'styled-components';
-import tw from 'twin.macro';
+import { SIGN_UP_GUIDE } from '../../../constants';
 
-const Form = styled.form`
-  ${tw`
-        flex flex-wrap
-    `}
-`;
-
-const ProfileImage = styled.div`
-  ${tw`
-        w-1/3
-        px-20
-        flex
-        justify-center items-center
-    `}
-`;
-
-const Div = styled.div`
-  ${tw`
-        w-2/3
-        pl-24
-        // m-auto
-        // flex 
-        // justify-center
-        // items-center
-    `}
-`;
-
-const InputBox = styled.div`
-  ${tw`
-    border-0 border-solid border-b border-gray
-    `}
-`;
-
-const InputName = styled.div`
-  ${tw`
-        py-1
-    `}
-`;
-
-const Guide = styled.span`
-  ${tw`
-      text-xs text-darkgray px-2
-  `}
-`;
-
-const Input = styled.input`
-  ${tw`
-        w-1/2 h-5
-        my-2 p-1
-        bg-white
-        border-none
-        outline
-        outline-gray
-    `}
-`;
-
-const Error = styled.div`
-  ${tw`
-      pb-1
-      text-xs text-point
-  `}
-`;
-
-const Buttons = styled.div`
-  ${tw`
-        w-full
-        flex
-        justify-end
-    `}
-`;
+import * as S from '../styles/EditProfileForm.style';
+import DefaultUserImage from '../../../statics/images/default_user_image.jpg';
 
 export default function EditProfileFormPresenter({
-  onSubmitHandler,
+  user,
+  isLoading,
+  onSubmit,
   form,
-  profileImg,
-  setProfileImg,
-  handleChange,
+  profileImage,
+  setProfileImage,
+  onChange,
   nicknameCheck,
-  errMessage,
+  error,
   passwordCheck,
   newPasswordCheck,
   phoneNumberCheck,
   newPwds,
 }) {
   return (
-    <Form onSubmit={onSubmitHandler}>
-      <ProfileImage>
-        <ProfileImageInput defaultImage={DefaultUserImage} currentImage={profileImg} setImage={setProfileImg} />
-      </ProfileImage>
-
-      <Div>
-        <InputBox>
-          <InputName>
-            * 닉네임
-            <Guide>* 한글, 영문 2~10자 입력</Guide>
-          </InputName>
-          <Input type="text" name="nickname" value={form.nickname} onChange={handleChange} placeholder="닉네임 입력" />
-          <DuplicateButton name="nickname" onClick={nicknameCheck}>
-            중복확인
-          </DuplicateButton>
-          <Error>{errMessage.nickErr}</Error>
-        </InputBox>
-        <InputBox>
-          <InputName>* 현재 비밀번호</InputName>
-          <Input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            onBlur={passwordCheck}
-            placeholder="비밀번호 입력"
+    <S.EditProfileFormStyle>
+      <S.Form onSubmit={onSubmit}>
+        <S.EditProfileImage>
+          <ProfileImageInput
+            defaultImage={DefaultUserImage}
+            currentImage={profileImage}
+            setImage={setProfileImage}
+            userId={user.userId}
           />
-          <Error>{errMessage.passwordErr}</Error>
-        </InputBox>
-        <InputBox>
-          <InputName>
-            새 비밀번호
-            <Guide>* 영문, 숫자 포함 8~16자 입력</Guide>
-          </InputName>
-          <Input
-            type="password"
-            name="newPwd"
-            value={newPwds.newPwd}
-            onChange={handleChange}
-            onBlur={newPasswordCheck}
-            placeholder="새 비밀번호 입력"
-          />
-        </InputBox>
-        <InputBox>
-          <InputName>새 비밀번호 확인</InputName>
-          <Input
-            type="password"
-            name="newConfirmPwd"
-            value={newPwds.newConfirmPwd}
-            onChange={handleChange}
-            onBlur={newPasswordCheck}
-            placeholder="새 비밀번호 확인"
-          />
-          <Error>{errMessage.newPwdErr}</Error>
-        </InputBox>
-        <InputBox>
-          <InputName>
-            * 휴대전화
-            <Guide>ex) 01012345678</Guide>
-          </InputName>
-          <Input
-            type="text"
-            name="phoneNumber"
-            value={form.phoneNumber}
-            onChange={handleChange}
-            onBlur={phoneNumberCheck}
-            placeholder="전화번호 입력"
-          />
-          <Error>{errMessage.phoneNumberErr}</Error>
-        </InputBox>
-        <InputBox>
-          <InputName>
-            자기소개
-            <Guide>* 최대 30자까지 입력 가능</Guide>
-          </InputName>
-          <Input
-            type="text"
-            name="introduction"
-            value={form.introduction}
-            onChange={handleChange}
-            placeholder="소개글을 작성해주세요"
-            maxLength="30"
-          />
-        </InputBox>
-      </Div>
-      <Buttons>
-        <SubmitButton>수정</SubmitButton>
-      </Buttons>
-    </Form>
+        </S.EditProfileImage>
+        <S.UserInfoBox>
+          <S.InputBox>
+            <S.InputTitle>
+              * 닉네임
+              <S.GuideText>{SIGN_UP_GUIDE.NICKNAME}</S.GuideText>
+            </S.InputTitle>
+            <S.Div>
+              <S.Input
+                type="text"
+                name="nickname"
+                value={form.nickname}
+                onChange={onChange}
+                placeholder="닉네임 입력"
+              />
+              <DuplicateButton name="nickname" onClick={nicknameCheck} disabled={isLoading}>
+                {isLoading ? '로딩 중' : '중복확인'}
+              </DuplicateButton>
+            </S.Div>
+            <S.ErrorBox>{error.nickname}</S.ErrorBox>
+          </S.InputBox>
+          <S.InputBox>
+            <S.InputTitle>* 현재 비밀번호</S.InputTitle>
+            <S.Input
+              type="password"
+              name="password"
+              value={form.password}
+              onChange={onChange}
+              onBlur={passwordCheck}
+              placeholder="비밀번호 입력"
+            />
+            <S.ErrorBox>{error.password}</S.ErrorBox>
+          </S.InputBox>
+          <S.InputBox>
+            <S.InputTitle>
+              새 비밀번호
+              <S.GuideText>{SIGN_UP_GUIDE.PASSWORD}</S.GuideText>
+            </S.InputTitle>
+            <S.Input
+              type="password"
+              name="newPwd"
+              value={newPwds.newPwd}
+              onChange={onChange}
+              onBlur={newPasswordCheck}
+              placeholder="새 비밀번호 입력"
+            />
+          </S.InputBox>
+          <S.InputBox>
+            <S.InputTitle>새 비밀번호 확인</S.InputTitle>
+            <S.Input
+              type="password"
+              name="newConfirmPwd"
+              value={newPwds.newConfirmPwd}
+              onChange={onChange}
+              onBlur={newPasswordCheck}
+              placeholder="새 비밀번호 확인"
+            />
+            <S.ErrorBox>{error.newPwd}</S.ErrorBox>
+          </S.InputBox>
+          <S.InputBox>
+            <S.InputTitle>
+              * 휴대전화
+              <S.GuideText>{SIGN_UP_GUIDE.PHONE_NUMBER}</S.GuideText>
+            </S.InputTitle>
+            <S.Input
+              type="text"
+              name="phoneNumber"
+              value={form.phoneNumber}
+              onChange={onChange}
+              onBlur={phoneNumberCheck}
+              placeholder="전화번호 입력"
+            />
+            <S.ErrorBox>{error.phoneNumber}</S.ErrorBox>
+          </S.InputBox>
+          <S.InputBox>
+            <S.InputTitle>
+              자기소개
+              <S.GuideText>{SIGN_UP_GUIDE.INTRODUCTION}</S.GuideText>
+            </S.InputTitle>
+            <S.Input
+              type="text"
+              name="introduction"
+              value={form.introduction}
+              onChange={onChange}
+              placeholder="소개글을 작성해주세요"
+              maxLength="30"
+            />
+          </S.InputBox>
+        </S.UserInfoBox>
+        <S.ButtonBox>
+          <SubmitButton disabled={isLoading}>{isLoading ? '로딩 중' : '수정'}</SubmitButton>
+        </S.ButtonBox>
+      </S.Form>
+    </S.EditProfileFormStyle>
   );
 }

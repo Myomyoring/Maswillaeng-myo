@@ -5,12 +5,15 @@ import { useAuth } from '../../../contexts/ProvideAuthContext';
 import EditProfileFormPresenter from '../presenters/EditProfileForm.presenter';
 import { userService } from '../../../services/firebaseService/user.firebase.service';
 import { encryptPassword } from '../../../utils/password_encoder';
-import { CONFIRM_MESSAGE } from '../../../constants';
+import { CONFIRM_MESSAGE, USER_MESSAGE } from '../../../constants';
+import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import { authService } from '../../../firebase-config';
 
 export default function EditProfileFormContainer({ setModal }) {
-  const { currentUser, logout } = useAuth();
+  const [isLoading, setLoading] = useState(false);
+  const { currentUser, logOut } = useAuth();
   const user = currentUser();
-  const [profileImg, setProfileImg] = useState(user.userImage);
+  const [profileImage, setProfileImage] = useState(user.userImage);
   const [form, setForm] = useState({
     nickname: user.nickname,
     password: '',
@@ -18,11 +21,11 @@ export default function EditProfileFormContainer({ setModal }) {
     introduction: user.introduction,
   });
   const { nickname, password, phoneNumber, introduction } = form;
-  const [errMessage, setErrMessage] = useState({
-    nickErr: '',
-    passwordErr: '',
-    newPwdErr: '',
-    phoneNumberErr: '',
+  const [error, setError] = useState({
+    nickname: '',
+    password: '',
+    newPwd: '',
+    phoneNumber: '',
   });
   const [newPwds, setNewPwds] = useState({
     newPwd: '',
@@ -30,8 +33,8 @@ export default function EditProfileFormContainer({ setModal }) {
   });
   const { newPwd, newConfirmPwd } = newPwds;
 
-  const handleChange = ({ target }) => {
-    const { name, value } = target;
+  const onChange = (event) => {
+    const { name, value } = event.target;
 
     if (name === 'newPwd' || name === 'newConfirmPwd') {
       setNewPwds({ ...newPwds, [name]: value });
@@ -48,133 +51,152 @@ export default function EditProfileFormContainer({ setModal }) {
   const nicknameCheck = async (event) => {
     event.preventDefault();
     if (!nicknameRule(nickname)) {
-      setErrMessage({
-        nickErr: CONFIRM_MESSAGE.NICKNAME_RULE_ERROR,
+      setError({
+        nickname: CONFIRM_MESSAGE.NICKNAME_RULE_ERROR,
       });
       setNicknameConfirm(false);
       return;
-    } else {
-      try {
-        const response = await userService.duplicateNickName({ nickname });
-        if (response.empty) {
-          setErrMessage({ nickErr: CONFIRM_MESSAGE.PASS_MESSAGE });
-          setNicknameConfirm(true);
-        } else if (nickname === user.nickname) {
-          setErrMessage({ nickErr: '현재 닉네임 입니다.' });
-          setNicknameConfirm(true);
-        } else {
-          setErrMessage({ nickErr: CONFIRM_MESSAGE.DUPLICATE_ERROR });
-          setNicknameConfirm(false);
-        }
-      } catch (error) {
-        console.log(error.code);
+    }
+    try {
+      setLoading(true);
+      const response = await userService.duplicateNickName({ nickname });
+      if (response.empty) {
+        setError({ nickname: CONFIRM_MESSAGE.PASS_MESSAGE });
+        setNicknameConfirm(true);
+      } else if (nickname === user.nickname) {
+        setError({ nickname: '' });
+        setNicknameConfirm(true);
+      } else {
+        setError({ nickname: CONFIRM_MESSAGE.DUPLICATE_ERROR });
+        setNicknameConfirm(false);
       }
+    } catch (error) {
+      console.log(error.code);
+    } finally {
+      setLoading(false);
     }
   };
 
   const passwordCheck = async () => {
     if (password === '') {
-      setErrMessage({ passwordErr: CONFIRM_MESSAGE.PASSWORD_EMPTY_ERROR });
+      setError({ password: CONFIRM_MESSAGE.PASSWORD_EMPTY_ERROR });
       setPasswordConfirm(false);
       return;
     }
     try {
-      const pwd = encryptPassword(password);
-      const response = await userService.getUserById({ userId: user.id });
+      const encryptPw = encryptPassword(password);
+      const response = await userService.getUserById({ userId: user.userId });
       response.forEach((doc) => {
-        let data = doc.data();
-        if (data.password === pwd) {
-          setErrMessage({ passwordErr: CONFIRM_MESSAGE.PASSWORD_PASS });
-          setPasswordConfirm(true);
-        } else {
-          setErrMessage({ passwordErr: CONFIRM_MESSAGE.PASSWORD_CONFIRM_ERROR });
+        const { password } = doc.data();
+        if (password !== encryptPw) {
+          setError({ password: CONFIRM_MESSAGE.PASSWORD_CONFIRM_ERROR });
           setPasswordConfirm(false);
           return;
         }
       });
+      setError({ password: CONFIRM_MESSAGE.PASSWORD_PASS });
+      setPasswordConfirm(true);
     } catch (error) {
       console.log(error.code);
-      return;
     }
   };
 
   const phoneNumberCheck = () => {
     if (phoneNumber === '' || !phoneNumberRule(phoneNumber)) {
-      setErrMessage({
-        phoneNumberErr: CONFIRM_MESSAGE.PHONE_NUMBER_RULE_ERROR,
+      setError({
+        phoneNumber: CONFIRM_MESSAGE.PHONE_NUMBER_RULE_ERROR,
       });
       setPhoneConfirm(false);
       return;
-    } else {
-      setErrMessage({
-        phoneNumberErr: '',
-      });
-      setPhoneConfirm(true);
     }
+    setError({ phoneNumber: '' });
+    setPhoneConfirm(true);
   };
 
   const newPasswordCheck = () => {
     if (newPwd === '' && newConfirmPwd === '') {
-      setErrMessage({ newPwdErr: '' });
+      setError({ newPwd: '' });
       setNewPasswordConfirm(false);
       return;
     }
-
     if (newPwd === newConfirmPwd) {
-      if (passwordRule(newPwd)) {
-        setErrMessage({ newPwdErr: CONFIRM_MESSAGE.PASS_MESSAGE });
-        setNewPasswordConfirm(true);
-      } else {
-        setErrMessage({ newPwdErr: CONFIRM_MESSAGE.PASSWORD_RULE_ERROR });
+      if (!passwordRule(newPwd)) {
+        setError({ newPwd: CONFIRM_MESSAGE.PASSWORD_RULE_ERROR });
         setNewPasswordConfirm(false);
         return;
       }
+      setError({ newPwd: CONFIRM_MESSAGE.PASS_MESSAGE });
+      setNewPasswordConfirm(true);
     } else {
-      setErrMessage({ newPwdErr: CONFIRM_MESSAGE.PASSWORD_CONFIRM_ERROR });
+      setError({ newPwd: CONFIRM_MESSAGE.PASSWORD_CONFIRM_ERROR });
       setNewPasswordConfirm(false);
       return;
     }
   };
 
-  const onSubmitHandler = async (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
-
-    if (nicknameConfirm && passwordConfirm && phoneConfirm) {
-      try {
-        if (newPasswordConfirm) {
-          await userService.updatePassword({ newPassword: newPwds.newPwd });
-        }
-        const pwd = encodePassword(newPasswordConfirm ? newPwds.newPwd : password);
-        await userService.updateUser({
-          userId: user.id,
-          userImage: profileImg,
-          password: pwd,
-          nickname,
-          phoneNumber,
-          introduction,
-        });
-        await logout();
-        setModal(false);
-        alert('프로필 수정이 완료되었습니다. 다시 로그인 해주세요!');
-      } catch (error) {
-        console.log(error.code);
-      }
-    } else {
-      alert('입력한 정보를 다시 확인해주세요.');
+    if (user.nickname === nickname) {
+      setNicknameConfirm(true);
+    }
+    if (!nicknameConfirm || !passwordConfirm || !phoneConfirm) {
+      alert(USER_MESSAGE.EDIT_PROFILE_ERROR);
       return;
     }
+    try {
+      setLoading(true);
+      if (newPasswordConfirm) {
+        const result = await userCredential(password);
+        if (!result) return;
+        await userService.updatePassword({ newPassword: newPwds.newPwd });
+      }
+      const encryptPw = encryptPassword(newPasswordConfirm ? newPwds.newPwd : password);
+      console.log(profileImage);
+      await userService.updateUser({
+        userId: user.userId,
+        userImage: profileImage,
+        password: encryptPw,
+        nickname,
+        phoneNumber,
+        introduction,
+      });
+      await logOut();
+      setModal(false);
+      alert(USER_MESSAGE.EDIT_PROFILE_SUCCESS_MESSAGE);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const userCredential = async (pwd) => {
+    const user = authService.currentUser;
+    const authCredential = EmailAuthProvider.credential(user.email, pwd);
+
+    let result = false;
+    await reauthenticateWithCredential(user, authCredential)
+      .then(() => {
+        result = true;
+      })
+      .catch((error) => {
+        console.log(error);
+        result = false;
+      });
+    return result;
   };
 
   return (
     <EditProfileFormPresenter
       {...{
-        onSubmitHandler,
+        user,
+        isLoading,
+        onSubmit,
         form,
-        profileImg,
-        setProfileImg,
-        handleChange,
+        profileImage,
+        setProfileImage,
+        onChange,
         nicknameCheck,
-        errMessage,
+        error,
         passwordCheck,
         newPasswordCheck,
         phoneNumberCheck,

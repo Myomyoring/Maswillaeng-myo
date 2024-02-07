@@ -8,6 +8,9 @@ export const CONFIRM_MESSAGE = {
   PASSWORD_RULE_ERROR: '영문과 숫자를 포함하여 8~15자를 작성해주세요',
   PASSWORD_PASS_MESSAGE: '비밀번호가 일치합니다',
   PHONE_NUMBER_RULE_ERROR: "'-' 를 제외한 10~11자의 올바른 핸드폰 번호를 작성해주세요.",
+  MEMBER_DELETE_ERROR: '탈퇴를 처리하는 중 문제가 생겼습니다.',
+  MEMBER_DELETE_MESSAGE: '정말 탈퇴하시겠습니까?',
+  MEMBER_DELETE_SUCCESS_MESSAGE: '이용해주셔서 감사합니다.',
 };
 
 export const LOGIN_MESSAGE = {
@@ -29,6 +32,11 @@ export const WRITE_MESSAGE = {
   EMPTY_MESSAGE: '카테고리 또는 제목을 설정해주세요.',
   WRITE_SUCCESS_MESSAGE: '게시글 작성 완료',
   UPDATE_SUCCESS_MESSAGE: '게시글 수정 완료',
+};
+
+export const USER_MESSAGE = {
+  EDIT_PROFILE_SUCCESS_MESSAGE: '프로필 수정이 완료되었습니다. 다시 로그인 해주세요!',
+  EDIT_PROFILE_ERROR: '입력한 정보를 다시 확인해주세요.',
 };
 
 export const ETC_MESSAGE = {

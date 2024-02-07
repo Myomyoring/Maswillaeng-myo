@@ -3,8 +3,8 @@ import { db, storage } from '../../firebase-config';
 import { addDoc, collection, deleteDoc, query, where } from 'firebase/firestore';
 
 export const imageService = {
-  deleteImage({ type, filename }) {
-    return deleteObject(ref(storage, `${type}/${filename}`));
+  deleteImage({ type, fileName }) {
+    return deleteObject(ref(storage, `${type}/${fileName}`));
   },
   uploadImage({ type, fileName, file }) {
     return uploadBytesResumable(ref(storage, `${type}/${fileName}`), file);
