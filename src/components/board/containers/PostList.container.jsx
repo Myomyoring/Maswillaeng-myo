@@ -53,7 +53,7 @@ export default function PostListContainer() {
         const userDoc = await userService.getUserById({ userId: data.userId });
         userDoc.forEach((doc) => {
           const user = doc.data();
-          if (user.id === data.userId) {
+          if (user.userId === data.userId) {
             updateData.push({ ...data, nickname: user.nickname });
           }
         });
