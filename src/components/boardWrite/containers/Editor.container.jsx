@@ -4,7 +4,14 @@ import EditorPresenter from '../presenters/Editor.presenter';
 import { imageService } from '../../../services/firebaseService/image.firebase.service.jsx';
 import { useParams } from 'react-router-dom';
 
-export default function EditorContainer({ editorValue, setEditorValue, imageList, setThumbnail }) {
+export default function EditorContainer({
+  editorValue,
+  setEditorValue,
+  imageList,
+  setThumbnailImage,
+  setNewPostId,
+  getCreateNewPostId,
+}) {
   const { postId } = useParams();
   const quillRef = useRef(null);
 
@@ -12,49 +19,33 @@ export default function EditorContainer({ editorValue, setEditorValue, imageList
     setEditorValue(quillValue);
   };
 
-  const imageHandler = () => {
+  const imageHandler = async () => {
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
     input.setAttribute('accept', 'image/*');
-
     input.onchange = async () => {
       const file = input.files[0];
-
       try {
-        const uploadTask = await imageService.uploadImage({ type: 'post_images', filename: postId ?? 'null', file });
-
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log('Upload is ' + progress + '% done');
-            switch (snapshot.state) {
-              case 'paused':
-                console.log('Upload is paused');
-                break;
-              case 'running':
-                console.log('Upload is running');
-                break;
-            }
-          },
-          (error) => {
-            console.log(error.code);
-          },
-          () => {
-            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-              imageList.push(downloadURL);
-              setThumbnail(imageList);
-              const range = quillRef.current.getEditor().getSelection();
-              quillRef.current.getEditor().insertEmbed(range.index, 'image', downloadURL);
-              input.value = '';
-            });
-          },
-        );
+        let id = '';
+        if (!postId) {
+          id = await getCreateNewPostId();
+          setNewPostId(id);
+        }
+        const uploadTask = await imageService.uploadImage({
+          type: 'post_images',
+          fileName: `${postId ? postId : id}/${file.name}`,
+          file,
+        });
+        const url = await getDownloadURL(uploadTask.ref);
+        imageList.push(url);
+        setThumbnailImage(imageList);
+        const range = quillRef.current.getEditor().getSelection();
+        quillRef.current.getEditor().insertEmbed(range.index, 'image', url);
+        input.value = '';
       } catch (error) {
         console.log(error.code);
       }
     };
-
     input.click();
   };
 

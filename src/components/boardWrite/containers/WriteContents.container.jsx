@@ -7,12 +7,15 @@ import { postService } from '../../../services/firebaseService/post.firebase.ser
 import WriteContentsPresenter from '../presenters/WriteContents.presenter';
 import { WRITE_MESSAGE } from '../../../constants';
 
+import EditorBox from '../containers/Editor.container';
+
 export default function WriteContentsContainer() {
   const { postId, writer } = useParams();
   const { authRouteTo } = useRouter();
   const { currentUser } = useAuth();
   const { userId, nickname } = currentUser();
 
+  const [newPostId, setNewPostId] = useState(null);
   const [postForm, setPostForm] = useState({
     category: '',
     title: '',
@@ -21,8 +24,7 @@ export default function WriteContentsContainer() {
   const { category, title } = postForm;
   const [editorValue, setEditorValue] = useState('');
   const [thumbnail, setThumbnail] = useState('');
-  const imageList = useState([]);
-
+  const imageList = [];
   useEffect(() => {
     if (!postId) return;
     setPostData();
@@ -37,7 +39,8 @@ export default function WriteContentsContainer() {
           alert(WRITE_MESSAGE.WRITER_ERROR);
           return;
         }
-        return response.data();
+        const { category, title, createDate, content, thumbnail } = response.data();
+        return { category, title, createDate, content, thumbnail };
       }
     } catch (error) {
       console.log(error.code);
@@ -59,6 +62,18 @@ export default function WriteContentsContainer() {
     if (imgList.length > 0) {
       setThumbnail(imgList[0]);
     }
+  };
+
+  const getCreateNewPostId = async () => {
+    // submit 동작 없이 url 이동할 경우 정크 데이터 제거해야 함
+    const response = await postService.savePost({
+      userId: '',
+      category: '',
+      title: '',
+      thumbnail: '',
+      content: '',
+    });
+    return response.id;
   };
 
   const onChange = (event) => {
@@ -86,17 +101,19 @@ export default function WriteContentsContainer() {
 
   const onSave = async () => {
     try {
-      await postService.savePost({
+      await postService.updatePost({
+        postId: newPostId,
         userId,
         category,
         title,
         thumbnail,
         content: editorValue,
+        createDate: Date(),
       });
       authRouteTo(`/`);
       alert(WRITE_MESSAGE.WRITE_SUCCESS_MESSAGE);
     } catch (error) {
-      console.log(error.code);
+      console.log(error);
     }
   };
 
@@ -116,11 +133,9 @@ export default function WriteContentsContainer() {
         onChange,
         category,
         title,
-        editorValue,
-        setEditorValue,
-        imageList,
-        setThumbnailImage,
       }}
-    />
+    >
+      <EditorBox {...{ editorValue, setEditorValue, imageList, setThumbnailImage, setNewPostId, getCreateNewPostId }} />
+    </WriteContentsPresenter>
   );
 }

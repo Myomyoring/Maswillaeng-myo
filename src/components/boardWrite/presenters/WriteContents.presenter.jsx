@@ -1,28 +1,15 @@
 import { categories } from '../../../constants';
 import ButtonBox from '../ButtonBox';
-import EditorBox from '../containers/Editor.container';
 import TitleBox from '../TitleBox';
 
-export default function WriteContentsPresenter({
-  onSubmit,
-  onChange,
-  category,
-  title,
-  editorValue,
-  setEditorValue,
-  imageList,
-  setThumbnailImage,
-}) {
+import * as S from '../styles/index';
+
+export default function WriteContentsPresenter({ onSubmit, onChange, category, title, children }) {
   return (
-    <>
-      <TitleBox categories={categories} onChange={onChange} category={category} title={title} />
-      <EditorBox
-        editorValue={editorValue}
-        setEditorValue={setEditorValue}
-        imageList={imageList}
-        setThumbnail={setThumbnailImage}
-      />
+    <S.WriteContentsStyle>
+      <TitleBox {...{ categories, onChange, category, title }} />
+      {children}
       <ButtonBox onSubmit={onSubmit} />
-    </>
+    </S.WriteContentsStyle>
   );
 }
