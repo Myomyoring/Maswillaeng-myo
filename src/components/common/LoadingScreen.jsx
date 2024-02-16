@@ -1,3 +1,5 @@
+import * as S from './styles/LoadingScreen.style';
+
 export default function LoadingScreen() {
-  return <div>로딩 중...</div>;
+  return <S.LoadingScreenStyle>로딩 중...</S.LoadingScreenStyle>;
 }
