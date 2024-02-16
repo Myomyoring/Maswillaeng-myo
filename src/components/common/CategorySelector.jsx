@@ -1,32 +1,19 @@
-import styled from 'styled-components';
-import tw from 'twin.macro';
-
-const CategorySelectorStyle = styled.select`
-  ${tw`
-      p-3 
-      font-semibold text-center text-white bg-point
-      border-none
-
-      desktop:hidden
-      tablet:hidden
-      mobile:block
-    `}
-`;
+import * as S from './styles/CategorySelector.style';
 
 export default function CategorySelector({ categories, setTab, activeTabId }) {
   return (
-    <CategorySelectorStyle
+    <S.CategorySelectorStyle
       value={activeTabId}
-      onChange={(e) => {
-        setTab(+e.target.value);
+      onChange={(event) => {
+        setTab(+event.target.value);
       }}
     >
-      <option value="">카테고리 선택</option>
+      <S.CategoryOption value="">카테고리 선택</S.CategoryOption>
       {categories.map((category) => (
-        <option key={category.id} value={category.id}>
+        <S.CategoryOption key={category.id} value={category.id}>
           {category.title}
-        </option>
+        </S.CategoryOption>
       ))}
-    </CategorySelectorStyle>
+    </S.CategorySelectorStyle>
   );
 }
