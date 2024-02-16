@@ -1,17 +1,11 @@
 import { useMemo, useRef } from 'react';
-import { getDownloadURL } from 'firebase/storage';
-import EditorPresenter from '../presenters/Editor.presenter';
-import { imageService } from '../../../services/firebaseService/image.firebase.service.jsx';
 import { useParams } from 'react-router-dom';
+import { getDownloadURL } from 'firebase/storage';
 
-export default function EditorContainer({
-  editorValue,
-  setEditorValue,
-  imageList,
-  setThumbnailImage,
-  setNewPostId,
-  getCreateNewPostId,
-}) {
+import { imageService } from '../../../services/firebaseService/image.firebase.service.jsx';
+import EditorPresenter from '../presenters/Editor.presenter';
+
+export default function EditorContainer({ editorValue, setEditorValue, imageList, setThumbnailImage, newPostId }) {
   const { postId } = useParams();
   const quillRef = useRef(null);
 
@@ -26,14 +20,9 @@ export default function EditorContainer({
     input.onchange = async () => {
       const file = input.files[0];
       try {
-        let id = '';
-        if (!postId) {
-          id = await getCreateNewPostId();
-          setNewPostId(id);
-        }
         const uploadTask = await imageService.uploadImage({
           type: 'post_images',
-          fileName: `${postId ? postId : id}/${file.name}`,
+          fileName: `${postId ? postId : newPostId}/${file.name}`,
           file,
         });
         const url = await getDownloadURL(uploadTask.ref);

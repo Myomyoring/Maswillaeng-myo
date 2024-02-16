@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { onSnapshot } from 'firebase/firestore';
 
+import { likeService } from '../../../services/firebaseService/like.firebase.service';
+import { postService } from '../../../services/firebaseService/post.firebase.service';
 import { useAuth } from '../../../contexts/ProvideAuthContext';
 import { useRouter } from '../../../hooks/useRouter';
-import { postService } from '../../../services/firebaseService/post.firebase.service';
-import WriteContentsPresenter from '../presenters/WriteContents.presenter';
 import { WRITE_MESSAGE } from '../../../constants';
 
 import EditorBox from '../containers/Editor.container';
+import WriteContentsPresenter from '../presenters/WriteContents.presenter';
 
 export default function WriteContentsContainer() {
   const { postId, writer } = useParams();
@@ -15,6 +17,7 @@ export default function WriteContentsContainer() {
   const { currentUser } = useAuth();
   const { userId, nickname } = currentUser();
 
+  const [submitState, setSubmitState] = useState(false);
   const [newPostId, setNewPostId] = useState(null);
   const [postForm, setPostForm] = useState({
     category: '',
@@ -25,47 +28,49 @@ export default function WriteContentsContainer() {
   const [editorValue, setEditorValue] = useState('');
   const [thumbnail, setThumbnail] = useState('');
   const imageList = [];
-  useEffect(() => {
-    if (!postId) return;
-    setPostData();
-  }, [postId]);
 
-  const getPost = async () => {
-    try {
-      const response = await postService.getPost({ postId });
-      if (response.exists()) {
-        if (writer !== nickname) {
-          authRouteTo(`/`);
-          alert(WRITE_MESSAGE.WRITER_ERROR);
-          return;
-        }
-        const { category, title, createDate, content, thumbnail } = response.data();
-        return { category, title, createDate, content, thumbnail };
+  useEffect(() => {
+    if (postId) {
+      setPostData();
+    } else {
+      getCreateNewPostId();
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (newPostId && !submitState) {
+        postService.deletePost({ postId: newPostId });
       }
+    };
+  }, [newPostId, submitState]);
+
+  const setPostData = async () => {
+    try {
+      const postQuery = postService.getPostQuery({ postId });
+      onSnapshot(postQuery, (snapshot) => {
+        if (!snapshot.empty) {
+          if (writer !== nickname) {
+            authRouteTo(`/`);
+            alert(WRITE_MESSAGE.WRITER_ERROR);
+            return;
+          }
+          const { category, title, createDate, content, thumbnail } = snapshot.data();
+          setPostForm({
+            category: category,
+            title: title,
+            createDate: createDate,
+          });
+          setEditorValue(content);
+          setThumbnail(thumbnail);
+        }
+      });
     } catch (error) {
       console.log(error.code);
     }
   };
 
-  const setPostData = async () => {
-    const { category, title, createDate, content, thumbnail } = await getPost();
-    setPostForm({
-      category: category,
-      title: title,
-      createDate: createDate,
-    });
-    setEditorValue(content);
-    setThumbnail(thumbnail);
-  };
-
-  const setThumbnailImage = (imgList) => {
-    if (imgList.length > 0) {
-      setThumbnail(imgList[0]);
-    }
-  };
-
   const getCreateNewPostId = async () => {
-    // submit 동작 없이 url 이동할 경우 정크 데이터 제거해야 함
     const response = await postService.savePost({
       userId: '',
       category: '',
@@ -73,7 +78,16 @@ export default function WriteContentsContainer() {
       thumbnail: '',
       content: '',
     });
-    return response.id;
+    const postQuery = postService.getPostQuery({ postId: response.id });
+    onSnapshot(postQuery, (snapshot) => {
+      setNewPostId(snapshot.id);
+    });
+  };
+
+  const setThumbnailImage = (imgList) => {
+    if (imgList.length > 0) {
+      setThumbnail(imgList[0]);
+    }
   };
 
   const onChange = (event) => {
@@ -101,6 +115,7 @@ export default function WriteContentsContainer() {
 
   const onSave = async () => {
     try {
+      setSubmitState(true);
       await postService.updatePost({
         postId: newPostId,
         userId,
@@ -110,20 +125,23 @@ export default function WriteContentsContainer() {
         content: editorValue,
         createDate: Date(),
       });
-      authRouteTo(`/`);
-      alert(WRITE_MESSAGE.WRITE_SUCCESS_MESSAGE);
+      await likeService.createLikeDoc({ postId: newPostId });
+      if (submitState) {
+        authRouteTo(`/`);
+        alert(WRITE_MESSAGE.WRITE_SUCCESS_MESSAGE);
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
     if (category === '' || title === '') {
       alert(WRITE_MESSAGE.EMPTY_MESSAGE);
       return;
     }
-    postId ? onUpdate() : onSave();
+    postId ? await onUpdate() : await onSave();
   };
 
   return (
@@ -135,7 +153,9 @@ export default function WriteContentsContainer() {
         title,
       }}
     >
-      <EditorBox {...{ editorValue, setEditorValue, imageList, setThumbnailImage, setNewPostId, getCreateNewPostId }} />
+      {(newPostId || postId) && (
+        <EditorBox {...{ editorValue, setEditorValue, imageList, setThumbnailImage, newPostId }} />
+      )}
     </WriteContentsPresenter>
   );
 }
