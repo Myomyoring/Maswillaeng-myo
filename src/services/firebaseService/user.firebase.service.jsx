@@ -21,11 +21,14 @@ export const userService = {
   duplicateNickName({ nickname }) {
     return getDocs(query(collection(db, 'users'), where('nickname', '==', nickname)));
   },
+  getUserByIdQuery({ userId }) {
+    return query(collection(db, 'users'), where('userId', '==', userId));
+  },
   getUserById({ userId }) {
     return getDocs(query(collection(db, 'users'), where('userId', '==', userId)));
   },
   getUserByNickname({ nickname }) {
-    return getDocs(query(collection(db, 'users'), where('nickname', '==', nickname)));
+    return query(collection(db, 'users'), where('nickname', '==', nickname));
   },
   logIn({ email, password }) {
     return signInWithEmailAndPassword(authService, email, password);

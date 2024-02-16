@@ -22,11 +22,14 @@ export const postService = {
   getSelectedTabPost({ tabName }) {
     return getDocs(query(collection(db, 'posts'), where('category', '==', tabName), orderBy('createDate', 'desc')));
   },
+  getPostQuery({ postId }) {
+    return query(doc(db, 'posts', postId));
+  },
   getPost({ postId }) {
-    return getDoc(doc(db, 'posts', postId));
+    return getDoc(query(doc(db, 'posts', postId)));
   },
   getUserWritePost({ userId }) {
-    return getDocs(query(collection(db, 'posts'), where('userId', '==', userId), orderBy('createDate', 'desc')));
+    return query(collection(db, 'posts'), where('userId', '==', userId), orderBy('createDate', 'desc'));
   },
   savePost({ userId, category, title, thumbnail, content }) {
     return addDoc(collection(db, 'posts'), {
@@ -37,6 +40,7 @@ export const postService = {
       content,
       createDate: Date(),
       likeCnt: 0,
+      commentCount: 0,
     });
   },
   updatePost({ postId, userId, title, category, thumbnail, content, createDate }) {

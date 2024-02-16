@@ -1,4 +1,15 @@
-import { arrayRemove, arrayUnion, collection, doc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import {
+  arrayRemove,
+  arrayUnion,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 import { db } from '../../firebase-config';
 
 export const followService = {
@@ -31,5 +42,11 @@ export const followService = {
   },
   removeFollowing({ memberId, userId }) {
     return updateDoc(doc(db, 'followings', userId), { userId, followingUsers: arrayRemove(memberId) });
+  },
+  deleteAllFollowing({ userId }) {
+    return deleteDoc(doc(db, 'followings', userId));
+  },
+  deleteAllFollower({ userId }) {
+    return deleteDoc(doc(db, 'followers', userId));
   },
 };
