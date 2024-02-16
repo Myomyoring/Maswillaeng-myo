@@ -1,27 +1,15 @@
 import { Link } from 'react-router-dom';
 
-import styled from 'styled-components';
-import tw from 'twin.macro';
-
-const LogoStyle = styled.div`
-  ${tw``}
-`;
-const Text = styled.span`
-  ${tw`
-        font-bold text-black
-    `}
-  ${(props) => (props.color === 'white' ? tw`text-white` : tw``)}
-  ${(props) => (props.size === 'big' ? tw`text-5xl` : tw`text-3xl`)}
-`;
+import * as S from './styles/Logo.style';
 
 export default function Logo({ color, size }) {
   return (
-    <LogoStyle>
+    <S.LogoStyle>
       <Link to={'/'}>
-        <Text color={color} size={size}>
+        <S.Text color={color} size={size}>
           Mashillaeng
-        </Text>
+        </S.Text>
       </Link>
-    </LogoStyle>
+    </S.LogoStyle>
   );
 }
