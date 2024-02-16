@@ -1,16 +1,5 @@
-import { Link } from 'react-router-dom';
-
-import styled from 'styled-components';
-import tw from 'twin.macro';
-
-const Anchor = styled(Link)`
-  ${tw`
-    p-3
-    bg-point
-    text-white
-  `}
-`;
+import * as S from './styles/Buttons.style';
 
 export default function LinkButton({ children, to }) {
-  return <Anchor {...{ to }}>{children}</Anchor>;
+  return <S.LinkButtonStyle {...{ to }}>{children}</S.LinkButtonStyle>;
 }
