@@ -7,9 +7,8 @@ export default function LogInFormPresenter({ email, password, onChange, error, o
         <S.Input type="text" name="email" value={email} onChange={onChange} placeholder="아이디" />
         <S.Input type="password" name="password" value={password} onChange={onChange} placeholder="비밀번호" />
         <S.ErrorBox>{error}</S.ErrorBox>
-        <S.LogInButton disabled={!email || !password || isLoading}>{isLoading ? '로딩 중...' : '로그인'}</S.LogInButton>
+        <S.LogInButton disabled={!email || !password || isLoading}>{isLoading ? '로딩 중' : '로그인'}</S.LogInButton>
         <S.SignUpLink to={`/signUp`}>회원가입</S.SignUpLink>
-        {/* <Link to={`/`}>아이디 / 비밀번호 찾기</Link> */}
       </S.Form>
     </S.LoginFormStyle>
   );
