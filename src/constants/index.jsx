@@ -11,6 +11,11 @@ export const CONFIRM_MESSAGE = {
   MEMBER_DELETE_ERROR: '탈퇴를 처리하는 중 문제가 생겼습니다.',
   MEMBER_DELETE_MESSAGE: '정말 탈퇴하시겠습니까?',
   MEMBER_DELETE_SUCCESS_MESSAGE: '이용해주셔서 감사합니다.',
+  CLIPBOARD_MESSAGE: '클립보드에 링크가 복사 되었습니다.',
+  POST_DELETE_CONFIRM_MESSAGE: '정말 게시물을 삭제하시겠습니까?',
+  POST_DELETE_SUCCESS_MESSAGE: '삭제 되었습니다.',
+  COMMENT_EMPTY_ERROR: '댓글을 입력해주세요',
+  COMMENT_DELETE_CONFIRM_MESSAGE: '정말 댓글을 삭제하시겠습니까?',
 };
 
 export const LOGIN_MESSAGE = {
@@ -41,6 +46,7 @@ export const USER_MESSAGE = {
 
 export const ETC_MESSAGE = {
   BOARD_EMPTY: '작성한 게시물이 없습니다',
+  NOTHING_LIKE_POST: '좋아한 게시물이 없습니다',
   FIRST_POST: '첫 게시물을 작성해주세요 🍹',
   PREPARING: '준비 중 입니다',
 };
