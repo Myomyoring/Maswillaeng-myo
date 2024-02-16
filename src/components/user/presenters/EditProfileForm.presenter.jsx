@@ -5,7 +5,6 @@ import SubmitButton from '../../common/FormButton';
 import { SIGN_UP_GUIDE } from '../../../constants';
 
 import * as S from '../styles/EditProfileForm.style';
-import DefaultUserImage from '../../../statics/images/default_user_image.jpg';
 
 export default function EditProfileFormPresenter({
   user,
@@ -26,12 +25,7 @@ export default function EditProfileFormPresenter({
     <S.EditProfileFormStyle>
       <S.Form onSubmit={onSubmit}>
         <S.EditProfileImage>
-          <ProfileImageInput
-            defaultImage={DefaultUserImage}
-            currentImage={profileImage}
-            setImage={setProfileImage}
-            userId={user.userId}
-          />
+          <ProfileImageInput currentImage={profileImage} setImage={setProfileImage} userId={user.userId} />
         </S.EditProfileImage>
         <S.UserInfoBox>
           <S.InputBox>

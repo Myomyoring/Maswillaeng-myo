@@ -9,7 +9,7 @@ export default function UserProfilePresenter({
   nickname,
   user,
   modalHandler,
-  onDeleteUser,
+  onDeleteConfirm,
   followHandler,
   followState,
   children,
@@ -23,7 +23,7 @@ export default function UserProfilePresenter({
       {children}
       <S.IntroductionBox>{member.introduction}</S.IntroductionBox>
       {nickname === user.nickname ? (
-        <MembershipButtons {...{ modalHandler, onDeleteUser }} />
+        <MembershipButtons {...{ modalHandler, onDeleteConfirm }} />
       ) : (
         <FollowButton {...{ followState, followHandler }} />
       )}

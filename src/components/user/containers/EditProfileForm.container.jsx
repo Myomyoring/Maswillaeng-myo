@@ -1,17 +1,15 @@
 import { useState } from 'react';
 
+import { CONFIRM_MESSAGE, USER_MESSAGE } from '../../../constants';
+import { encryptPassword } from '../../../utils/password_encoder';
 import { nicknameRule, passwordRule, phoneNumberRule } from '../../../utils/sign_up_rules';
 import { useAuth } from '../../../contexts/ProvideAuthContext';
-import EditProfileFormPresenter from '../presenters/EditProfileForm.presenter';
 import { userService } from '../../../services/firebaseService/user.firebase.service';
-import { encryptPassword } from '../../../utils/password_encoder';
-import { CONFIRM_MESSAGE, USER_MESSAGE } from '../../../constants';
-import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
-import { authService } from '../../../firebase-config';
+import EditProfileFormPresenter from '../presenters/EditProfileForm.presenter';
 
 export default function EditProfileFormContainer({ setModal }) {
   const [isLoading, setLoading] = useState(false);
-  const { currentUser, logOut } = useAuth();
+  const { currentUser, logOut, userCredential } = useAuth();
   const user = currentUser();
   const [profileImage, setProfileImage] = useState(user.userImage);
   const [form, setForm] = useState({
@@ -168,21 +166,6 @@ export default function EditProfileFormContainer({ setModal }) {
     } finally {
       setLoading(false);
     }
-  };
-  const userCredential = async (pwd) => {
-    const user = authService.currentUser;
-    const authCredential = EmailAuthProvider.credential(user.email, pwd);
-
-    let result = false;
-    await reauthenticateWithCredential(user, authCredential)
-      .then(() => {
-        result = true;
-      })
-      .catch((error) => {
-        console.log(error);
-        result = false;
-      });
-    return result;
   };
 
   return (

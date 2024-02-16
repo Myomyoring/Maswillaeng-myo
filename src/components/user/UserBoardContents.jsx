@@ -3,17 +3,17 @@ import { useState } from 'react';
 import { userCategories } from '../../constants';
 import CategorySelector from '../common/CategorySelector';
 import UserPosts from './containers/UserPosts.container';
-import UserTab from '../common/CategoryTab';
+import UserTab from '../common/CategoryTab/CategoryTab';
 
 import * as S from './styles/index';
 
-export default function UserBoardContents() {
+export default function UserBoardContents({ member }) {
   const [tab, setTab] = useState(0);
   return (
     <S.UserBoardContentsStyle>
       <CategorySelector activeTabId={tab} categories={userCategories} setTab={setTab} />
       <UserTab activeTabId={tab} categories={userCategories} setTab={setTab} />
-      <UserPosts active={tab} />
+      <UserPosts activeTabId={tab} member={member} />
     </S.UserBoardContentsStyle>
   );
 }

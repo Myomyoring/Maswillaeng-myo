@@ -5,9 +5,11 @@ import { ETC_MESSAGE } from '../../../constants';
 import UserContentsPresenter from '../presenters/UserPosts.presenter';
 import { postService } from '../../../services/firebaseService/post.firebase.service';
 import { likeService } from '../../../services/firebaseService/like.firebase.service';
-import { userService } from '../../../services/firebaseService/user.firebase.service';
+import LoadingScreen from '../../common/LoadingScreen';
+import Card from '../../common/Card';
+import { onSnapshot } from 'firebase/firestore';
 
-export default function UserPostsContainer({ active }) {
+export default function UserPostsContainer({ activeTabId, member }) {
   const { nickname } = useParams();
   const [isLoading, setLoading] = useState(false);
   const [posts, setPosts] = useState([]);
@@ -30,78 +32,59 @@ export default function UserPostsContainer({ active }) {
   };
 
   const setUserPost = async (active) => {
-    const memberId = await getMemberId();
-    if (active === 0) {
-      try {
-        setLoading(true);
-        const postIds = await getLikeIdList(memberId);
-        const likePosts = await getLikeList(postIds);
-        setPostData(likePosts);
-        setGuide(ETC_MESSAGE.PREPARING);
-      } catch (error) {
-        console.log(error.code);
-      } finally {
-        setLoading(false);
-      }
-    } else if (active === 1) {
-      try {
-        setLoading(true);
-        const writePosts = await getWriteList(memberId);
-        setPostData(writePosts);
-        setGuide(ETC_MESSAGE.BOARD_EMPTY);
-      } catch (error) {
-        console.log(error.code);
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
-  const getMemberId = async () => {
-    let id = '';
-    const response = await userService.getUserByNickname({ nickname });
-    response.forEach((doc) => {
-      const { userId } = doc.data();
-      id = userId;
-    });
-    return id;
-  };
-
-  const getLikeIdList = async (memberId) => {
-    const likePostIds = [];
     try {
-      const response = await likeService.getUserLikes({ userId: memberId });
-      response.forEach((doc) => {
-        likePostIds.push(doc.id);
-      });
-      return likePostIds;
+      setLoading(true);
+      if (active === 0) {
+        await setLikeList(member.userId);
+      } else if (active === 1) {
+        await setWriteList(member.userId);
+      }
     } catch (error) {
-      console.log(error.code);
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getLikeList = async (postIds) => {
-    const list = [];
-    for (let id of postIds) {
-      const response = await postService.getPost({ postId: id });
-      console.log(response);
-      const { postId, userId } = response.data();
-      list.push({ postId, userId });
-    }
-    return list;
-  };
-
-  const getWriteList = async (memberId) => {
+  const setLikeList = async (memberId) => {
     try {
+      if (!memberId) return;
       const list = [];
-      const response = await postService.getUserWritePost({ userId: memberId });
-      response.forEach((doc) => {
-        const { createDate, likCnt, thumbnail, title } = doc.data();
-        list.push({ id: doc.id, createDate, likCnt, thumbnail, title, nickname });
+      const likeQuery = likeService.getUserLikes({ userId: memberId });
+      onSnapshot(likeQuery, async (snapshot) => {
+        const promises = snapshot.docs.map((doc) => {
+          return new Promise((resolve) => {
+            const postQuery = postService.getPostQuery({ postId: doc.id });
+            onSnapshot(postQuery, (postSnapshot) => {
+              const { createDate, likeCnt, thumbnail, title, commentCount } = postSnapshot.data();
+              list.push({ id: postSnapshot.id, createDate, likeCnt, thumbnail, title, commentCount, nickname });
+              resolve();
+            });
+          });
+        });
+
+        await Promise.all(promises);
+        setPostData(list);
+        setGuide(ETC_MESSAGE.NOTHING_LIKE_POST);
       });
-      return list;
     } catch (error) {
       console.log(error.code);
+    }
+  };
+
+  const setWriteList = async (memberId) => {
+    try {
+      const userWritePostQuery = postService.getUserWritePost({ userId: memberId });
+      onSnapshot(userWritePostQuery, (snapshot) => {
+        const writeListData = snapshot.docs.map((doc) => {
+          const { createDate, likeCnt, thumbnail, title, commentCount } = doc.data();
+          return { id: doc.id, createDate, likeCnt, thumbnail, title, nickname, commentCount };
+        });
+        setPostData(writeListData);
+        setGuide(ETC_MESSAGE.BOARD_EMPTY);
+      });
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -110,8 +93,10 @@ export default function UserPostsContainer({ active }) {
   };
 
   useEffect(() => {
-    setUserPost(active);
-  }, [active]);
+    if (member) {
+      setUserPost(activeTabId);
+    }
+  }, [activeTabId, member]);
 
   useEffect(() => {
     setPostData(pagingData);
@@ -120,6 +105,8 @@ export default function UserPostsContainer({ active }) {
   return (
     <UserContentsPresenter
       {...{ isLoading, posts, guide, currentPage, lastPage, hidePrevButton, hideNextButton, onPageChange }}
-    />
+    >
+      {isLoading ? <LoadingScreen /> : <Card {...{ posts, guide }} small={true} />}
+    </UserContentsPresenter>
   );
 }

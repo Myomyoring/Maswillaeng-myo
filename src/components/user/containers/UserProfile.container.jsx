@@ -1,85 +1,59 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { onSnapshot } from 'firebase/firestore';
 
-import { useAuth } from '../../../contexts/ProvideAuthContext';
-import UserProfilePresenter from '../presenters/UserProfile.presenter';
-import { userService } from '../../../services/firebaseService/user.firebase.service';
-import { followService } from '../../../services/firebaseService/follow.firebase.service';
+import { commentService } from '../../../services/firebaseService/comment.firebase.service';
 import { CONFIRM_MESSAGE } from '../../../constants';
+import { followService } from '../../../services/firebaseService/follow.firebase.service';
+import { imageService } from '../../../services/firebaseService/image.firebase.service';
+import { likeService } from '../../../services/firebaseService/like.firebase.service';
+import { postService } from '../../../services/firebaseService/post.firebase.service';
+import { useAuth } from '../../../contexts/ProvideAuthContext';
+import { userService } from '../../../services/firebaseService/user.firebase.service';
+import UserProfilePresenter from '../presenters/UserProfile.presenter';
 
 import FollowContents from '../FollowContents';
 import Modal from './Modal.container';
-import { useRouter } from '../../../hooks/useRouter';
 
-export default function UserProfileContainer({ modal, setModal }) {
+export default function UserProfileContainer({ modal, setModal, member }) {
   const { nickname } = useParams();
-  const { authRouteTo } = useRouter();
-  const { currentUser, logOut } = useAuth();
+  const { currentUser, logOut, userCredential } = useAuth();
   const user = currentUser();
 
-  const [member, setMember] = useState({});
-
-  const [modalId, setModalId] = useState(0);
   const modalRef = useRef(null);
+  const [modalId, setModalId] = useState(0);
   const [followerList, setFollowerList] = useState([]);
   const [followingList, setFollowingList] = useState([]);
   const [followState, setFollowState] = useState(false);
 
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+
   useEffect(() => {
-    if (!nickname) return;
+    if (!member) return;
     setMemberData();
-  }, [nickname]);
+  }, [member]);
 
   const setMemberData = async () => {
-    const memberData = await getMember();
-    if (!memberData) {
-      authRouteTo('404');
-      return;
-    }
-    const followerListData = await getFollowerList({ userId: memberData.userId });
-    const followingListData = await getFollowingList({ userId: memberData.userId });
-    setMember(memberData);
-    if (followerListData.length !== 0) {
-      setFollowerList(followerListData);
-      followerListData.find((follower) => follower === user.userId) ? setFollowState(true) : setFollowState(false);
-    }
-    if (followingListData.length !== 0) {
-      setFollowingList(followingListData);
-    }
+    await setFollowerData({ userId: member.userId });
+    await setFollowingData({ userId: member.userId });
   };
 
-  const getMember = async () => {
-    try {
-      const response = await userService.getUserByNickname({ nickname });
-      if (!response.empty) {
-        let data = {};
-        response.forEach((doc) => {
-          const { email, followerCnt, followingCnt, introduction, nickname, password, phoneNumber, userId, userImage } =
-            doc.data();
-          data = { email, followerCnt, followingCnt, introduction, nickname, password, phoneNumber, userId, userImage };
-        });
-        return data;
-      }
-    } catch (error) {
-      console.log(error.code);
-    }
-  };
-
-  const getFollowerList = async ({ userId }) => {
+  const setFollowerData = async ({ userId }) => {
     try {
       const data = [];
       const response = await followService.getFollowers({ userId });
       response.forEach((doc) => {
         const { followerUsers } = doc.data();
+        if (followerUsers.some((follower) => follower === user.userId)) setFollowState(true);
         data.push(followerUsers);
       });
-      return data.flat();
+      setFollowerList(data.flat());
     } catch (error) {
       console.log(error.code);
     }
   };
 
-  const getFollowingList = async ({ userId }) => {
+  const setFollowingData = async ({ userId }) => {
     try {
       const data = [];
       const response = await followService.getFollowings({ userId });
@@ -87,52 +61,157 @@ export default function UserProfileContainer({ modal, setModal }) {
         const { followingUsers } = doc.data();
         data.push(followingUsers);
       });
-      return data.flat();
+      setFollowingList(data.flat());
     } catch (error) {
       console.log(error.code);
     }
   };
 
   const onDeleteUser = async () => {
+    try {
+      await deleteUserProfileImage();
+      deleteUserPost();
+      deleteUserLike();
+      await deleteUserComment();
+      await deleteUserFollow();
+      await userService.deleteAccount();
+      await userService.deleteUser({ userId: user.userId });
+      await logOut();
+      alert(CONFIRM_MESSAGE.MEMBER_DELETE_SUCCESS_MESSAGE);
+    } catch (error) {
+      alert(CONFIRM_MESSAGE.MEMBER_DELETE_ERROR);
+      console.log(error.code);
+    }
+  };
+
+  const onChange = (event) => {
+    const { value } = event.target;
+    setPasswordConfirm(value);
+  };
+
+  const onDeleteConfirm = () => {
     if (window.confirm(CONFIRM_MESSAGE.MEMBER_DELETE_MESSAGE)) {
-      try {
-        await logOut();
-        await userService.deleteAccount();
-      } catch (error) {
-        alert(CONFIRM_MESSAGE.MEMBER_DELETE_ERROR);
-        console.log(error.code);
+      modalHandler(3);
+    }
+  };
+
+  const userPasswordConfirm = async () => {
+    try {
+      setModal(false);
+      const result = await userCredential(passwordConfirm);
+      if (!result) {
+        alert(CONFIRM_MESSAGE.PASSWORD_CONFIRM_ERROR);
         return;
       }
+      await onDeleteUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-      const list = [];
-      const writePosts = await getUserWritePost({ userId: user.userId });
-      writePosts.forEach((doc) => {
-        list.push(doc.id);
-      });
+  const deleteUserProfileImage = async () => {
+    try {
       await imageService.deleteImage({ type: 'profile_images', fileName: user.userId });
-      for (const postId of list) {
-        await postService.deletePost({ postId });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteUserFollow = async () => {
+    try {
+      await followService.deleteAllFollowing({ userId: user.userId });
+      await followService.deleteAllFollower({ userId: user.userId });
+
+      for (let id of followerList) {
+        await followService.removeFollowing({ memberId: user.userId, userId: id });
       }
-      const commentsData = await commentService.getAllUserComments({ userId: user.userId });
-      for (const commentId of commentsData) {
-        await commentService.deleteComment({ commentId });
+      for (let id of followingList) {
+        await followService.removeFollower({ memberId: id, userId: user.userId });
       }
-      const repliesData = await commentService.getAllUserReplies({ userId: user.userId });
-      for (const commentId of repliesData) {
-        await commentService.deleteReply({ commentId });
-      }
-      await userService.deleteUser({ userId: user.userId });
-      // 좋아요도 제거 해야 함
-      alert(CONFIRM_MESSAGE.MEMBER_DELETE_SUCCESS_MESSAGE);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteUserComment = async () => {
+    try {
+      const commentsQuery = commentService.getAllUserComments({ userId: user.userId });
+      onSnapshot(commentsQuery, (snapshot) => {
+        snapshot.docs.map((doc) => {
+          const { postId } = doc.data();
+          commentService.deleteComment({ commentId: doc.id });
+          const commentsQuery = commentService.getComments({ postId });
+          const repliesQuery = commentService.getReplies({ postId });
+          onSnapshot(commentsQuery, (commentSnapshot) => {
+            onSnapshot(repliesQuery, (replySnapshot) => {
+              commentService.updateCommentCount({
+                postId,
+                commentCount: commentSnapshot.docs.length + replySnapshot.docs.length,
+              });
+            });
+          });
+        });
+      });
+      const repliesQuery = commentService.getAllUserReplies({ userId: user.userId });
+      onSnapshot(repliesQuery, (snapshot) => {
+        snapshot.docs.map((doc) => {
+          const { postId } = doc.data();
+          commentService.deleteReply({ commentId: doc.id });
+          const commentsQuery = commentService.getComments({ postId });
+          const repliesQuery = commentService.getReplies({ postId });
+          onSnapshot(commentsQuery, (commentSnapshot) => {
+            onSnapshot(repliesQuery, (replySnapshot) => {
+              commentService.updateCommentCount({
+                postId,
+                commentCount: commentSnapshot.docs.length + replySnapshot.docs.length,
+              });
+            });
+          });
+        });
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteUserPost = () => {
+    try {
+      const writePostQuery = postService.getUserWritePost({ userId: user.userId });
+      onSnapshot(writePostQuery, (snapshot) => {
+        snapshot.docs.map((doc) => {
+          postService.deletePost({ postId: doc.id });
+          imageService.deleteImage({ type: 'post_images', fileName: doc.id });
+        });
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteUserLike = () => {
+    try {
+      const likesQuery = likeService.getUserLikes({ userId: user.userId });
+      onSnapshot(likesQuery, (snapshot) => {
+        snapshot.docs.map((doc) => {
+          const { likeUsers } = doc.data();
+          likeService.deleteLike({ postId: doc.id, userId: user.userId });
+          likeService.updateLike({ postId: doc.id, likeCnt: likeUsers.length - 1 });
+        });
+      });
+    } catch (error) {
+      console.log(error);
     }
   };
 
   const updateFollowCount = async () => {
     try {
-      const followerListData = await getFollowerList({ userId: member.userId });
-      const followingListData = await getFollowingList({ userId: user.userId });
-      await followService.updateFollowerCount({ memberId: member.userId, count: followerListData.length });
-      await followService.updateFollowingCount({ userId: user.userId, count: followingListData.length });
+      if (followState) {
+        await followService.updateFollowerCount({ memberId: member.userId, count: followerList.length - 1 });
+        await followService.updateFollowingCount({ userId: user.userId, count: followingList.length - 1 });
+      } else {
+        await followService.updateFollowerCount({ memberId: member.userId, count: followerList.length + 1 });
+        await followService.updateFollowingCount({ userId: user.userId, count: followingList.length + 1 });
+      }
     } catch (error) {
       console.log(error.code);
     }
@@ -143,6 +222,7 @@ export default function UserProfileContainer({ modal, setModal }) {
       await followService.saveFollower({ memberId: member.userId, userId: user.userId });
       await followService.saveFollowing({ memberId: member.userId, userId: user.userId });
       updateFollowCount();
+      setFollowState(true);
     } catch (error) {
       console.log(error);
     }
@@ -153,6 +233,7 @@ export default function UserProfileContainer({ modal, setModal }) {
       await followService.removeFollower({ memberId: member.userId, userId: user.userId });
       await followService.removeFollowing({ memberId: member.userId, userId: user.userId });
       updateFollowCount();
+      setFollowState(false);
     } catch (error) {
       console.log(error.code);
     }
@@ -183,14 +264,27 @@ export default function UserProfileContainer({ modal, setModal }) {
           nickname,
           user,
           modalHandler,
-          onDeleteUser,
+          onDeleteConfirm,
           followHandler,
           followState,
         }}
       >
-        <FollowContents {...{ member, modalHandler }} />
+        <FollowContents {...{ modalHandler, followerList, followingList }} />
       </UserProfilePresenter>
-      {modal ? <Modal {...{ modalRef, setModal, modalId, followingList, followerList }} /> : null}
+      {modal ? (
+        <Modal
+          {...{
+            modalRef,
+            setModal,
+            modalId,
+            followingList,
+            followerList,
+            passwordConfirm,
+            onChange,
+            userPasswordConfirm,
+          }}
+        />
+      ) : null}
     </>
   );
 }

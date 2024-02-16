@@ -1,30 +1,18 @@
-import Card from '../../common/Card';
-import LoadingScreen from '../../common/LoadingScreen';
-
 import Pagination from '../../common/Pagination';
 
-import styled from 'styled-components';
-import tw from 'twin.macro';
-
-const UserPostsStyle = styled.div`
-  ${tw`
-      overflow-hidden
-  `}
-`;
+import * as S from '../styles/index';
 
 export default function UserPostsPresenter({
-  isLoading,
-  posts,
-  guide,
   currentPage,
   lastPage,
   hidePrevButton,
   hideNextButton,
   onPageChange,
+  children,
 }) {
   return (
-    <UserPostsStyle>
-      {isLoading ? <LoadingScreen /> : <Card {...{ posts, guide }} small={true} />}
+    <S.UserPostsStyle>
+      {children}
       <Pagination
         currentPage={currentPage}
         lastPage={lastPage}
@@ -32,6 +20,6 @@ export default function UserPostsPresenter({
         hideNextButton={hideNextButton}
         onChange={onPageChange}
       />
-    </UserPostsStyle>
+    </S.UserPostsStyle>
   );
 }

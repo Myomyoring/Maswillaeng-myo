@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import FollowListPresenter from '../presenters/FollowList.presenter';
 import { userService } from '../../../services/firebaseService/user.firebase.service';
+import FollowListPresenter from '../presenters/FollowList.presenter';
 
 export default function FollowerListContainer({ followerList, followingList, setModal }) {
   const [followList, setFollowList] = useState([]);
