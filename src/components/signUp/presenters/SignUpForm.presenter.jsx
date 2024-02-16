@@ -29,7 +29,7 @@ export default function SignUpFormPresenter({
   return (
     <S.SignUpFormStyle>
       <S.Form onSubmit={onSubmit}>
-        <ProfileImageInput defaultImage={defaultUserImage} setImage={setUserImage} />
+        <ProfileImageInput setImage={setUserImage} />
         <S.InputBox>
           <S.InputTitle>* 이메일</S.InputTitle>
           <S.Input

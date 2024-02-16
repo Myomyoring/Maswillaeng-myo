@@ -1,14 +1,15 @@
 import { useState } from 'react';
+import { getDownloadURL } from 'firebase/storage';
 
 import { CONFIRM_MESSAGE, SIGN_UP_GUIDE } from '../../../constants/index.jsx';
 import { emailRule, nicknameRule, passwordRule, phoneNumberRule } from '../../../utils/sign_up_rules.js';
 import { useAuth } from '../../../contexts/ProvideAuthContext.jsx';
 import { useRouter } from '../../../hooks/useRouter.jsx';
 import { userService } from '../../../services/firebaseService/user.firebase.service.jsx';
-
-import SignUpFormPresenter from '../presenters/SignUpForm.presenter.jsx';
 import { imageService } from '../../../services/firebaseService/image.firebase.service.jsx';
-import { getDownloadURL } from 'firebase/storage';
+
+import defaultImage from '../../../statics/images/default_user_image.jpg';
+import SignUpFormPresenter from '../presenters/SignUpForm.presenter.jsx';
 
 export default function SignUpFormContainer() {
   const [isLoading, setLoading] = useState(false);
@@ -130,11 +131,10 @@ export default function SignUpFormContainer() {
     }
   };
 
-  const setImage = async ({ userId }) => {
+  const getImageURL = async ({ userId }) => {
     await imageService.deleteImage({ type: 'profile_images', fileName: 'null' });
     const uploadTask = await imageService.uploadImage({ type: 'profile_images', fileName: userId, userImage });
     const url = await getDownloadURL(uploadTask.ref);
-
     imageService.setImage({ filename: userId, url });
     return url;
   };
@@ -149,11 +149,11 @@ export default function SignUpFormContainer() {
       if (response.ok) {
         let url = null;
         if (userImage) {
-          url = await setImage({ userId: response.id });
+          url = await getImageURL({ userId: response.id });
         }
         await setUserInfo({
           userId: response.id,
-          userImage: url ?? userImage,
+          userImage: url ?? defaultImage,
           email,
           password,
           nickname,
@@ -164,7 +164,7 @@ export default function SignUpFormContainer() {
         alert(SIGN_UP_GUIDE.SIGN_UP_SUCCESS_MESSAGE);
       }
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
       switch (error.code) {
         case 'auth/email-already-in-use':
           setError({ email: CONFIRM_MESSAGE.DUPLICATE_ERROR });
