@@ -1,37 +1,12 @@
-import { Link } from 'react-router-dom';
-
-import styled from 'styled-components';
-import tw from 'twin.macro';
-
-const DisplayMemberProfileStyle = styled.div`
-  ${tw``}
-`;
-
-const UserPageLink = styled(Link)`
-  ${tw`
-    flex items-center gap-2
-  `}
-`;
-
-const UserImage = styled.img`
-  ${tw`
-      w-10 h-10
-      border-solid border-gray border-2
-      rounded-full
-  `}
-`;
-
-const UserNickNameText = styled.span`
-  ${tw``}
-`;
+import * as S from './styles/DisplayMemberProfile.style';
 
 export default function DisplayMemberProfile({ userImage, nickname }) {
   return (
-    <DisplayMemberProfileStyle>
-      <UserPageLink to={`/user/${nickname}`}>
-        <UserImage src={userImage} />
-        <UserNickNameText>{nickname}</UserNickNameText>
-      </UserPageLink>
-    </DisplayMemberProfileStyle>
+    <S.DisplayMemberProfileStyle>
+      <S.UserPageLink to={`/user/${nickname}`}>
+        <S.UserImage src={userImage} />
+        <S.UserNickNameText>{nickname}</S.UserNickNameText>
+      </S.UserPageLink>
+    </S.DisplayMemberProfileStyle>
   );
 }
