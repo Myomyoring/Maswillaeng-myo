@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 
 import { categories } from '../../../constants/index';
-import PostListPresenter from '../presenters/PostList.presenter';
 import { postService } from '../../../services/firebaseService/post.firebase.service';
 import { userService } from '../../../services/firebaseService/user.firebase.service';
+
+import Card from '../../common/Card';
+import LoadingScreen from '../../common/LoadingScreen';
+import Pagination from '../../common/Pagination';
+import PostListPresenter from '../presenters/PostList.presenter';
 
 export default function PostListContainer() {
   const [posts, setPosts] = useState([]);
@@ -30,13 +34,14 @@ export default function PostListContainer() {
     try {
       const initialData = [];
       await postDoc.forEach((doc) => {
-        const { thumbnail, createDate, title, likeCnt, userId } = doc.data();
+        const { thumbnail, createDate, title, likeCnt, userId, commentCount } = doc.data();
         initialData.push({
           thumbnail,
           createDate,
           title,
           likeCnt,
           userId,
+          commentCount,
           id: doc.id,
         });
       });
@@ -125,14 +130,22 @@ export default function PostListContainer() {
         categories,
         tab,
         setTab,
-        posts,
-        currentPage,
-        onPageChange,
-        lastPage,
-        hidePrevButton,
-        hideNextButton,
-        isLoading,
       }}
-    />
+    >
+      {isLoading ? (
+        <LoadingScreen />
+      ) : (
+        <>
+          <Card posts={posts} />
+          <Pagination
+            currentPage={currentPage}
+            lastPage={lastPage}
+            hidePrevButton={hidePrevButton}
+            hideNextButton={hideNextButton}
+            onChange={onPageChange}
+          />
+        </>
+      )}
+    </PostListPresenter>
   );
 }

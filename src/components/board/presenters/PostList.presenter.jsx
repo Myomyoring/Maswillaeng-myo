@@ -1,24 +1,10 @@
 import BoardHeader from '../BoardHeader';
-import Card from '../../common/Card';
-import CategoryTab from '../../common/CategoryTab';
-import Pagination from '../../common/Pagination';
 import CategorySelector from '../../common/CategorySelector';
-import LoadingScreen from '../../common/LoadingScreen';
+import CategoryTab from '../../common/CategoryTab/CategoryTab';
 
 import * as S from '../style/PostList.style';
 
-export default function PostListPresenter({
-  categories,
-  tab,
-  setTab,
-  posts,
-  currentPage,
-  onPageChange,
-  lastPage,
-  hidePrevButton,
-  hideNextButton,
-  isLoading,
-}) {
+export default function PostListPresenter({ categories, tab, setTab, children }) {
   return (
     <S.PostListStyle>
       <CategoryTab categories={categories} activeTabId={tab} setTab={setTab} />
@@ -26,20 +12,7 @@ export default function PostListPresenter({
         <CategorySelector categories={categories} activeTabId={tab} setTab={setTab} />
         <BoardHeader />
       </S.Div>
-      {isLoading ? (
-        <LoadingScreen />
-      ) : (
-        <>
-          <Card posts={posts} />
-          <Pagination
-            currentPage={currentPage}
-            lastPage={lastPage}
-            hidePrevButton={hidePrevButton}
-            hideNextButton={hideNextButton}
-            onChange={onPageChange}
-          />
-        </>
-      )}
+      {children}
     </S.PostListStyle>
   );
 }
