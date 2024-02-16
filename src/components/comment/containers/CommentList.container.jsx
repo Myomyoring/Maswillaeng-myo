@@ -1,21 +1,25 @@
 import { useState } from 'react';
 import { useAuth } from '../../../contexts/ProvideAuthContext';
 
-import CommentListPresenter from '../presenters/CommentList.presenter';
 import { commentService } from '../../../services/firebaseService/comment.firebase.service';
 
-export default function CommentList({ postId, getComments, getReplies, comments, replies, commentCount }) {
+import CommentBox from '../CommentBox';
+import CommentListPresenter from '../presenters/CommentList.presenter';
+import ReplyComment from './ReplyComment.container';
+import UpdateCommentBox from '../UpdateCommentBox';
+
+export default function CommentList({ commentCount, comments, replies, onDeleteComment }) {
   const { currentUser } = useAuth();
   const { nickname } = currentUser();
 
-  const [modifyMode, setModifyMode] = useState(false);
+  const [updateMode, setUpdateMode] = useState(false);
   const [replyMode, setReplyMode] = useState(false);
-  const [modifySelect, setModifySelect] = useState({ modifyCommentId: '', modifyComment: '' });
+  const [updateSelect, setUpdateSelect] = useState({ id: '', comment: '' });
   const [replySelect, setReplySelect] = useState({ mode: '', parentId: '', replyId: '', replyComment: '' });
 
-  const modifyCommentHandler = (id, comment) => {
-    setModifyMode(true);
-    setModifySelect({ modifyCommentId: id, modifyComment: comment });
+  const updateCommentHandler = (id, comment) => {
+    setUpdateMode(true);
+    setUpdateSelect({ id: id, comment: comment });
   };
 
   const createReplyHandler = (parentId) => {
@@ -23,53 +27,47 @@ export default function CommentList({ postId, getComments, getReplies, comments,
     setReplySelect({ mode: 'create', parentId: parentId });
   };
 
-  const updateComment = async () => {
+  const onCommentChange = (event) => {
+    setUpdateSelect({ ...updateSelect, comment: event.target.value });
+  };
+
+  const onUpdateComment = async () => {
     try {
       await commentService.updateComment({
-        commentId: modifySelect.modifyCommentId,
-        comment: modifySelect.modifyComment,
+        commentId: updateSelect.id,
+        comment: updateSelect.comment,
       });
-      setModifyMode(false);
-      getComments();
+      setUpdateMode(false);
     } catch (error) {
       console.log(error.code);
     }
   };
 
-  const deleteComment = async (commentId) => {
-    if (window.confirm('정말 댓글을 삭제하시겠습니까?')) {
-      try {
-        await commentService.deleteComment({ commentId });
-        getComments();
-      } catch (error) {
-        console.log(error.code);
-      }
-    } else return;
-  };
-
   return (
-    <CommentListPresenter
-      {...{
-        postId,
-        getComments,
-        getReplies,
-        nickname,
-        comments,
-        replies,
-        commentCount,
-        updateComment,
-        deleteComment,
-        modifyMode,
-        modifySelect,
-        modifyCommentHandler,
-        createReplyHandler,
-        setModifySelect,
-        setModifyMode,
-        replyMode,
-        replySelect,
-        setReplyMode,
-        setReplySelect,
-      }}
-    />
+    <CommentListPresenter {...{ commentCount }}>
+      {comments?.map((comment, index) =>
+        updateMode && comment.commentId === updateSelect.id ? (
+          <div key={index}>
+            <UpdateCommentBox {...{ comment, updateSelect, onCommentChange, onUpdateComment, setUpdateMode }} />
+          </div>
+        ) : (
+          <div key={index}>
+            <CommentBox {...{ nickname, comment, createReplyHandler, updateCommentHandler, onDeleteComment }} />
+            <ReplyComment
+              {...{
+                replies,
+                comment,
+                replyMode,
+                setReplyMode,
+                createReplyHandler,
+                replySelect,
+                setReplySelect,
+                commentCount,
+              }}
+            />
+          </div>
+        ),
+      )}
+    </CommentListPresenter>
   );
 }

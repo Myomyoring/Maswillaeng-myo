@@ -1,84 +1,100 @@
-import { useAuth } from '../../../contexts/ProvideAuthContext';
-import ReplyCommentPresenter from '../presenters/ReplyComment.presenter';
+import { useParams } from 'react-router-dom';
+
 import { commentService } from '../../../services/firebaseService/comment.firebase.service';
+import { CONFIRM_MESSAGE } from '../../../constants';
+import { useAuth } from '../../../contexts/ProvideAuthContext';
+
+import ReplyBox from '../ReplyBox';
+import ReplyCommentPresenter from '../presenters/ReplyComment.presenter';
+import ReplyWriteBox from '../ReplyWriteBox';
+import UpdateReplyBox from '../UpdateReplyBox';
 
 export default function ReplyCommentContainer({
-  postId,
   comment,
   replyMode,
   setReplyMode,
-  replySelect,
-  setReplySelect,
-  getReplies,
   replies,
   createReplyHandler,
+  replySelect,
+  setReplySelect,
+  commentCount,
 }) {
+  const { postId } = useParams();
   const { currentUser } = useAuth();
-  const { id, nickname } = currentUser();
+  const { userId, nickname, userImage } = currentUser();
 
-  const saveReply = async () => {
-    if (replySelect.replyComment === '') return;
+  const onReplyChange = (event) => {
+    setReplySelect({ ...replySelect, replyComment: event.target.value });
+  };
+
+  const onSaveReply = async () => {
+    if (replySelect.replyComment === '') {
+      alert(CONFIRM_MESSAGE.COMMENT_EMPTY_ERROR);
+      return;
+    }
     try {
-      const response = await commentService.saveReply({
-        parentId: replySelect.parentId,
+      await commentService.saveReply({
         postId,
-        userId: id,
+        userId,
+        parentId: replySelect.parentId,
         comment: replySelect.replyComment,
       });
-      console.log(response);
-      getReplies();
-      setReplySelect({ replyComment: '' });
+      await commentService.updateCommentCount({ postId, commentCount: commentCount + 1 });
       setReplyMode(false);
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
     }
   };
 
-  const modifyReplyHandler = async (parentId, replyId, content) => {
-    setReplyMode(true);
-    setReplySelect({ mode: 'update', parentId: parentId, replyId: replyId, replyComment: content });
-  };
-
-  const updateReply = async () => {
+  const onUpdateReply = async () => {
+    if (replySelect.replyComment === '') {
+      alert(CONFIRM_MESSAGE.COMMENT_EMPTY_ERROR);
+      return;
+    }
     try {
       await commentService.updateReply({
         commentId: replySelect.replyId,
         comment: replySelect.replyComment,
       });
       setReplyMode(false);
-      getReplies();
     } catch (error) {
       console.log(error.code);
     }
   };
 
-  const deleteReply = async (replyId) => {
-    if (window.confirm('정말 답글을 삭제하시겠습니까?')) {
+  const onDeleteReply = async (replyId) => {
+    if (window.confirm(CONFIRM_MESSAGE.COMMENT_DELETE_CONFIRM_MESSAGE)) {
       try {
         await commentService.deleteReply({ commentId: replyId });
-        getReplies();
+        await commentService.updateCommentCount({ postId, commentCount: commentCount - 1 });
       } catch (error) {
         console.log(error.code);
       }
-    } else return;
+    }
+  };
+
+  const updateReplyHandler = (parentId, replyId, content) => {
+    setReplyMode(true);
+    setReplySelect({ mode: 'update', parentId: parentId, replyId: replyId, replyComment: content });
   };
 
   return (
-    <ReplyCommentPresenter
-      {...{
-        nickname,
-        comment,
-        replyMode,
-        setReplyMode,
-        replySelect,
-        setReplySelect,
-        updateReply,
-        createReplyHandler,
-        saveReply,
-        modifyReplyHandler,
-        deleteReply,
-        replies,
-      }}
-    />
+    <ReplyCommentPresenter>
+      {replyMode && replySelect.parentId === comment.commentId && replySelect.mode === 'update' ? (
+        <UpdateReplyBox {...{ comment, nickname, replySelect, onReplyChange, onUpdateReply, setReplyMode }} />
+      ) : (
+        replies.map(
+          (reply, index) =>
+            comment.commentId === reply.parentId && (
+              <div key={index}>
+                <ReplyBox {...{ nickname, comment, reply, createReplyHandler, updateReplyHandler, onDeleteReply }} />
+              </div>
+            ),
+        )
+      )}
+      {replyMode && replySelect.parentId === comment.commentId && replySelect.mode === 'create' ? (
+        <ReplyWriteBox {...{ nickname, userImage, replySelect, onReplyChange, onSaveReply, setReplyMode }} />
+      ) : null}
+    </ReplyCommentPresenter>
   );
 }
