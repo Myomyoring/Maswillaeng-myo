@@ -1,32 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { styled } from 'styled-components';
-import tw from 'twin.macro';
-
-const PaginationStyle = styled.div`
-  ${tw`
-      flex justify-center gap-2
-      mt-7
-      
-  `}
-`;
-
-const PrevButton = styled.button`
-  ${tw``}
-`;
-
-const NextButton = styled.button`
-  ${tw``}
-`;
-
-const PageButton = styled.button`
-  ${tw``}
-`;
-
-const NumberText = styled.span`
-  ${tw`text-lg`}
-  ${(props) => (props.className === 'active' ? tw`text-point font-bold` : tw`text-darkgray`)}
-`;
+import * as S from './styles/Pagination.style';
 
 export default function Pagination({ currentPage, lastPage, hidePrevButton, hideNextButton, onChange }) {
   const [numbers, setNumbers] = useState([]);
@@ -48,18 +22,18 @@ export default function Pagination({ currentPage, lastPage, hidePrevButton, hide
   }, [lastPage]);
 
   return (
-    <PaginationStyle>
+    <S.PaginationStyle>
       {numbers.length !== 0 ? (
         <>
-          <PrevButton hidden={hidePrevButton}>이전</PrevButton>
+          <S.PrevButton hidden={hidePrevButton}>이전</S.PrevButton>
           {numbers.map((number) => (
-            <PageButton key={number} onClick={() => onPageChange(number)}>
-              <NumberText className={currentPage === number ? 'active' : ''}>{number}</NumberText>
-            </PageButton>
+            <S.PageButton key={number} onClick={() => onPageChange(number)}>
+              <S.NumberText className={currentPage === number ? 'active' : ''}>{number}</S.NumberText>
+            </S.PageButton>
           ))}
-          <NextButton hidden={hideNextButton}>다음</NextButton>
+          <S.NextButton hidden={hideNextButton}>다음</S.NextButton>
         </>
       ) : null}
-    </PaginationStyle>
+    </S.PaginationStyle>
   );
 }
