@@ -1,18 +1,18 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
-import routes from './routes.jsx';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { AuthProvider } from './auth/ProvideAuthContext.jsx';
+
+import FirebaseAuthProvider from './contexts/ProvideAuthContext';
+import routes from './routes/routes';
+
 import './styles/index.css';
 import GlobalStyle from './styles/GlobalStyle';
 
 const router = createBrowserRouter(routes);
-
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <AuthProvider>
+  <>
+    <FirebaseAuthProvider>
       <GlobalStyle />
       <RouterProvider router={router} />
-    </AuthProvider>
-  </React.StrictMode>,
+    </FirebaseAuthProvider>
+  </>,
 );

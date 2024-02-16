@@ -1,26 +1,27 @@
 import { createGlobalStyle } from 'styled-components';
+import reset from 'styled-reset';
 
 const GlobalStyle = createGlobalStyle`
+    ${reset}
+
     * {
-        font-family: sans-serif;
-        color: black;
-        margin: 0;
-        padding: 0;
         box-sizing: border-box;
-        outline: 1px solid #cdd;
     }
 
     html {
-        background: #FBF9EC;
+        background: #FBF9EC; // main color
+        font-family: sans-serif;
+        min-width: 375px;
+        min-height: 100vh;
     }
 
     a {
         text-decoration: none;
+        color: inherit;
     }
 
     button {
         background: none;
-        font-size: 16px;
         border: none;
         cursor: pointer;
     }
@@ -29,7 +30,7 @@ const GlobalStyle = createGlobalStyle`
         color: lightgray;
     }
 
-    li {
+    ul {
         list-style-type: none;
     }
 
@@ -40,11 +41,6 @@ const GlobalStyle = createGlobalStyle`
     
     textarea::placeholder {
         color: lightgray;
-    }
-
-    .logo {
-        font-weight: bold;
-        font-size: 20px;
     }
 `;
 

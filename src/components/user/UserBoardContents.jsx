@@ -1,21 +1,19 @@
-import { styled } from 'styled-components';
-import UserTab from './UserTab';
-import UserContents from './UserContents';
-import tw from 'twin.macro';
+import { useState } from 'react';
 
-const ContentsStyle = styled.div`
-  ${tw`
-        w-2/3 h-screen
-        // mx-2.5
-        // flex justify-center items-center
-`}
-`;
+import { userCategories } from '../../constants';
+import CategorySelector from '../common/CategorySelector';
+import UserPosts from './containers/UserPosts.container';
+import UserTab from '../common/CategoryTab/CategoryTab';
 
-export default function UserBoardContents({ visitor, active, setTab }) {
+import * as S from './styles/index';
+
+export default function UserBoardContents({ member }) {
+  const [tab, setTab] = useState(0);
   return (
-    <ContentsStyle>
-      <UserTab active={active} setTab={setTab} />
-      <UserContents active={active} visitor={visitor} />
-    </ContentsStyle>
+    <S.UserBoardContentsStyle>
+      <CategorySelector activeTabId={tab} categories={userCategories} setTab={setTab} />
+      <UserTab activeTabId={tab} categories={userCategories} setTab={setTab} />
+      <UserPosts activeTabId={tab} member={member} />
+    </S.UserBoardContentsStyle>
   );
 }
