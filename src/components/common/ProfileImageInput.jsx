@@ -5,8 +5,9 @@ import { imageService } from '../../services/firebaseService/image.firebase.serv
 
 import * as S from '../common/styles/ProfileImageInput.style';
 import AddFileIcon from '../../statics/svg/add_file_icon';
+import defaultImage from '../../statics/images/default_user_image.jpg';
 
-export default function ProfileImageInput({ defaultImage, currentImage, setImage, userId }) {
+export default function ProfileImageInput({ currentImage, setImage, userId }) {
   const [preview, setPreview] = useState(currentImage ?? '');
   const imageRef = useRef();
 
