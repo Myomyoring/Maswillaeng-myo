@@ -1,9 +1,15 @@
 import { authService, db } from '../firebase-config';
-import { browserLocalPersistence, createUserWithEmailAndPassword, setPersistence } from 'firebase/auth';
+import {
+  EmailAuthProvider,
+  browserLocalPersistence,
+  createUserWithEmailAndPassword,
+  reauthenticateWithCredential,
+  setPersistence,
+} from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { encryptPassword } from '../utils/password_encoder';
-import { userService } from '../services/firebaseService/user.firebase.service';
 import { followService } from '../services/firebaseService/follow.firebase.service';
+import { userService } from '../services/firebaseService/user.firebase.service';
 
 const EXPIRE_TIME = 1000 * 60 * 60 * 24 * 15; // 15일
 
@@ -15,7 +21,7 @@ export default function FirebaseAuthUser() {
         return { ok: true, id: response.user.uid };
       }
     } catch (error) {
-      console.log(error.code);
+      console.log(error);
     }
   };
 
@@ -36,7 +42,7 @@ export default function FirebaseAuthUser() {
       await followService.createFollowerDoc({ memberId: userId });
       await followService.createFollowingDoc({ userId: userId });
     } catch (error) {
-      console.log(error.code);
+      console.log(error);
     }
   };
 
@@ -58,7 +64,7 @@ export default function FirebaseAuthUser() {
         localStorage.setItem('current_user', JSON.stringify(currentUser));
       });
     } catch (error) {
-      console.log(error.code);
+      console.log(error);
     }
   };
 
@@ -115,8 +121,8 @@ export default function FirebaseAuthUser() {
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('current_user');
       localStorage.removeItem('expiration');
-      return true;
-    } else return false;
+      userService.logOut();
+    }
   };
 
   const currentUser = () => {
@@ -124,5 +130,21 @@ export default function FirebaseAuthUser() {
     return current ?? null;
   };
 
-  return { logIn, logOut, signUp, currentUser, setUserInfo };
+  const userCredential = async (password) => {
+    const user = authService.currentUser;
+    const authCredential = EmailAuthProvider.credential(user.email, password);
+
+    let result = false;
+    await reauthenticateWithCredential(user, authCredential)
+      .then(() => {
+        result = true;
+      })
+      .catch((error) => {
+        console.log(error);
+        result = false;
+      });
+    return result;
+  };
+
+  return { logIn, logOut, signUp, currentUser, setUserInfo, userCredential, logoutTimer };
 }
